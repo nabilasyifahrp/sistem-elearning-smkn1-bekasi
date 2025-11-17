@@ -126,7 +126,7 @@
 
         <h2 class="fw-bold mb-4" style="color:#256343;">Kelola Guru</h2>
 
-        <a href="{{ route('admin.siswa.create') }}" class="btn-green mb-3">+ Tambah Guru</a>
+        <a href="{{ route('admin.guru.create') }}" class="btn-green mb-3">+ Tambah Guru</a>
 
         <div style="background:white; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:20px;">
 
@@ -149,13 +149,13 @@
 
                             <td data-label="Aksi">
                                 <div class="aksi-container">
-                                    <a href="{{ route('admin.guru.edit', $guru->id) }}" class="btn-action btn-green">
+                                     <a href="{{ route('admin.guru.edit', $guru->id_guru) }}" class="btn-action btn-green">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <a href="{{ route('admin.guru.show', $guru->id) }}" class="btn-action btn-green">
+                                    <a href="{{ route('admin.guru.show', $guru->id_guru) }}" class="btn-action btn-green">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <form action="{{ route('admin.guru.destroy', $guru->id) }}" method="POST">
+                                    <form action="{{ route('admin.guru.destroy', $guru->id_guru) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn-action btn-red"

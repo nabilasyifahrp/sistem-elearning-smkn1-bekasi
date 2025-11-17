@@ -204,7 +204,8 @@
         Kelola Mapel
     </a>
 
-    <a href="#" class="menu-item">
+    <a href="{{ route('admin.jadwalmapel.index') }}"
+        class="menu-item {{ request()->routeIs('admin.jadwalmapel.*') ? 'active' : '' }}">
         <svg fill="none" stroke-width="2">
             <rect x="3" y="5" width="18" height="16" rx="2" />
             <path d="M16 3v4M8 3v4M3 11h18" />

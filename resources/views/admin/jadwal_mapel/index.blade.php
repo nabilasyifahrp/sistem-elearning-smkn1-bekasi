@@ -116,7 +116,6 @@
         }
 
         @media (min-width: 768px) and (max-width: 992px) {
-
             table.table th,
             table.table td {
                 padding: 10px !important;
@@ -131,7 +130,6 @@
         }
 
         @media (min-width: 992px) and (max-width: 1200px) {
-
             table.table th,
             table.table td {
                 padding: 10px !important;
@@ -145,10 +143,10 @@
 
     <div>
 
-        <h2 class="fw-bold mb-4" style="color:#256343;">Kelola Mapel</h2>
+        <h2 class="fw-bold mb-4" style="color:#256343;">Kelola Jadwal Mapel</h2>
 
-        <a href="{{ route('admin.mapel.create') }}" class="btn-green mb-3 d-inline-block">
-            + Tambah Mapel
+        <a href="{{ route('admin.jadwalmapel.create') }}" class="btn-green mb-3 d-inline-block">
+            + Tambah Jadwal
         </a>
 
         <div style="background:white; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:20px;">
@@ -156,34 +154,53 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Nama Mapel</th>
-                        <th>Deskripsi Singkat</th>
+                        <th>Hari</th>
+                        <th>Jam</th>
+                        <th>Tipe</th>
+                        <th>Tahun Ajaran</th>
+                        <th>Kelas</th>
+                        <th>Mapel</th>
+                        <th>Guru</th>
                         <th style="width:200px;">Aksi</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    @foreach ($mapelList as $mapel)
+                    @foreach ($jadwalList as $jadwal)
                         <tr>
+                            <td data-label="Hari">{{ $jadwal->hari }}</td>
 
-                            <td data-label="Nama Mapel">{{ $mapel->nama_mapel }}</td>
-                            <td data-label="Jurusan">{{ $mapel->deskripsi }}</td>
+                            <td data-label="Jam">
+                                {{ substr($jadwal->jam_mulai, 0, 5) }} - {{ substr($jadwal->jam_selesai, 0, 5) }}
+                            </td>
+
+                            <td data-label="Tipe">{{ $jadwal->tipe }}</td>
+
+                            <td data-label="Tahun Ajaran">{{ $jadwal->tahun_ajaran }}</td>
+
+                            <td data-label="Kelas">{{ $jadwal->kelas->nama_kelas }}</td>
+
+                            <td data-label="Mapel">{{ $jadwal->guruMapel->mapel->nama_mapel }}</td>
+
+                            <td data-label="Guru">{{ $jadwal->guruMapel->guru->nama_guru }}</td>
 
                             <td data-label="Aksi">
                                 <div class="aksi-container">
 
-                                    <a href="{{ route('admin.mapel.edit', $mapel->id_mapel) }}"
+                                    <a href="{{ route('admin.jadwalmapel.edit', $jadwal->id_jadwal) }}"
                                         class="btn-action btn-green">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
 
-                                    <form action="{{ route('admin.mapel.destroy', $mapel->id_mapel) }}" method="POST"
-                                        class="d-inline">
+                                    <form action="{{ route('admin.jadwalmapel.destroy', $jadwal->id_jadwal) }}"
+                                        method="POST" class="d-inline">
+
                                         @csrf
                                         @method('DELETE')
 
                                         <button class="btn-action btn-red"
-                                            onclick="return confirm('Yakin ingin menghapus kelas ini?')">
+                                            onclick="return confirm('Yakin ingin menghapus jadwal ini?')">
+
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
