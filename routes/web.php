@@ -3,6 +3,10 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CrudGuruController;
+use App\Http\Controllers\CrudKelasController;
+use App\Http\Controllers\CrudMapelController;
+use App\Http\Controllers\CrudSiswaController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\TugasController;
@@ -11,10 +15,49 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate'])->name('authenticate');
 
-Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+Route::prefix('admin')->group(function () {
+    Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-Route::get('/', function () {
-    return view('welcome');
+    Route::prefix('kelas')->name('admin.kelas.')->group(function () {
+        Route::get('/', [CrudKelasController::class, 'index'])->name('index');
+        Route::get('/create', [CrudKelasController::class, 'create'])->name('create');
+        Route::post('/store', [CrudKelasController::class, 'store'])->name('store');
+        Route::get('/show/{id}', [CrudKelasController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [CrudKelasController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [CrudKelasController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [CrudKelasController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('siswa')->name('admin.siswa.')->group(function () {
+        Route::get('/', [CrudSiswaController::class, 'index'])->name('index');
+        Route::get('/create', [CrudSiswaController::class, 'create'])->name('create');
+        Route::post('/store', [CrudSiswaController::class, 'store'])->name('store');
+        Route::get('/show/{nis}', [CrudSiswaController::class, 'show'])->name('show');
+        Route::get('/edit/{nis}', [CrudSiswaController::class, 'edit'])->name('edit');
+        Route::put('/update/{nis}', [CrudSiswaController::class, 'update'])->name('update');
+        Route::delete('/delete/{nis}', [CrudSiswaController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/mapel', [CrudMapelController::class, 'index'])->name('mapel.index');
+        Route::get('/mapel/create', [CrudMapelController::class, 'create'])->name('mapel.create');
+        Route::post('/mapel', [CrudMapelController::class, 'store'])->name('mapel.store');
+        Route::get('/mapel/{id_mapel}/edit', [CrudMapelController::class, 'edit'])->name('mapel.edit');
+        Route::put('/mapel/{id_mapel}', [CrudMapelController::class, 'update'])->name('mapel.update');
+        Route::delete('/mapel/{id_mapel}', [CrudMapelController::class, 'destroy'])->name('mapel.destroy');
+    });
+
+
+
+    Route::prefix('guru')->name('admin.guru.')->group(function () {
+        Route::get('/', [CrudGuruController::class, 'index'])->name('index');
+        Route::get('/create', [CrudGuruController::class, 'create'])->name('create');
+        Route::post('/store', [CrudGuruController::class, 'store'])->name('store');
+        Route::get('/show/{id}', [CrudGuruController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [CrudGuruController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [CrudGuruController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [CrudGuruController::class, 'destroy'])->name('destroy');
+    });
 });
 
 // Materi
@@ -40,3 +83,4 @@ Route::post('/absensi/store', [AbsensiController::class, 'store'])->name('absens
 Route::get('/absensi/edit/{id}', [AbsensiController::class, 'edit'])->name('absensi.edit');
 Route::post('/absensi/update/{id}', [AbsensiController::class, 'update'])->name('absensi.update');
 Route::get('/absensi/delete/{id}', [AbsensiController::class, 'destroy'])->name('absensi.delete');
+
