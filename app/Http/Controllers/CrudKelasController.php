@@ -8,11 +8,31 @@ use Illuminate\Validation\Rule;
 
 class CrudKelasController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kelasList = Kelas::all();
-        return view('admin.kelas.index', compact('kelasList'));
+        $query = Kelas::query();
+
+        if ($request->filled('tingkat')) {
+            $query->where('tingkat', $request->tingkat);
+        }
+
+        if ($request->filled('jurusan')) {
+            $query->where('jurusan', $request->jurusan);
+        }
+
+        if ($request->filled('kelas')) {
+            $query->where('kelas', $request->kelas);
+        }
+
+        if ($request->filled('tahun_ajaran')) {
+            $query->where('tahun_ajaran', 'like', '%' . $request->tahun_ajaran . '%');
+        }
+
+        $kelasList = $query->get();
+        $jurusanList = Kelas::select('jurusan')->distinct()->pluck('jurusan');
+        return view('admin.kelas.index', compact('kelasList', 'jurusanList'));
     }
+
 
 
     public function create()

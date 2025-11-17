@@ -213,7 +213,8 @@
         Jadwal Mapel
     </a>
 
-    <a href="#" class="menu-item">
+    <a href="{{ route('admin.pengumuman.index') }}"
+        class="menu-item {{ request()->routeIs('admin.pengumuman.*') ? 'active' : '' }}">
         <svg fill="none" stroke-width="2">
             <path d="M3 11l18-6v14l-18-6v8l6 2" />
         </svg>

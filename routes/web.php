@@ -4,19 +4,19 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CrudGuruController;
-use App\Http\Controllers\CrudJadwalMapel;
 use App\Http\Controllers\CrudKelasController;
 use App\Http\Controllers\CrudMapelController;
 use App\Http\Controllers\CrudSiswaController;
 use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\CrudJadwalMapel;
+use App\Http\Controllers\CrudJadwalMapelController;
+use App\Http\Controllers\CrudPengumumanController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\TugasController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate'])->name('authenticate');
-
-// Route::post('/guru/dashboard', [GuruController::class, 'authenticate'])->name('authenticate');
 
 Route::prefix('admin')->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -61,12 +61,23 @@ Route::prefix('admin')->group(function () {
     });
 
     Route::prefix('jadwal-mapel')->name('admin.jadwalmapel.')->group(function () {
-        Route::get('/', [CrudJadwalMapel::class, 'index'])->name('index');
-        Route::get('/create', [CrudJadwalMapel::class, 'create'])->name('create');
-        Route::post('/store', [CrudJadwalMapel::class, 'store'])->name('store');
-        Route::get('/edit/{id}', [CrudJadwalMapel::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [CrudJadwalMapel::class, 'update'])->name('update');
-        Route::delete('/delete/{id}', [CrudJadwalMapel::class, 'destroy'])->name('destroy');
+        Route::get('/', [CrudJadwalMapelController::class, 'index'])->name('index');
+        Route::get('/create', [CrudJadwalMapelController::class, 'create'])->name('create');
+        Route::post('/store', [CrudJadwalMapelController::class, 'store'])->name('store');
+        Route::get('/show/{id}', [CrudJadwalMapelController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [CrudJadwalMapelController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [CrudJadwalMapelController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [CrudJadwalMapelController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('pengumuman')->name('admin.pengumuman.')->group(function () {
+        Route::get('/', [CrudPengumumanController::class, 'index'])->name('index');
+        Route::get('/create', [CrudPengumumanController::class, 'create'])->name('create');
+        Route::post('/store', [CrudPengumumanController::class, 'store'])->name('store');
+        Route::get('/show/{id}', [CrudPengumumanController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [CrudPengumumanController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [CrudPengumumanController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [CrudPengumumanController::class, 'destroy'])->name('destroy');
     });
 });
 
@@ -93,4 +104,3 @@ Route::post('/absensi/store', [AbsensiController::class, 'store'])->name('absens
 Route::get('/absensi/edit/{id}', [AbsensiController::class, 'edit'])->name('absensi.edit');
 Route::post('/absensi/update/{id}', [AbsensiController::class, 'update'])->name('absensi.update');
 Route::get('/absensi/delete/{id}', [AbsensiController::class, 'destroy'])->name('absensi.delete');
-

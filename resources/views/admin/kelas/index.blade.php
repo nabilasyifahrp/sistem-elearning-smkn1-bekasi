@@ -16,16 +16,18 @@
 
         .btn-green:hover {
             background: #1e4d32;
-            color: white;
         }
 
         .btn-red {
             background: #dc3545;
             color: white;
             border: none;
-            padding: 6px 8px;
-            border-radius: 4px;
+            padding: 10px 18px;
+            border-radius: 6px;
             transition: 0.2s;
+            font-size: 15px;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-red:hover {
@@ -36,16 +38,73 @@
             padding: 6px 10px;
             border-radius: 4px;
             font-size: 16px;
-            display: inline-block;
             border: none;
             transition: 0.2s;
         }
 
         .aksi-container {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             gap: 8px;
+            justify-content: center;
             align-items: center;
+        }
+
+        @media (max-width: 900px) and (min-width: 600px) {
+            .aksi-container {
+                flex-direction: column !important;
+                gap: 10px !important;
+                align-items: flex-start !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .aksi-container {
+                flex-direction: row !important;
+                gap: 8px !important;
+                justify-content: flex-start !important;
+                flex-wrap: wrap;
+            }
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap !important;
+            gap: 10px;
+            align-items: center;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            padding-bottom: 8px;
+            scrollbar-width: thin;
+        }
+
+        .filter-group::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .filter-group::-webkit-scrollbar-thumb {
+            background: #256343;
+            border-radius: 20px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 6px 8px;
+            font-size: 13px;
+            height: 34px;
+            white-space: nowrap;
+        }
+
+        .filter-group .btn-green,
+        .filter-group .btn-red {
+            padding: 6px 12px !important;
+            font-size: 13px !important;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
         }
 
         table.table {
@@ -65,15 +124,12 @@
             vertical-align: middle;
         }
 
-
         table.table tr {
             border-bottom: 1px solid #e7e7e7;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
         @media (max-width: 1000px) {
-
             table.table thead {
                 display: none;
             }
@@ -112,46 +168,52 @@
 
             td[data-label="Aksi"] .aksi-container {
                 flex-direction: row !important;
-                justify-content: flex-start;
+                justify-content: flex-start !important;
                 gap: 8px !important;
-            }
-        }
-
-        @media (min-width: 768px) and (max-width: 992px) {
-
-            table.table th,
-            table.table td {
-                padding: 10px !important;
-                font-size: 14px;
-            }
-
-            .btn-green,
-            .btn-action {
-                font-size: 14px;
-                padding: 7px 12px;
-            }
-        }
-
-        @media (min-width: 992px) and (max-width: 1200px) {
-
-            table.table th,
-            table.table td {
-                padding: 10px !important;
-            }
-
-            td[data-label="Aksi"] {
-                width: 150px;
             }
         }
     </style>
 
     <div>
-
         <h2 class="fw-bold mb-4" style="color:#256343;">Kelola Kelas</h2>
 
-        <a href="{{ route('admin.kelas.create') }}" class="btn-green mb-3 d-inline-block">
-            + Tambah Kelas
-        </a>
+        <a href="{{ route('admin.kelas.create') }}" class="btn-green mb-3 d-inline-block">+ Tambah Kelas</a>
+
+        <form action="{{ route('admin.kelas.index') }}" method="GET" class="filter-group mb-3">
+
+            <select name="tingkat" class="form-control" style="width:120px;">
+                <option value="">-- Tingkat --</option>
+                @foreach (['X', 'XI', 'XII'] as $t)
+                    <option value="{{ $t }}" {{ request('tingkat') == $t ? 'selected' : '' }}>{{ $t }}
+                    </option>
+                @endforeach
+            </select>
+
+            <select name="jurusan" class="form-control" style="width:160px;">
+                <option value="">-- Jurusan --</option>
+                @foreach ($jurusanList as $j)
+                    <option value="{{ $j }}" {{ request('jurusan') == $j ? 'selected' : '' }}>
+                        {{ $j }}
+                    </option>
+                @endforeach
+            </select>
+
+            <select name="kelas" class="form-control" style="width:120px;">
+                <option value="">-- Kelas --</option>
+                @foreach (['A', 'B', 'C', 'D', 'E', 'F'] as $k)
+                    <option value="{{ $k }}" {{ request('kelas') == $k ? 'selected' : '' }}>
+                        {{ $k }}
+                    </option>
+                @endforeach
+            </select>
+
+            <input type="text" name="tahun_ajaran" placeholder="Thn Ajaran" class="form-control" style="width:130px;"
+                value="{{ request('tahun_ajaran') }}">
+
+            <button type="submit" class="btn-green">Filter</button>
+            <a href="{{ route('admin.kelas.index') }}" class="btn-red">Reset</a>
+
+        </form>
 
         <div style="background:white; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:20px;">
 
@@ -169,7 +231,7 @@
 
                 <tbody>
                     @foreach ($kelasList as $kelas)
-                        <tr class="row-click" onclick="window.location='{{ route('admin.kelas.show', $kelas->id_kelas) }}'">
+                        <tr onclick="window.location='{{ route('admin.kelas.show', $kelas->id_kelas) }}'">
 
                             <td data-label="Tingkat">{{ $kelas->tingkat }}</td>
                             <td data-label="Jurusan">{{ $kelas->jurusan }}</td>
@@ -209,8 +271,7 @@
         @if (session('success'))
             <div id="flash-message"
                 style="background:#d4edda; border:1px solid #c3e6cb; color:#155724;
-                   padding:12px 16px; border-radius:6px; margin-top:20px;
-                   transition: opacity 0.5s ease;">
+                       padding:12px 16px; border-radius:6px; margin-top:20px; transition: opacity 0.5s ease;">
                 {{ session('success') }}
             </div>
 

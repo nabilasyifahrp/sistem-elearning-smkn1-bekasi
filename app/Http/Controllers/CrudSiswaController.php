@@ -10,11 +10,24 @@ use Illuminate\Support\Facades\Hash;
 
 class CrudSiswaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $siswaList = Siswa::with('user', 'kelas')->orderBy('nis')->get();
-        return view('admin.siswa.index', compact('siswaList'));
+        $kelasList = Kelas::orderBy('tingkat')
+            ->orderBy('jurusan')
+            ->orderBy('kelas')
+            ->get();
+
+        $query = Siswa::with('user', 'kelas')->orderBy('nis');
+
+        if ($request->filled('kelas')) {
+            $query->where('id_kelas', $request->kelas);
+        }
+
+        $siswaList = $query->get();
+
+        return view('admin.siswa.index', compact('siswaList', 'kelasList'));
     }
+
 
 
     public function create()
@@ -75,7 +88,8 @@ class CrudSiswaController extends Controller
 
 
 
-    public function edit($id){
+    public function edit($id)
+    {
         $siswa = Siswa::with('kelas', 'user')->findOrFail($id);
         $kelasList = Kelas::all();
         return view('admin.siswa.edit', compact('siswa', 'kelasList'));
@@ -83,7 +97,8 @@ class CrudSiswaController extends Controller
 
 
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $request->validate(
             [
                 'nis' => [
@@ -147,14 +162,16 @@ class CrudSiswaController extends Controller
 
 
 
-    public function show($nis){
+    public function show($nis)
+    {
         $siswa = Siswa::where('nis', $nis)->firstOrFail();
         return view('admin.siswa.show', compact('siswa'));
     }
 
 
 
-    public function destroy($nis){
+    public function destroy($nis)
+    {
         $siswa = Siswa::with('user')->findOrFail($nis);
         if ($siswa->user) {
             $siswa->user->delete();

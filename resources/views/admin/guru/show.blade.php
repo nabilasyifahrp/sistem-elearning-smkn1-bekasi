@@ -22,6 +22,12 @@
             color: #256343;
         }
 
+        .detail-list p {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+
         .btn-back {
             background: #256343;
             color: white;
@@ -119,14 +125,18 @@
 
                 <p><span>Mengajar di: </span>
                     @if ($guru->guruMapel->count() > 0)
-                        @foreach ($guru->guruMapel as $gm)
-                            {{ $gm->kelas->nama_kelas ?? '-' }}
-                            ({{ $gm->mapel->nama_mapel ?? '-' }})
-                            @if (!$loop->last)
-                                ,
+                        @foreach ($guru->guruMapel as $guruMapel)
+                            @if ($guruMapel->kelas && $guruMapel->mapel)
+                                {{ $guruMapel->kelas->tingkat }} {{ $guruMapel->kelas->jurusan }}
+                                {{ $guruMapel->kelas->kelas }}
+                                ({{ $guruMapel->mapel->nama_mapel }})
+                                @if (!$loop->last)
+                                    ,
+                                @endif
                             @endif
                         @endforeach
                     @else
+                        Guru belum mengajar di kelas manapun.
                     @endif
                 </p>
 

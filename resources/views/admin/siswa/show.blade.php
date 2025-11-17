@@ -22,6 +22,12 @@
             color: #256343;
         }
 
+        .detail-list p {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+
         .btn-back {
             background: #256343;
             color: white;
