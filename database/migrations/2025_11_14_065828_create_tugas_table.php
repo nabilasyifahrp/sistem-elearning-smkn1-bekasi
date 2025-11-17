@@ -10,15 +10,17 @@ return new class extends Migration
     {
         Schema::create('tugas', function (Blueprint $table) {
             $table->id('id_tugas');
+
+            $table->unsignedBigInteger('id_guru');
+            $table->unsignedBigInteger('id_kelas');
+            $table->unsignedBigInteger('id_mapel');
             $table->string('judul_tugas', 150);
             $table->text('deskripsi')->nullable();
-            $table->dateTime('batas_waktu')->nullable();
-            $table->string('file_path', 255)->nullable();
-            $table->unsignedBigInteger('id_guru')->nullable();
-            $table->unsignedBigInteger('id_mapel')->nullable();
-            $table->unsignedBigInteger('id_kelas')->nullable();
+            $table->date('deadline');
             $table->timestamps();
-
+            $table->foreign('id_guru')->references('id_guru')->on('gurus')->onDelete('cascade');
+            $table->foreign('id_kelas')->references('id_kelas')->on('kelas')->onDelete('cascade');
+            $table->foreign('id_mapel')->references('id_mapel')->on('mapels')->onDelete('cascade');
         });
     }
 
