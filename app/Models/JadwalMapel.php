@@ -19,8 +19,7 @@ class JadwalMapel extends Model
         'tipe',
         'tahun_ajaran',
         'id_kelas',
-        'id_mapel',
-        'id_guru',
+        'id_guru_mapel',
     ];
 
     public function kelas(){
@@ -31,4 +30,3 @@ class JadwalMapel extends Model
         return $this->belongsTo(GuruMapel::class, 'id_guru_mapel', 'id_guru_mapel');
     }
 }
-

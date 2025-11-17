@@ -95,32 +95,43 @@
 
     <div>
 
-        <h2 class="fw-bold mb-4" style="color:#256343;">Detail Siswa</h2>
+        <h2 class="fw-bold mb-4" style="color:#256343;">Detail Guru</h2>
 
-        <a href="{{ route('admin.siswa.index') }}" class="btn-back">
+        <a href="{{ route('admin.guru.index') }}" class="btn-back">
             Kembali
         </a>
 
         <div class="detail-box mt-4">
-            <h3 class="detail-title mb-4">Informasi Siswa</h3>
+            <h3 class="detail-title mb-4">Informasi Guru</h3>
 
             <hr class="border-dark">
 
             <div class="detail-list">
-                <p><span>NIS: </span> {{ $siswa->nis }}</p>
-                <p><span>Nama: </span> {{ $siswa->nama }}</p>
+                <p><span>NIP: </span> {{ $guru->nip }}</p>
+                <p><span>Nama: </span> {{ $guru->nama }}</p>
                 <p><span>Jenis Kelamin: </span>
-                    {{ $siswa->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}
+                    {{ $guru->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}
                 </p>
 
-                <p><span>Kelas: </span>
-                    {{ $siswa->kelas->tingkat ?? '-' }}
-                    {{ $siswa->kelas->jurusan ?? '' }}
-                    {{ $siswa->kelas->kelas ?? '' }}
+                <p><span>Wali Kelas: </span>
+                    {{ $guru->waliKelas->kelas->nama_kelas ?? '-' }}
                 </p>
-                <p><span>Tahun Ajaran:</span> {{ $siswa->kelas->tahun_ajaran ?? '-' }}</p>
-                <p><span>Email: </span> {{ $siswa->user->email ?? '-' }}</p>
-                <p><span>Password: </span> {{ $siswa->user->password ?? '-' }}</p>
+
+                <p><span>Mengajar di: </span>
+                    @if ($guru->guruMapel->count() > 0)
+                        @foreach ($guru->guruMapel as $gm)
+                            {{ $gm->kelas->nama_kelas ?? '-' }}
+                            ({{ $gm->mapel->nama_mapel ?? '-' }})
+                            @if (!$loop->last)
+                                ,
+                            @endif
+                        @endforeach
+                    @else
+                    @endif
+                </p>
+
+                <p><span>Email: </span> {{ $guru->user->email ?? '-' }}</p>
+                <p><span>Password: </span> {{ $guru->user->password ?? '-' }}</p>
             </div>
         </div>
     </div>
