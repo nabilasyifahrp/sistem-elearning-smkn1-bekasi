@@ -55,7 +55,6 @@
             }
         }
 
-
         table.table {
             width: 100%;
             border-collapse: collapse;
@@ -120,16 +119,25 @@
                 gap: 8px !important;
             }
         }
+
+        .search-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
     </style>
 
     <div>
-
         <h2 class="fw-bold mb-4" style="color:#256343;">Kelola Guru</h2>
+
+        <input type="text" id="search" class="search-input" placeholder="Cari nama guru...">
 
         <a href="{{ route('admin.guru.create') }}" class="btn-green mb-3">+ Tambah Guru</a>
 
         <div style="background:white; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:20px;">
-
             <table class="table">
                 <thead>
                     <tr>
@@ -139,17 +147,15 @@
                         <th style="width:200px;">Aksi</th>
                     </tr>
                 </thead>
-
-                <tbody>
+                <tbody id="guru-list">
                     @foreach ($guruList as $guru)
                         <tr>
                             <td data-label="Nama">{{ $guru->nama }}</td>
                             <td data-label="NIP">{{ $guru->nip }}</td>
                             <td data-label="Email">{{ $guru->user->email ?? '-' }}</td>
-
                             <td data-label="Aksi">
                                 <div class="aksi-container">
-                                     <a href="{{ route('admin.guru.edit', $guru->id_guru) }}" class="btn-action btn-green">
+                                    <a href="{{ route('admin.guru.edit', $guru->id_guru) }}" class="btn-action btn-green">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <a href="{{ route('admin.guru.show', $guru->id_guru) }}" class="btn-action btn-green">
@@ -159,11 +165,10 @@
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn-action btn-red"
-                                            onclick="return confirm('Yakin ingin menghapus siswa ini?')">
+                                            onclick="return confirm('Yakin ingin menghapus guru ini?')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
-
                                 </div>
                             </td>
                         </tr>
@@ -190,6 +195,27 @@
                 }, 3000);
             </script>
         @endif
-
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search');
+            const listContainer = document.getElementById('guru-list');
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const rows = listContainer.querySelectorAll('tr');
+
+                rows.forEach(row => {
+                    const name = row.querySelector('td[data-label="Nama"]').textContent
+                    .toLowerCase();
+                    if (name.includes(query)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

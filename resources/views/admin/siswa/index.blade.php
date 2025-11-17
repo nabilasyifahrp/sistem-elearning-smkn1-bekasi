@@ -55,7 +55,6 @@
             }
         }
 
-
         table.table {
             width: 100%;
             border-collapse: collapse;
@@ -120,6 +119,29 @@
                 gap: 8px !important;
             }
         }
+
+        /* FILTER RESPONSIVE */
+        .filter-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: nowrap;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+        }
+
+        .filter-container {
+            display: inline-flex;
+            gap: 12px;
+        }
+
+        .filter-item {
+            min-width: 200px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #256343;
+            color: #256343;
+            font-weight: 500;
+        }
     </style>
 
     <div>
@@ -127,6 +149,22 @@
         <h2 class="fw-bold mb-4" style="color:#256343;">Kelola Siswa</h2>
 
         <a href="{{ route('admin.siswa.create') }}" class="btn-green mb-3">+ Tambah Siswa</a>
+
+        <!-- FILTER -->
+        <div class="filter-wrapper">
+            <form method="GET" action="{{ route('admin.siswa.index') }}" class="filter-container">
+                <select name="kelas" class="form-select filter-item" onchange="this.form.submit()">
+                    <option value="">Semua Kelas</option>
+
+                    @foreach ($kelasList as $k)
+                        <option value="{{ $k->id_kelas }}"
+                            {{ request('kelas') == $k->id_kelas ? 'selected' : '' }}>
+                            {{ $k->tingkat }} {{ $k->jurusan }} {{ $k->kelas }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
 
         <div style="background:white; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:20px;">
 
@@ -181,8 +219,8 @@
         @if (session('success'))
             <div id="flash-message"
                 style="background:#d4edda; border:1px solid #c3e6cb; color:#155724;
-                   padding:12px 16px; border-radius:6px; margin-top:20px;
-                   transition: opacity 0.5s ease;">
+                       padding:12px 16px; border-radius:6px; margin-top:20px;
+                       transition: opacity 0.5s ease;">
                 {{ session('success') }}
             </div>
 
