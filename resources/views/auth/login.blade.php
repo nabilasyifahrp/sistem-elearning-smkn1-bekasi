@@ -115,7 +115,12 @@
                         <i class="icon-input bi bi-person-circle fs-4"></i>
                         <input type="email" name="email" placeholder="Email"
                             class="form-control input-with-icon bg-light" required>
+
+                        @error('email')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
+
                     <div class="mb-4 position-relative form-group">
                         <i class="icon-input bi bi-lock-fill fs-4"></i>
                         <input type="password" name="password" id="password" placeholder="Password"
@@ -127,6 +132,11 @@
                             <i id="eyeClosed" class="bi bi-eye-slash fs-5 text-muted d-none"></i>
                         </button>
                     </div>
+                    @if (session('loginError'))
+                            <div class="text-danger mb-2 mt-2 text-center">
+                                {{ session('loginError') }}
+                            </div>
+                        @endif
                     <button class="btn btn-login w-100 fw-semibold text-white">Masuk</button>
                 </form>
             </div>

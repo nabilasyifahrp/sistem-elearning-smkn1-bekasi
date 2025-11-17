@@ -16,8 +16,7 @@ class Siswa extends Model
     protected $table = 'siswas';
     protected $primaryKey = 'nis';
     public $incrementing = false;
-    protected $keyType = 'bigint';
-
+    protected $keyType = 'string';
 
     protected $fillable = [
         'nis',
@@ -27,14 +26,15 @@ class Siswa extends Model
         'id_kelas',
         'user_id',
     ];
-   
-    public function user(){
+
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
 
 
-    public function kelas(){
+    public function kelas()
+    {
         return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
-       
     }
 }
