@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Tugas extends Model
+{
+    use HasFactory;
+
+    protected $table = 'tugas';
+    protected $primaryKey = 'id_tugas';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
+    protected $fillable = [
+        'id_guru',
+        'id_kelas',
+        'id_mapel',
+        'judul_tugas',
+        'deskripsi',
+        'deadline',
+    ];
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
+    }
+
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
+    }
+
+    public function mapel()
+    {
+        return $this->belongsTo(Mapel::class, 'id_mapel', 'id_mapel');
+    }
+
+    public function pengumpulan()
+    {
+        return $this->hasMany(PengumpulanTugas::class, 'id_tugas', 'id_tugas');
+    }
+}

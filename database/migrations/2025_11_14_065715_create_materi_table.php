@@ -10,14 +10,17 @@ return new class extends Migration
     {
         Schema::create('materi', function (Blueprint $table) {
             $table->id('id_materi');
+            $table->unsignedBigInteger('id_guru');
+            $table->unsignedBigInteger('id_kelas');
+            $table->unsignedBigInteger('id_mapel');
             $table->string('judul_materi', 150);
             $table->text('deskripsi')->nullable();
-            $table->string('file_path', 255)->nullable();
-            $table->date('tanggal_upload')->nullable();
-            $table->unsignedBigInteger('id_mapel')->nullable();
-            $table->unsignedBigInteger('id_guru')->nullable();
+            $table->text('file_path')->nullable();
+            $table->date('tanggal_upload');
             $table->timestamps();
-
+            $table->foreign('id_guru')->references('id_guru')->on('gurus')->onDelete('cascade');
+            $table->foreign('id_kelas')->references('id_kelas')->on('kelas')->onDelete('cascade');
+            $table->foreign('id_mapel')->references('id_mapel')->on('mapels')->onDelete('cascade');
         });
     }
 
