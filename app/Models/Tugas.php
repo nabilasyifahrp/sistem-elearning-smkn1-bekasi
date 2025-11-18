@@ -15,32 +15,20 @@ class Tugas extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'id_guru',
-        'id_kelas',
-        'id_mapel',
         'judul_tugas',
         'deskripsi',
         'deadline',
         'file_path',
+        'id_guru_mapel',
     ];
 
     protected $casts = [
         'deadline' => 'date',
     ];
 
-    public function guru()
+    public function guruMapel()
     {
-        return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
-    }
-
-    public function kelas()
-    {
-        return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
-    }
-
-    public function mapel()
-    {
-        return $this->belongsTo(Mapel::class, 'id_mapel', 'id_mapel');
+        return $this->belongsTo(GuruMapel::class, 'id_guru_mapel', 'id_guru_mapel');
     }
 
     public function pengumpulan()
