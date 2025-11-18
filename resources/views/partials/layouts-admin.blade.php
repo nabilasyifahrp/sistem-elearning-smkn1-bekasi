@@ -30,8 +30,6 @@
 <body>
 
     @include('partials.navbar-admin')
-{{-- <script src="/assets/js/spa.js"></script> --}}
-
     <div class="content">
         @yield('content')
     </div>

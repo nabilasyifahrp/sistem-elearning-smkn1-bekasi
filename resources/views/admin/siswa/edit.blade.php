@@ -15,20 +15,22 @@
         }
 
         .btn-green {
-            background: #256343;
-            color: #ffffff;
+            background-color: rgba(37, 99, 67, 0.6);
+            color: #fff;
             border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            cursor: not-allowed;
+            transition: 0.3s;
         }
 
-        .btn-green:hover {
-            background: #1e4d32;
-            color: #ffffff;
+        .btn-green.active {
+            background-color: #256343;
+            cursor: pointer;
         }
 
-        .btn-green:disabled {
-            background-color: #256343 !important;
-            color: #ffffff !important;
-            cursor: not-allowed !important;
+        .btn-green.active:hover {
+            background-color: #1e4d32;
         }
 
         .btn-back {
@@ -37,6 +39,9 @@
             padding: 8px 14px;
             border-radius: 6px;
             text-decoration: none;
+            transition: 0.2s;
+            display: inline-block;
+            margin-bottom: 20px;
         }
 
         .btn-back:hover {
@@ -45,13 +50,12 @@
     </style>
 
     <div class="container">
-
         <h2 class="fw-bold mb-4" style="color:#256343;">Edit Siswa</h2>
 
         <a href="{{ route('admin.siswa.index') }}" class="btn-back">Kembali</a>
 
-        <div class="form-card mt-4">
-            <form action="{{ route('admin.siswa.update', $siswa->nis) }}" method="POST">
+        <div class="form-card mt-2">
+            <form id="siswaForm" action="{{ route('admin.siswa.update', $siswa->nis) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -64,7 +68,6 @@
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
-
                     <div class="col-md-8">
                         <label class="form-label">Nama Lengkap</label>
                         <input type="text" name="nama" value="{{ old('nama', $siswa->nama) }}"
@@ -129,8 +132,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Kata Sandi (kosongkan jika tidak diganti)</label>
-
+                        <label class="form-label">Password (kosongkan jika tidak diganti)</label>
                         <div class="position-relative">
                             <input type="password" id="passwordInput" name="password"
                                 class="form-control pe-5 @error('password') is-invalid @enderror"
@@ -141,59 +143,64 @@
                                 <i id="eyeClosed" class="bi bi-eye-slash text-muted fs-5 d-none"></i>
                             </button>
                         </div>
-
                         @error('password')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
                 </div>
 
-                <button id="btnUpdate" class="btn btn-green px-4 py-2 mt-3" disabled>
-                    Perbarui Siswa
-                </button>
+                <button type="submit" id="btnUpdate" class="btn-green mt-3">Update Siswa</button>
             </form>
         </div>
+    </div>
 
-        <script>
-            function togglePassword() {
-                const input = document.getElementById("passwordInput");
-                const eyeOpen = document.getElementById("eyeOpen");
-                const eyeClosed = document.getElementById("eyeClosed");
+    <script>
+        function togglePassword() {
+            const input = document.getElementById("passwordInput");
+            const eyeOpen = document.getElementById("eyeOpen");
+            const eyeClosed = document.getElementById("eyeClosed");
 
-                if (input.type === "password") {
-                    input.type = "text";
-                    eyeOpen.classList.add("d-none");
-                    eyeClosed.classList.remove("d-none");
+            if (input.type === "password") {
+                input.type = "text";
+                eyeOpen.classList.add("d-none");
+                eyeClosed.classList.remove("d-none");
+            } else {
+                input.type = "password";
+                eyeOpen.classList.remove("d-none");
+                eyeClosed.classList.add("d-none");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("siswaForm");
+            const btn = document.getElementById("btnUpdate");
+            const initialValues = {};
+
+            Array.from(form.elements).forEach(el => {
+                if (!el.name) return;
+                initialValues[el.name] = el.value ?? '';
+            });
+
+            function checkForChanges() {
+                let changed = false;
+                Array.from(form.elements).forEach(el => {
+                    if (!el.name) return;
+                    let current = el.value ?? '';
+                    if (current !== initialValues[el.name]) changed = true;
+                });
+
+                if (changed) {
+                    btn.classList.add('active');
+                    btn.disabled = false;
                 } else {
-                    input.type = "password";
-                    eyeOpen.classList.remove("d-none");
-                    eyeClosed.classList.add("d-none");
+                    btn.classList.remove('active');
+                    btn.disabled = true;
                 }
             }
 
-            document.addEventListener("DOMContentLoaded", function() {
-
-                const form = document.querySelector("form");
-                const btn = document.getElementById("btnUpdate");
-                const initialData = new FormData(form);
-
-                function checkForChanges() {
-                    const current = new FormData(form);
-                    let changed = false;
-
-                    for (let [key, val] of current.entries()) {
-                        if (val !== initialData.get(key)) {
-                            changed = true;
-                            break;
-                        }
-                    }
-
-                    btn.disabled = !changed;
-                }
-
-                form.addEventListener("input", checkForChanges);
-            });
-        </script>
-
-    </div>
+            form.addEventListener('input', checkForChanges);
+            form.addEventListener('change', checkForChanges);
+            checkForChanges();
+        });
+    </script>
 @endsection

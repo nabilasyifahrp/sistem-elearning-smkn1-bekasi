@@ -30,18 +30,11 @@ class PengajuanIzin extends Model
         'tanggal_selesai' => 'date',
     ];
 
-    /**
-     * Relasi ke Siswa
-     */
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'nis', 'nis');
     }
 
-    /**
-     * Relasi ke Absensi
-     * Satu pengajuan izin bisa terkait dengan banyak absensi
-     */
     public function absensi()
     {
         return $this->hasMany(Absensi::class, 'id_pengajuan', 'id_pengajuan');

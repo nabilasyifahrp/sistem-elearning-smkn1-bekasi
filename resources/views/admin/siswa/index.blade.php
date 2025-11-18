@@ -53,30 +53,7 @@
                 justify-content: flex-start;
                 align-items: flex-start;
             }
-        }
 
-        table.table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table.table thead {
-            background: #256343;
-            color: #ffffff;
-        }
-
-        table.table th,
-        table.table td {
-            padding: 12px;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        table.table tr {
-            border-bottom: 1px solid #e7e7e7;
-        }
-
-        @media (max-width: 1000px) {
             table.table thead {
                 display: none;
             }
@@ -120,7 +97,27 @@
             }
         }
 
-        /* FILTER RESPONSIVE */
+        table.table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.table thead {
+            background: #256343;
+            color: #ffffff;
+        }
+
+        table.table th,
+        table.table td {
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        table.table tr {
+            border-bottom: 1px solid #e7e7e7;
+        }
+
         .filter-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -142,23 +139,30 @@
             color: #256343;
             font-weight: 500;
         }
+
+        .search-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
     </style>
 
     <div>
-
         <h2 class="fw-bold mb-4" style="color:#256343;">Kelola Siswa</h2>
+
+        <input type="text" id="search" class="search-input" placeholder="Cari nama siswa...">
 
         <a href="{{ route('admin.siswa.create') }}" class="btn-green mb-3">+ Tambah Siswa</a>
 
-        <!-- FILTER -->
         <div class="filter-wrapper">
             <form method="GET" action="{{ route('admin.siswa.index') }}" class="filter-container">
                 <select name="kelas" class="form-select filter-item" onchange="this.form.submit()">
                     <option value="">Semua Kelas</option>
-
                     @foreach ($kelasList as $k)
-                        <option value="{{ $k->id_kelas }}"
-                            {{ request('kelas') == $k->id_kelas ? 'selected' : '' }}>
+                        <option value="{{ $k->id_kelas }}" {{ request('kelas') == $k->id_kelas ? 'selected' : '' }}>
                             {{ $k->tingkat }} {{ $k->jurusan }} {{ $k->kelas }}
                         </option>
                     @endforeach
@@ -167,7 +171,6 @@
         </div>
 
         <div style="background:white; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:20px;">
-
             <table class="table">
                 <thead>
                     <tr>
@@ -178,19 +181,14 @@
                         <th style="width:200px;">Aksi</th>
                     </tr>
                 </thead>
-
-                <tbody>
+                <tbody id="siswa-list">
                     @foreach ($siswaList as $siswa)
                         <tr>
                             <td data-label="NIS">{{ $siswa->nis }}</td>
                             <td data-label="Nama">{{ $siswa->nama }}</td>
-                            <td data-label="Kelas">
-                                {{ $siswa->kelas->tingkat }}
-                                {{ $siswa->kelas->jurusan }}
-                                {{ $siswa->kelas->kelas }}
-                            </td>
+                            <td data-label="Kelas">{{ $siswa->kelas->tingkat }} {{ $siswa->kelas->jurusan }}
+                                {{ $siswa->kelas->kelas }}</td>
                             <td data-label="Email">{{ $siswa->user->email ?? '-' }}</td>
-
                             <td data-label="Aksi">
                                 <div class="aksi-container">
                                     <a href="{{ route('admin.siswa.edit', $siswa->nis) }}" class="btn-action btn-green">
@@ -207,7 +205,6 @@
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
-
                                 </div>
                             </td>
                         </tr>
@@ -218,12 +215,9 @@
 
         @if (session('success'))
             <div id="flash-message"
-                style="background:#d4edda; border:1px solid #c3e6cb; color:#155724;
-                       padding:12px 16px; border-radius:6px; margin-top:20px;
-                       transition: opacity 0.5s ease;">
+                style="background:#d4edda; border:1px solid #c3e6cb; color:#155724; padding:12px 16px; border-radius:6px; margin-top:20px; transition: opacity 0.5s ease;">
                 {{ session('success') }}
             </div>
-
             <script>
                 setTimeout(() => {
                     const msg = document.getElementById('flash-message');
@@ -234,6 +228,22 @@
                 }, 3000);
             </script>
         @endif
-
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search');
+            const listContainer = document.getElementById('siswa-list');
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const rows = listContainer.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const name = row.querySelector('td[data-label="Nama"]').textContent
+                    .toLowerCase();
+                    row.style.display = name.includes(query) ? '' : 'none';
+                });
+            });
+        });
+    </script>
 @endsection

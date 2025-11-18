@@ -55,10 +55,7 @@
     }
 
     .topbar {
-        position: fixed;
-        top: 0;
-        left: 250px;
-        right: 0;
+        margin-left: 250px;
         height: 90px;
         background: white;
         border-bottom: 1px solid #e5e5e5;
@@ -67,9 +64,10 @@
         align-items: center;
         justify-content: flex-end;
         gap: 20px;
-        z-index: 2000;
+        transition: .3s;
+        position: relative;
+        z-index: 1000;
     }
-
 
     .topbar-title {
         text-align: right;
@@ -78,7 +76,8 @@
     .content {
         margin-left: 250px;
         padding: 30px;
-        padding-top: 120px;
+        padding-top: 20px !important;
+        transition: .3s;
     }
 
     .hamburger {
@@ -138,7 +137,7 @@
 <div class="topbar shadow-md">
     <button class="hamburger" id="toggleMenu">☰</button>
 
-    <div class="topbar-title text-end">
+    <div class="topbar-title">
         <h5 class="fw-bold mb-0">kurikulum@smkn1.com</h5>
         @php
             use Carbon\Carbon;
@@ -229,15 +228,15 @@
 
     <hr class="border-light">
 
-    <form action="{{ route('logout') }}" method="POST" class="menu-item">
-        @csrf
+    <a href="#" class="menu-item">
         <svg fill="none" stroke-width="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <path d="M16 17l5-5l-5-5" />
             <path d="M21 12H9" />
         </svg>
-        <button type="submit">Keluar</button>
-    </form>
+        Keluar
+    </a>
+
 </div>
 
 <script>

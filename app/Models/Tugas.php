@@ -28,25 +28,21 @@ class Tugas extends Model
         'deadline' => 'date',
     ];
 
-    // Relasi ke Guru
     public function guru()
     {
         return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
     }
 
-    // Relasi ke Kelas
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
     }
 
-    // Relasi ke Mapel
     public function mapel()
     {
         return $this->belongsTo(Mapel::class, 'id_mapel', 'id_mapel');
     }
 
-    // Relasi ke Pengumpulan Tugas
     public function pengumpulan()
     {
         return $this->hasMany(PengumpulanTugas::class, 'id_tugas', 'id_tugas');
