@@ -15,7 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_mapel');
             $table->string('judul_materi', 150);
             $table->text('deskripsi')->nullable();
-            $table->text('file_path')->nullable();
+            $table->string('file_path')->nullable();
             $table->date('tanggal_upload');
             $table->timestamps();
             $table->foreign('id_guru')->references('id_guru')->on('gurus')->onDelete('cascade');

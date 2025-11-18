@@ -15,7 +15,7 @@ class Absensi extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'nis',
+        'nis',  
         'id_jadwal',
         'id_pengajuan',
         'tanggal',

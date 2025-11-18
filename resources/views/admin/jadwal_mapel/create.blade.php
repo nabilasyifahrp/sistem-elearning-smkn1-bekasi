@@ -58,7 +58,8 @@
                         <select name="hari" class="form-control @error('hari') is-invalid @enderror" required>
                             <option value="">-- Pilih Hari --</option>
                             @foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as $h)
-                                <option value="{{ $h }}" {{ old('hari') == $h ? 'selected' : '' }}>{{ $h }}
+                                <option value="{{ $h }}" {{ old('hari') == $h ? 'selected' : '' }}>
+                                    {{ $h }}
                                 </option>
                             @endforeach
                         </select>
@@ -70,7 +71,7 @@
                     <div class="col-md-4">
                         <label class="form-label">Jam Mulai</label>
                         <input type="time" name="jam_mulai" class="form-control @error('jam_mulai') is-invalid @enderror"
-                            min="06:30" max="17:00" value="{{ old('jam_mulai') }}" required>
+                            min="06:30" max="16:59" value="{{ old('jam_mulai') }}" required>
                         @error('jam_mulai')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
@@ -79,7 +80,7 @@
                     <div class="col-md-4">
                         <label class="form-label">Jam Selesai</label>
                         <input type="time" name="jam_selesai"
-                            class="form-control @error('jam_selesai') is-invalid @enderror" min="10:00" max="17:00"
+                            class="form-control @error('jam_selesai') is-invalid @enderror" min="06:31" max="17:00"
                             value="{{ old('jam_selesai') }}" required>
                         @error('jam_selesai')
                             <small class="text-danger">{{ $message }}</small>
@@ -135,7 +136,8 @@
                         <select name="id_guru" class="form-control @error('id_guru') is-invalid @enderror" required>
                             <option value="">-- Pilih Guru --</option>
                             @foreach ($guruList as $guru)
-                                <option value="{{ $guru->id_guru }}" {{ old('id_guru') == $guru->id_guru ? 'selected' : '' }}>
+                                <option value="{{ $guru->id_guru }}"
+                                    {{ old('id_guru') == $guru->id_guru ? 'selected' : '' }}>
                                     {{ $guru->nama }}
                                 </option>
                             @endforeach

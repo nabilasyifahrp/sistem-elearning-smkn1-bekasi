@@ -8,20 +8,31 @@
                 font-family: 'Poppins', sans-serif;
             }
 
+            .row-equal>[class*="col-"] {
+                display: flex;
+            }
+
             .info-card {
                 width: 100%;
                 background: #e7f0ec;
-                padding: 20px;
+                padding: 15px;
                 border-radius: 18px;
-                min-height: 130px;
                 display: flex;
                 align-items: center;
                 gap: 15px;
+                flex-wrap: wrap;
+                flex: 1 1 auto;
+                min-height: 0;
+            }
+
+            .info-card div {
+                flex: 1 1 auto;
+                min-width: 0;
             }
 
             .info-icon {
-                width: 22px;
-                height: 22px;
+                width: 32px;
+                height: 32px;
                 stroke: #256343;
                 flex-shrink: 0;
                 stroke-linecap: round;
@@ -29,13 +40,15 @@
             }
 
             .info-title {
-                font-size: 18px;
+                font-size: 16px;
                 font-weight: 600;
+                word-break: break-word;
             }
 
             .info-value {
-                font-size: 15px;
+                font-size: 14px;
                 font-weight: 500;
+                word-break: break-word;
             }
 
             .activity-box {
@@ -55,7 +68,7 @@
         <h2 class="fw-bold">Selamat datang kembali!</h2>
         <p class="text-muted">Kelola agenda belajar mengajar di SMKN 1 Kota Bekasi sekarang!</p>
 
-        <div class="row mb-4">
+        <div class="row row-equal mb-4">
 
             <div class="col-12 col-sm-6 col-md-4 mb-3">
                 <div class="info-card shadow-sm">

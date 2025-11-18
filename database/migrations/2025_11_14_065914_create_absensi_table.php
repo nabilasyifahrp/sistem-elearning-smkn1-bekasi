@@ -15,7 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_pengajuan')->nullable();
             $table->date('tanggal');
             $table->enum('status', ['hadir', 'izin', 'sakit', 'alfa']);
-            $table->string('keterangan', 255)->nullable();
+            $table->text('keterangan', 255)->nullable();
             $table->timestamps();
             $table->foreign('nis')->references('nis')->on('siswas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('id_jadwal')->references('id_jadwal')->on('jadwal_mapels')->onDelete('cascade');

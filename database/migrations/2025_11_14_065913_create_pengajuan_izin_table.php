@@ -18,12 +18,10 @@ return new class extends Migration
             $table->date('tanggal_selesai');
             $table->enum('jenis_izin', ['sakit', 'izin']);
             $table->text('alasan');
-            $table->text('bukti_file')->nullable();
+            $table->string('bukti_file')->nullable();
             $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
-            $table->text('keterangan_wali')->nullable();
             $table->timestamps();
 
-            // Foreign key ke tabel siswas
             $table->foreign('nis')
                   ->references('nis')
                   ->on('siswas')
