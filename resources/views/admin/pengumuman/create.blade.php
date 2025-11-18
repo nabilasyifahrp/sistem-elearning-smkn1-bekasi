@@ -8,10 +8,12 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             padding: 25px;
         }
+
         .form-label {
             font-weight: 600;
             color: #256343;
         }
+
         .btn-green {
             background: #256343;
             color: #fff;
@@ -19,9 +21,11 @@
             padding: 8px 18px;
             border-radius: 6px;
         }
+
         .btn-green:hover {
             background: #1d4c31;
         }
+
         .btn-back {
             background: #256343;
             color: white;
@@ -29,6 +33,7 @@
             border-radius: 6px;
             text-decoration: none;
         }
+
         .btn-back:hover {
             background: #1d4c31;
         }
@@ -54,51 +59,28 @@
 
             <form action="{{ route('admin.pengumuman.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-
                 <div class="mb-3">
                     <label class="form-label">Judul Pengumuman</label>
-                    <input type="text" name="judul"
-                           value="{{ old('judul') }}"
-                           class="form-control @error('judul') is-invalid @enderror"
-                           placeholder="Masukkan judul pengumuman" required>
-                    @error('judul')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
+                    <input type="text" name="judul" class="form-control" placeholder="Masukkan judul" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Isi Pengumuman</label>
-                    <textarea name="isi" rows="5"
-                              class="form-control @error('isi') is-invalid @enderror"
-                              placeholder="Tulis isi pengumuman..." required>{{ old('isi') }}</textarea>
-                    @error('isi')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
+                    <textarea name="isi" rows="5" class="form-control" placeholder="Tulis isi..." required></textarea>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Lampiran (Opsional)</label>
-                    <input type="file" name="file_path"
-                           class="form-control @error('file_path') is-invalid @enderror">
-                    @error('file_path')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
+                    <input type="file" name="file_path" class="form-control">
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Tanggal Upload</label>
-                    <input type="date" name="tanggal_upload"
-                           value="{{ old('tanggal_upload', date('Y-m-d')) }}"
-                           class="form-control @error('tanggal_upload') is-invalid @enderror"
-                           required>
-                    @error('tanggal_upload')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
+                    <input type="date" name="tanggal_upload" class="form-control" value="{{ date('Y-m-d') }}" required>
                 </div>
 
                 <button type="submit" class="btn-green mt-3">Simpan Pengumuman</button>
             </form>
         </div>
-
     </div>
 @endsection

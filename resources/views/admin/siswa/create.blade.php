@@ -128,12 +128,12 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Password</label>
+                        <label class="form-label">Kata Sandi</label>
 
                         <div class="position-relative">
                             <input type="password" id="passwordInput" name="password"
                                 class="form-control pe-5 @error('password') is-invalid @enderror"
-                                placeholder="Password minimal 6 karakter" required>
+                                placeholder="Masukkan minimal 6 karakter" required>
                             <button type="button" class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0"
                                 onclick="togglePassword()">
                                 <i id="eyeOpen" class="bi bi-eye text-muted fs-5"></i>

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->enum('jurusan', ['RPL', 'DKV', 'TKJ', 'AK', 'BB', 'TP', 'TKR', 'TPL'])->nullable(false);
             $table->enum('kelas', ['A', 'B', 'C'])->nullable(false);
             $table->integer('jumlah_siswa')->nullable(true);
-            $table->string('tahun_ajaran', 9)->nullable(false);
+            $table->char('tahun_ajaran', 9)->nullable(false);
             $table->unique(['tingkat', 'jurusan', 'kelas', 'tahun_ajaran']);
             $table->timestamps();
         });

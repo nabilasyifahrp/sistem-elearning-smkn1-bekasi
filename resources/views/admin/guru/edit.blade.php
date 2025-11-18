@@ -116,12 +116,12 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Password (Kosongkan jika tidak diubah)</label>
+                        <label class="form-label">Kata Sandi (Kosongkan jika tidak diubah)</label>
 
                         <div class="position-relative">
                             <input type="password" id="passwordInput" name="password"
                                 class="form-control pe-5 @error('password') is-invalid @enderror"
-                                placeholder="Isi jika ingin mengganti password">
+                                placeholder="Isi jika ingin mengganti kata sandi">
 
                             <button type="button" class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0"
                                 onclick="togglePassword()">
@@ -137,7 +137,7 @@
                 </div>
 
                 <button id="btnUpdate" class="btn btn-green px-4 py-2 mt-3" disabled>
-                    Update Guru
+                    Perbarui Guru
                 </button>
 
             </form>

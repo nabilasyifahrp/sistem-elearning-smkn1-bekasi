@@ -120,8 +120,14 @@
                 </p>
 
                 <p><span>Wali Kelas: </span>
-                    {{ $guru->waliKelas->kelas->nama_kelas ?? '-' }}
+                    @if ($guru->waliKelas && $guru->waliKelas->kelas)
+                        {{ $guru->waliKelas->kelas->tingkat }} {{ $guru->waliKelas->kelas->jurusan }}
+                        {{ $guru->waliKelas->kelas->kelas }}
+                    @else
+                        Guru belum menjadi wali kelas.
+                    @endif
                 </p>
+
 
                 <p><span>Mengajar di: </span>
                     @if ($guru->guruMapel->count() > 0)
@@ -141,7 +147,7 @@
                 </p>
 
                 <p><span>Email: </span> {{ $guru->user->email ?? '-' }}</p>
-                <p><span>Password: </span> {{ $guru->user->password ?? '-' }}</p>
+                <p><span>Kata Sandi: </span> {{ $guru->user->password ?? '-' }}</p>
             </div>
         </div>
     </div>

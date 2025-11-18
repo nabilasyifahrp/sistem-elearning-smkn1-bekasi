@@ -94,7 +94,7 @@
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
-                <button id="btnUpdate" class="btn btn-green px-4 py-2 mt-3" disabled>Update Mapel</button>
+                <button id="btnUpdate" class="btn btn-green px-4 py-2 mt-3" disabled>Perbarui Mapel</button>
 
             </form>
         </div>
