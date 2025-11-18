@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('gurus', function (Blueprint $table) {
             $table->id('id_guru');
             $table->string('nama', 200);
-            $table->bigInteger('nip', false, true)->nullable();
+            $table->char('nip', 18)->nullable();
             $table->enum('jenis_kelamin', ['L', 'P']);
             $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();

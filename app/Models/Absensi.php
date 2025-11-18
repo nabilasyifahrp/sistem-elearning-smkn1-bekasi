@@ -15,7 +15,7 @@ class Absensi extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'id_siswa',
+        'nis',
         'id_jadwal',
         'id_pengajuan',
         'tanggal',
@@ -25,7 +25,7 @@ class Absensi extends Model
 
     public function siswa()
     {
-        return $this->belongsTo(Siswa::class, 'id_siswa', 'nis');
+        return $this->belongsTo(Siswa::class, 'nis', 'nis');
     }
 
     public function jadwal()

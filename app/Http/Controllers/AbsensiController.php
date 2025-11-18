@@ -13,8 +13,8 @@ class AbsensiController extends Controller
     public function index()
     {
         $absensi = Absensi::with(['siswa', 'jadwal', 'pengajuan'])
-                          ->orderBy('tanggal', 'desc')
-                          ->paginate(15);
+            ->orderBy('tanggal', 'desc')
+            ->paginate(15);
 
         return view('absensi.index', compact('absensi'));
     }
@@ -23,7 +23,7 @@ class AbsensiController extends Controller
     {
         $siswa = Siswa::all();
         $jadwal = JadwalMapel::all();
-        
+
         return view('absensi.create', compact('siswa', 'jadwal'));
     }
 
@@ -47,7 +47,7 @@ class AbsensiController extends Controller
         ]);
 
         return redirect()->route('absensi.index')
-                         ->with('success', 'Absensi berhasil ditambahkan');
+            ->with('success', 'Absensi berhasil ditambahkan');
     }
 
     public function edit($id)
@@ -83,7 +83,7 @@ class AbsensiController extends Controller
         ]);
 
         return redirect()->route('absensi.index')
-                         ->with('success', 'Absensi berhasil diperbarui');
+            ->with('success', 'Absensi berhasil diperbarui');
     }
 
     public function destroy($id)
@@ -92,6 +92,6 @@ class AbsensiController extends Controller
         $absensi->delete();
 
         return redirect()->route('absensi.index')
-                         ->with('success', 'Absensi berhasil dihapus');
+            ->with('success', 'Absensi berhasil dihapus');
     }
 }

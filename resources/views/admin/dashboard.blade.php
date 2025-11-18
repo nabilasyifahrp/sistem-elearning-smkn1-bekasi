@@ -142,15 +142,12 @@
 
         <h4 class="fw-bold mb-3">Aktivitas Terbaru</h4>
 
-        <div class="activity-box shadow-sm">
-            <div class="activity-title">Akun siswa baru dibuat</div>
-            <p class="activity-sub">Amelia Putri - XII RPL A</p>
-        </div>
-
-        <div class="activity-box shadow-sm">
-            <div class="activity-title">Pengumuman baru dipublikasikan</div>
-            <p class="activity-sub">Judul Pengumumannya</p>
-        </div>
+        @foreach ($latestActivities as $activity)
+            <div class="activity-box shadow-sm">
+                <div class="activity-title">{{ $activity['title'] }}</div>
+                <p class="activity-sub">{{ $activity['sub'] }}</p>
+            </div>
+        @endforeach
 
     </div>
 @endsection

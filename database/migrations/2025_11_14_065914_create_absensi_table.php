@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('absensi', function (Blueprint $table) {
             $table->id('id_absensi');
-            $table->bigInteger('nis');
+            $table->char('nis', 9);
             $table->unsignedBigInteger('id_jadwal');
             $table->unsignedBigInteger('id_pengajuan')->nullable();
             $table->date('tanggal');

@@ -20,15 +20,19 @@ class Guru extends Model
         'user_id'
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function waliKelas(){
+    public function waliKelas()
+    {
         return $this->hasOne(WaliKelas::class, 'id_guru', 'id_guru');
     }
 
-    public function guruMapel(){
+
+    public function guruMapel()
+    {
         return $this->hasMany(GuruMapel::class, 'id_guru', 'id_guru');
     }
 
@@ -37,7 +41,7 @@ class Guru extends Model
         return $this->hasManyThrough(
             JadwalMapel::class,
             GuruMapel::class,
-            'id_guru',            
+            'id_guru',
             'id_guru_mapel',
             'id_guru',
             'id_guru_mapel'

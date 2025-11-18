@@ -179,7 +179,7 @@
 
         <a href="{{ route('admin.kelas.create') }}" class="btn-green mb-3 d-inline-block">+ Tambah Kelas</a>
 
-        <form action="{{ route('admin.kelas.index') }}" method="GET" class="filter-group mb-3">
+        <form action="{{ route('admin.kelas.index') }}" method="GET" class="filter-group">
 
             <select name="tingkat" class="form-control" style="width:120px;">
                 <option value="">-- Tingkat --</option>
@@ -212,8 +212,12 @@
 
             <button type="submit" class="btn-green">Filter</button>
             <a href="{{ route('admin.kelas.index') }}" class="btn-red">Reset</a>
-
         </form>
+        @error('tahun_ajaran')
+            <div style="color:red; font-size:13px; margin-bottom:10px;">
+                {{ $message }}
+            </div>
+        @enderror
 
         <div style="background:white; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:20px;">
 
@@ -247,11 +251,15 @@
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
 
+                                    <a href="{{ route('admin.kelas.createWali', $kelas->id_kelas) }}"
+                                        class="btn-action btn-green">
+                                        <i class="bi bi-person-badge"></i>
+                                    </a>
+
                                     <form action="{{ route('admin.kelas.destroy', $kelas->id_kelas) }}" method="POST"
                                         class="d-inline">
                                         @csrf
                                         @method('DELETE')
-
                                         <button class="btn-action btn-red"
                                             onclick="return confirm('Yakin ingin menghapus kelas ini?')">
                                             <i class="bi bi-trash"></i>
@@ -260,7 +268,6 @@
 
                                 </div>
                             </td>
-
                         </tr>
                     @endforeach
                 </tbody>

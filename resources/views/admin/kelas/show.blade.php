@@ -114,6 +114,9 @@
                 <p><span>Kelas:</span> {{ $kelas->kelas }}</p>
                 <p><span>Tahun Ajaran:</span> {{ $kelas->tahun_ajaran }}</p>
                 <p><span>Jumlah Siswa:</span> {{ $kelas->siswa->count() }}</p>
+                <p><span>Wali Kelas:</span>
+                    {{ $kelas->waliKelas ? $kelas->waliKelas->guru->nama : '-' }}
+                </p>
             </div>
         </div>
 
@@ -137,7 +140,8 @@
 
                     <tbody>
                         @foreach ($kelas->siswa as $index => $siswa)
-                            <tr onclick="window.location='{{ route('admin.siswa.index', $kelas->id_kelas) }}'" style="cursor: pointer;">
+                            <tr onclick="window.location='{{ route('admin.siswa.index', $kelas->id_kelas) }}'"
+                                style="cursor: pointer;">
                                 <td data-label="No">{{ $index + 1 }}</td>
                                 <td data-label="NIS">{{ $siswa->nis }}</td>
                                 <td data-label="Nama">{{ $siswa->nama }}</td>

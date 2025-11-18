@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengumuman;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class CrudPengumumanController extends Controller
 {
@@ -12,13 +11,9 @@ class CrudPengumumanController extends Controller
     {
         $search = $request->input('search');
 
-        if ($search) {
-            $pengumumanList = Pengumuman::where('judul', 'like', "%{$search}%")
-                ->orderBy('tanggal_upload', 'desc')
-                ->get();
-        } else {
-            $pengumumanList = Pengumuman::orderBy('tanggal_upload', 'desc')->get();
-        }
+        $pengumumanList = $search
+            ? Pengumuman::where('judul', 'like', "%{$search}%")->orderBy('tanggal_upload', 'desc')->get()
+            : Pengumuman::orderBy('tanggal_upload', 'desc')->get();
 
         return view('admin.pengumuman.index', compact('pengumumanList'));
     }
@@ -37,23 +32,21 @@ class CrudPengumumanController extends Controller
             'tanggal_upload' => 'required|date'
         ]);
 
-        $filePath = null;
-
-        if ($request->hasFile('file_path')) {
-            $filePath = $request->file('file_path')->store('pengumuman_files', 'public');
-        }
+        $filePath = $request->hasFile('file_path')
+            ? $request->file('file_path')->store('pengumuman_files', 'public')
+            : null;
 
         Pengumuman::create([
             'judul' => $request->judul,
             'isi' => $request->isi,
             'file_path' => $filePath,
             'tanggal_upload' => $request->tanggal_upload,
-            'user_id' => Auth::id()
         ]);
 
         return redirect()->route('admin.pengumuman.index')
             ->with('success', 'Pengumuman berhasil ditambahkan!');
     }
+
 
     public function show($id)
     {
@@ -61,6 +54,7 @@ class CrudPengumumanController extends Controller
         return view('admin.pengumuman.show', compact('data'));
     }
 
+    
     public function edit($id)
     {
         $data = Pengumuman::findOrFail($id);
@@ -79,7 +73,6 @@ class CrudPengumumanController extends Controller
         ]);
 
         $filePath = $pengumuman->file_path;
-
         if ($request->hasFile('file_path')) {
             $filePath = $request->file('file_path')->store('pengumuman_files', 'public');
         }
@@ -91,7 +84,8 @@ class CrudPengumumanController extends Controller
             'tanggal_upload' => $request->tanggal_upload,
         ]);
 
-        return redirect()->route('admin.pengumuman.index')->with('success', 'Pengumuman berhasil diperbarui!');
+        return redirect()->route('admin.pengumuman.index')
+            ->with('success', 'Pengumuman berhasil diperbarui!');
     }
 
     public function destroy($id)
@@ -99,6 +93,7 @@ class CrudPengumumanController extends Controller
         $pengumuman = Pengumuman::findOrFail($id);
         $pengumuman->delete();
 
-        return redirect()->route('admin.pengumuman.index')->with('success', 'Pengumuman berhasil dihapus!');
+        return redirect()->route('admin.pengumuman.index')
+            ->with('success', 'Pengumuman berhasil dihapus!');
     }
 }

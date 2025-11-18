@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Tugas extends Model
 {
@@ -21,6 +21,11 @@ class Tugas extends Model
         'judul_tugas',
         'deskripsi',
         'deadline',
+        'file_path',
+    ];
+
+    protected $casts = [
+        'deadline' => 'date',
     ];
 
     public function guru()
