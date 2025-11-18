@@ -9,8 +9,8 @@ use App\Http\Controllers\CrudSiswaController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\CrudJadwalMapelController;
 use App\Http\Controllers\CrudPengumumanController;
+use App\Http\Controllers\GuruController;
 use App\Http\Controllers\MateriController;
-use App\Http\Controllers\TugasController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
@@ -84,36 +84,26 @@ Route::prefix('admin')->middleware(RoleMiddleware::class . ':admin')->group(func
     });
 });
 
-
-Route::middleware(RoleMiddleware::class . ':guru')->group(function () {
-    Route::prefix('materi')->name('materi.')->group(function () {
-        Route::get('/', [MateriController::class, 'index'])->name('index');
-        Route::get('/create', [MateriController::class, 'create'])->name('create');
-        Route::post('/store', [MateriController::class, 'store'])->name('store');
-        Route::get('/edit/{id}', [MateriController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [MateriController::class, 'update'])->name('update');
-        Route::delete('/delete/{id}', [MateriController::class, 'destroy'])->name('destroy');
-    });
-
-
-    Route::prefix('tugas')->name('tugas.')->group(function () {
-        Route::get('/', [TugasController::class, 'index'])->name('index');
-        Route::get('/create', [TugasController::class, 'create'])->name('create');
-        Route::post('/store', [TugasController::class, 'store'])->name('store');
-        Route::get('/edit/{id}', [TugasController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [TugasController::class, 'update'])->name('update');
-        Route::delete('/delete/{id}', [TugasController::class, 'destroy'])->name('destroy');
-    });
-
-
-    Route::prefix('absensi')->name('absensi.')->group(function () {
-        Route::get('/', [AbsensiController::class, 'index'])->name('index');
-        Route::get('/create', [AbsensiController::class, 'create'])->name('create');
-        Route::post('/store', [AbsensiController::class, 'store'])->name('store');
-        Route::get('/edit/{id}', [AbsensiController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [AbsensiController::class, 'update'])->name('update');
-        Route::delete('/delete/{id}', [AbsensiController::class, 'destroy'])->name('destroy');
-    });
+Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru.')->group(function () {
+    Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
+    Route::get('/kelas/{id_guru_mapel}', [GuruController::class, 'detailMapel'])->name('kelas.detail');
+    Route::get('/tugas', [GuruController::class, 'tugasIndex'])->name('tugas.index');
+    Route::get('/tugas/{id_tugas}', [GuruController::class, 'tugasDetail'])->name('tugas.detail');
+    Route::get('/tugas/{id_tugas}/edit', [GuruController::class, 'tugasEdit'])->name('tugas.edit');
+    Route::post('/tugas/{id_tugas}/update', [GuruController::class, 'tugasUpdate'])->name('tugas.update');
+    Route::delete('/tugas/{id_tugas}', [GuruController::class, 'tugasDelete'])->name('tugas.delete');
+    Route::get('/kelas/{id_guru_mapel}/tugas', [GuruController::class, 'kelasTugasIndex'])->name('kelas.tugas.index');
+    Route::get('/kelas/{id_guru_mapel}/tugas/create', [GuruController::class, 'kelasTugasCreate'])->name('kelas.tugas.create');
+    Route::post('/kelas/{id_guru_mapel}/tugas/store', [GuruController::class, 'kelasTugasStore'])->name('kelas.tugas.store');
+    Route::get('/tugas/{id_tugas}/pengumpulan', [GuruController::class, 'tugasDetail'])->name('tugas.pengumpulan');
+    Route::post('/tugas/{id_tugas}/pengumpulan/{id_pengumpulan}/nilai', [GuruController::class, 'beriNilai'])->name('tugas.pengumpulan.nilai');
+    Route::get('/absensi', [GuruController::class, 'absensiIndex'])->name('absensi.index');
+    Route::post('/absensi/kelola', [GuruController::class, 'absensiKelola'])->name('absensi.kelola');
+    Route::post('/absensi/{tanggal}/store', [GuruController::class, 'absensiStore'])->name('absensi.store');
+    Route::get('/izin', [GuruController::class, 'izinIndex'])->name('izin.index');
+    Route::post('/izin/{id}/setujui', [GuruController::class, 'izinSetujui'])->name('izin.setujui');
+    Route::post('/izin/{id}/tolak', [GuruController::class, 'izinTolak'])->name('izin.tolak');
+    Route::get('/pengumuman', [GuruController::class, 'pengumumanIndex'])->name('pengumuman.index');
 });
 
 
