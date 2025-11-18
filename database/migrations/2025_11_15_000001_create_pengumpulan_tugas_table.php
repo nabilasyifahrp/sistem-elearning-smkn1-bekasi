@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pengumpulan_tugas', function (Blueprint $table) {
             $table->id('id_pengumpulan');
             $table->unsignedBigInteger('id_tugas');
-            $table->bigInteger('nis');
+            $table->char('nis', 9);
             $table->text('isi_tugas');
             $table->string('file_path')->nullable();
             $table->dateTime('tanggal_pengumpulan');

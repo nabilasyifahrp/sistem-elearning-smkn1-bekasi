@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('nama', 200);
             $table->char('nip', 18)->nullable()->unique();
             $table->enum('jenis_kelamin', ['L', 'P']);
-            $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')
+                    ->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

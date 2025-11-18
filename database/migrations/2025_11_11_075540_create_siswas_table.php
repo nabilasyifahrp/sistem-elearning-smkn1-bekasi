@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('nama', 200);
             $table->enum('jenis_kelamin', ['L', 'P']);
             $table->char('tahun_ajaran', 9)->nullable(false);
-            $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')
+                ->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('id_kelas')->constrained(table: 'kelas', column: 'id_kelas')
                 ->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();

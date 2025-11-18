@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pengajuan_izin', function (Blueprint $table) {
             $table->id('id_pengajuan');
-            $table->bigInteger('nis');
+            $table->char('nis', 9);
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->enum('jenis_izin', ['sakit', 'izin']);
@@ -22,11 +22,8 @@ return new class extends Migration
             $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
             $table->timestamps();
 
-            $table->foreign('nis')
-                  ->references('nis')
-                  ->on('siswas')
-                  ->onDelete('cascade')
-                  ->onUpdate('cascade');
+            $table->foreign('nis')->references('nis')->on('siswas')
+                  ->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

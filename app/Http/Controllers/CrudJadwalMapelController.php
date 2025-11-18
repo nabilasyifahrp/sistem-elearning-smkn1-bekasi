@@ -13,7 +13,6 @@ class CrudJadwalMapelController extends Controller
     {
         $query = JadwalMapel::with(['kelas', 'guruMapel.guru', 'guruMapel.mapel']);
 
-        // Filter berdasarkan request
         if ($request->filled('hari')) {
             $query->where('hari', $request->hari);
         }
@@ -23,7 +22,6 @@ class CrudJadwalMapelController extends Controller
         }
 
         if ($request->filled('id_guru')) {
-            // Gunakan relasi guruMapel
             $query->whereHas('guruMapel', function ($q) use ($request) {
                 $q->where('id_guru', $request->id_guru);
             });

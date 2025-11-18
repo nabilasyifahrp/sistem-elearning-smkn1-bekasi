@@ -19,19 +19,34 @@ class GuruMapel extends Model
         'id_kelas'
     ];
 
-    public function guru(){
+    public function guru()
+    {
         return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
     }
 
-    public function mapel(){
+    public function mapel()
+    {
         return $this->belongsTo(Mapel::class, 'id_mapel', 'id_mapel');
     }
 
-    public function kelas(){
+    public function kelas()
+    {
         return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
     }
 
-    public function jadwalMapel(){
+    public function materi()
+    {
+        return $this->hasMany(Materi::class, 'id_guru_mapel', 'id_guru_mapel');
+    }
+
+    public function tugas()
+    {
+        return $this->hasMany(Tugas::class, 'id_guru_mapel', 'id_guru_mapel');
+    }
+
+
+    public function jadwalMapel()
+    {
         return $this->hasMany(JadwalMapel::class, 'id_guru_mapel', 'id_guru_mapel');
     }
 }
