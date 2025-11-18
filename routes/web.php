@@ -11,6 +11,7 @@ use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\CrudJadwalMapel;
 use App\Http\Controllers\CrudJadwalMapelController;
 use App\Http\Controllers\CrudPengumumanController;
+use App\Http\Controllers\GuruController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\TugasController;
 use Illuminate\Support\Facades\Route;
@@ -81,26 +82,45 @@ Route::prefix('admin')->group(function () {
     });
 });
 
-// Materi
-Route::get('/materi', [MateriController::class, 'index'])->name('materi.index');
-Route::get('/materi/create', [MateriController::class, 'create'])->name('materi.create');
-Route::post('/materi', [MateriController::class, 'store'])->name('materi.store');
-Route::get('/materi/{id}/edit', [MateriController::class, 'edit'])->name('materi.edit');
-Route::put('/materi/{id}', [MateriController::class, 'update'])->name('materi.update');
-Route::delete('/materi/{id}', [MateriController::class, 'destroy'])->name('materi.destroy');
+Route::prefix('guru')->name('guru.')->group(function () {
+    // Dashboard guru (tanpa middleware sesuai permintaan)
+    Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
 
-// Tugas
-Route::get('/tugas', [TugasController::class, 'index'])->name('tugas.index');
-Route::get('/tugas/create', [TugasController::class, 'create'])->name('tugas.create');
-Route::post('/tugas/store', [TugasController::class, 'store'])->name('tugas.store');
-Route::get('/tugas/edit/{id}', [TugasController::class, 'edit'])->name('tugas.edit');
-Route::post('/tugas/update/{id}', [TugasController::class, 'update'])->name('tugas.update');
-Route::get('/tugas/delete/{id}', [TugasController::class, 'destroy'])->name('tugas.delete');
+    // Daftar mapel/kelas yang diampu
+    Route::get('/mapel', [GuruController::class, 'mapelList'])->name('mapel.index');
 
-// Absensi
-Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
-Route::get('/absensi/create', [AbsensiController::class, 'create'])->name('absensi.create');
-Route::post('/absensi/store', [AbsensiController::class, 'store'])->name('absensi.store');
-Route::get('/absensi/edit/{id}', [AbsensiController::class, 'edit'])->name('absensi.edit');
-Route::post('/absensi/update/{id}', [AbsensiController::class, 'update'])->name('absensi.update');
-Route::get('/absensi/delete/{id}', [AbsensiController::class, 'destroy'])->name('absensi.delete');
+    // Detail mapel (id_guru_mapel)
+    Route::get('/mapel/{id_guru_mapel}', [GuruController::class, 'detailMapel'])->name('mapel.detail');
+
+    // Absensi per mapel/kelas
+    Route::get('/mapel/{id_guru_mapel}/absensi', [GuruController::class, 'absensiForm'])->name('mapel.absensi');
+    Route::post('/mapel/{id_guru_mapel}/absensi/store', [GuruController::class, 'storeAbsensi'])->name('mapel.absensi.store');
+
+    // Lihat pengumpulan tugas & beri nilai
+    Route::get('/tugas/{id_tugas}/pengumpulan', [GuruController::class, 'pengumpulanList'])->name('tugas.pengumpulan');
+    Route::post('/tugas/{id_tugas}/pengumpulan/{id_pengumpulan}/nilai', [GuruController::class, 'beriNilai'])->name('tugas.pengumpulan.nilai');
+});
+
+// // Materi
+// Route::get('/materi', [MateriController::class, 'index'])->name('materi.index');
+// Route::get('/materi/create', [MateriController::class, 'create'])->name('materi.create');
+// Route::post('/materi', [MateriController::class, 'store'])->name('materi.store');
+// Route::get('/materi/{id}/edit', [MateriController::class, 'edit'])->name('materi.edit');
+// Route::put('/materi/{id}', [MateriController::class, 'update'])->name('materi.update');
+// Route::delete('/materi/{id}', [MateriController::class, 'destroy'])->name('materi.destroy');
+
+// // Tugas
+// Route::get('/tugas', [TugasController::class, 'index'])->name('tugas.index');
+// Route::get('/tugas/create', [TugasController::class, 'create'])->name('tugas.create');
+// Route::post('/tugas/store', [TugasController::class, 'store'])->name('tugas.store');
+// Route::get('/tugas/edit/{id}', [TugasController::class, 'edit'])->name('tugas.edit');
+// Route::post('/tugas/update/{id}', [TugasController::class, 'update'])->name('tugas.update');
+// Route::get('/tugas/delete/{id}', [TugasController::class, 'destroy'])->name('tugas.delete');
+
+// // Absensi
+// Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
+// Route::get('/absensi/create', [AbsensiController::class, 'create'])->name('absensi.create');
+// Route::post('/absensi/store', [AbsensiController::class, 'store'])->name('absensi.store');
+// Route::get('/absensi/edit/{id}', [AbsensiController::class, 'edit'])->name('absensi.edit');
+// Route::post('/absensi/update/{id}', [AbsensiController::class, 'update'])->name('absensi.update');
+// Route::get('/absensi/delete/{id}', [AbsensiController::class, 'destroy'])->name('absensi.delete');
