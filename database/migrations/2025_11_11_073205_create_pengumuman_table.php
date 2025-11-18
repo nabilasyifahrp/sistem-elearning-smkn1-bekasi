@@ -17,7 +17,6 @@ return new class extends Migration
             $table->text('isi')->nullable(false);
             $table->string('file_path')->nullable(true);
             $table->date('tanggal_upload')->nullable(false);
-            $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

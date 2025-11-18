@@ -99,13 +99,15 @@ class CrudSiswaController extends Controller
 
     public function update(Request $request, $id)
     {
+        $siswa = Siswa::with('user')->findOrFail($id);
+
         $request->validate(
             [
                 'nis' => [
                     'required',
                     'digits:9',
                     'numeric',
-                    'unique:siswas,nis',
+                    'unique:siswas,nis,' . $id . ',nis',
                 ],
                 'nama' => 'required',
                 'jenis_kelamin' => 'required|in:L,P',
@@ -114,8 +116,8 @@ class CrudSiswaController extends Controller
                     'regex:/^\d{4}\/\d{4}$/'
                 ],
                 'id_kelas' => 'required',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required|min:6',
+                'email' => 'required|email|unique:users,email,' . $siswa->user_id . ',id',
+                'password' => 'nullable|min:6',
             ],
             [
                 'nis.digits' => 'Masukkan 9 digit angka.',
@@ -124,41 +126,30 @@ class CrudSiswaController extends Controller
                 'email.unique' => 'Email sudah terdaftar.',
                 'tahun_ajaran.required' => 'Tahun ajaran wajib diisi.',
                 'tahun_ajaran.regex' => 'Format tahun ajaran tidak valid. Gunakan format seperti contoh.',
-                'password.required' => 'Password minimal 6 karakter.',
+                'password.min' => 'Password minimal 6 karakter.',
             ]
         );
-
-        $siswa = Siswa::findOrFail($id);
 
         $siswa->update([
             'nis' => $request->nis,
             'nama' => $request->nama,
             'jenis_kelamin' => $request->jenis_kelamin,
             'id_kelas' => $request->id_kelas,
+            'tahun_ajaran' => $request->tahun_ajaran,
         ]);
 
-        $kelas = Kelas::find($request->id_kelas);
-        if ($kelas) {
-            $kelas->update([
-                'tahun_ajaran' => $request->tahun_ajaran
-            ]);
-        }
-
         $user = $siswa->user;
-
         if ($user) {
             $user->email = $request->email;
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->password);
             }
-
             $user->save();
         }
 
         return redirect()->route('admin.siswa.index')
             ->with('success', 'Data siswa berhasil diperbarui!');
     }
-
 
 
 

@@ -55,7 +55,10 @@
     }
 
     .topbar {
-        margin-left: 250px;
+        position: fixed;
+        top: 0;
+        left: 250px;
+        right: 0;
         height: 90px;
         background: white;
         border-bottom: 1px solid #e5e5e5;
@@ -64,10 +67,9 @@
         align-items: center;
         justify-content: flex-end;
         gap: 20px;
-        transition: .3s;
-        position: relative;
-        z-index: 1000;
+        z-index: 2000;
     }
+
 
     .topbar-title {
         text-align: right;
@@ -76,8 +78,7 @@
     .content {
         margin-left: 250px;
         padding: 30px;
-        padding-top: 20px !important;
-        transition: .3s;
+        padding-top: 120px;
     }
 
     .hamburger {
@@ -137,9 +138,14 @@
 <div class="topbar shadow-md">
     <button class="hamburger" id="toggleMenu">☰</button>
 
-    <div class="topbar-title">
-        <h5 class="fw-bold mb-0">Kurikulum</h5>
-        <p class="text-muted small mb-0">Hari, Tanggal Bulan Tahun</p>
+    <div class="topbar-title text-end">
+        <h5 class="fw-bold mb-0">kurikulum@smkn1.com</h5>
+        @php
+            use Carbon\Carbon;
+            Carbon::setLocale('id');
+            $today = Carbon::now()->translatedFormat('l, d F Y');
+        @endphp
+        <p class="text-muted small mb-0">{{ $today }}</p>
     </div>
 
     <img src="{{ asset('assets/images/akun.png') }}" width="55">
@@ -195,7 +201,7 @@
         Kelola Siswa
     </a>
 
-     <a href="{{ route('admin.mapel.index') }}"
+    <a href="{{ route('admin.mapel.index') }}"
         class="menu-item {{ request()->routeIs('admin.mapel.*') ? 'active' : '' }}">
         <svg fill="none" stroke-width="2">
             <path d="M4 4h16v16H4z" />
@@ -223,15 +229,15 @@
 
     <hr class="border-light">
 
-    <a href="#" class="menu-item">
+    <form action="{{ route('logout') }}" method="POST" class="menu-item">
+        @csrf
         <svg fill="none" stroke-width="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <path d="M16 17l5-5l-5-5" />
             <path d="M21 12H9" />
         </svg>
-        Keluar
-    </a>
-
+        <button type="submit">Keluar</button>
+    </form>
 </div>
 
 <script>

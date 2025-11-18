@@ -11,17 +11,16 @@ use App\Http\Controllers\CrudJadwalMapelController;
 use App\Http\Controllers\CrudPengumumanController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\TugasController;
+use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate'])->name('authenticate');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ===== ADMIN ROUTES =====
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-
-    // Kelola Kelas
+Route::prefix('admin')->middleware(RoleMiddleware::class . ':admin')->group(function () {
+    Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::prefix('kelas')->name('kelas.')->group(function () {
         Route::get('/', [CrudKelasController::class, 'index'])->name('index');
         Route::get('/create', [CrudKelasController::class, 'create'])->name('create');
@@ -30,9 +29,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/edit/{id}', [CrudKelasController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [CrudKelasController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [CrudKelasController::class, 'destroy'])->name('destroy');
+
+        Route::get('wali-kelas/{id}/', [CrudKelasController::class, 'createWali'])->name('createWali');
+        Route::post('wali-kelas/{id}/', [CrudKelasController::class, 'storeWali'])->name('storeWali');
     });
 
-    // Kelola Siswa
     Route::prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/', [CrudSiswaController::class, 'index'])->name('index');
         Route::get('/create', [CrudSiswaController::class, 'create'])->name('create');
@@ -43,7 +44,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/delete/{nis}', [CrudSiswaController::class, 'destroy'])->name('destroy');
     });
 
-    // Kelola Mapel
     Route::prefix('mapel')->name('mapel.')->group(function () {
         Route::get('/', [CrudMapelController::class, 'index'])->name('index');
         Route::get('/create', [CrudMapelController::class, 'create'])->name('create');
@@ -53,7 +53,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/delete/{id}', [CrudMapelController::class, 'destroy'])->name('destroy');
     });
 
-    // Kelola Guru
     Route::prefix('guru')->name('guru.')->group(function () {
         Route::get('/', [CrudGuruController::class, 'index'])->name('index');
         Route::get('/create', [CrudGuruController::class, 'create'])->name('create');
@@ -64,7 +63,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/delete/{id}', [CrudGuruController::class, 'destroy'])->name('destroy');
     });
 
-    // Jadwal Mapel
     Route::prefix('jadwal-mapel')->name('jadwalmapel.')->group(function () {
         Route::get('/', [CrudJadwalMapelController::class, 'index'])->name('index');
         Route::get('/create', [CrudJadwalMapelController::class, 'create'])->name('create');
@@ -75,7 +73,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/delete/{id}', [CrudJadwalMapelController::class, 'destroy'])->name('destroy');
     });
 
-    // Pengumuman
     Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
         Route::get('/', [CrudPengumumanController::class, 'index'])->name('index');
         Route::get('/create', [CrudPengumumanController::class, 'create'])->name('create');
@@ -87,58 +84,55 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
-// ===== GURU ROUTES (will be created by Nabila) =====
-// Materi
-Route::prefix('materi')->name('materi.')->group(function () {
-    Route::get('/', [MateriController::class, 'index'])->name('index');
-    Route::get('/create', [MateriController::class, 'create'])->name('create');
-    Route::post('/store', [MateriController::class, 'store'])->name('store');
-    Route::get('/edit/{id}', [MateriController::class, 'edit'])->name('edit');
-    Route::put('/update/{id}', [MateriController::class, 'update'])->name('update');
-    Route::delete('/delete/{id}', [MateriController::class, 'destroy'])->name('destroy');
+
+Route::middleware(RoleMiddleware::class . ':guru')->group(function () {
+    Route::prefix('materi')->name('materi.')->group(function () {
+        Route::get('/', [MateriController::class, 'index'])->name('index');
+        Route::get('/create', [MateriController::class, 'create'])->name('create');
+        Route::post('/store', [MateriController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [MateriController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [MateriController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [MateriController::class, 'destroy'])->name('destroy');
+    });
+
+
+    Route::prefix('tugas')->name('tugas.')->group(function () {
+        Route::get('/', [TugasController::class, 'index'])->name('index');
+        Route::get('/create', [TugasController::class, 'create'])->name('create');
+        Route::post('/store', [TugasController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [TugasController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [TugasController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [TugasController::class, 'destroy'])->name('destroy');
+    });
+
+
+    Route::prefix('absensi')->name('absensi.')->group(function () {
+        Route::get('/', [AbsensiController::class, 'index'])->name('index');
+        Route::get('/create', [AbsensiController::class, 'create'])->name('create');
+        Route::post('/store', [AbsensiController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [AbsensiController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [AbsensiController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [AbsensiController::class, 'destroy'])->name('destroy');
+    });
 });
 
-// Tugas
-Route::prefix('tugas')->name('tugas.')->group(function () {
-    Route::get('/', [TugasController::class, 'index'])->name('index');
-    Route::get('/create', [TugasController::class, 'create'])->name('create');
-    Route::post('/store', [TugasController::class, 'store'])->name('store');
-    Route::get('/edit/{id}', [TugasController::class, 'edit'])->name('edit');
-    Route::put('/update/{id}', [TugasController::class, 'update'])->name('update');
-    Route::delete('/delete/{id}', [TugasController::class, 'destroy'])->name('destroy');
-});
 
-// Absensi
-Route::prefix('absensi')->name('absensi.')->group(function () {
-    Route::get('/', [AbsensiController::class, 'index'])->name('index');
-    Route::get('/create', [AbsensiController::class, 'create'])->name('create');
-    Route::post('/store', [AbsensiController::class, 'store'])->name('store');
-    Route::get('/edit/{id}', [AbsensiController::class, 'edit'])->name('edit');
-    Route::put('/update/{id}', [AbsensiController::class, 'update'])->name('update');
-    Route::delete('/delete/{id}', [AbsensiController::class, 'destroy'])->name('destroy');
-});
+Route::middleware(RoleMiddleware::class . ':siswa')->group(function () {
+    Route::prefix('siswa')->name('siswa.')->group(function () {
+        Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
 
-// ===== SISWA ROUTES =====
-Route::prefix('siswa')->name('siswa.')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
-    
-    // Detail Mata Pelajaran
-    Route::get('/mapel/{id_guru_mapel}', [SiswaController::class, 'detailMapel'])->name('detail_mapel');
-    
-    // Tugas
-    Route::get('/tugas/{id_tugas}', [SiswaController::class, 'detailTugas'])->name('detail_tugas');
-    Route::post('/tugas/{id_tugas}/kumpulkan', [SiswaController::class, 'kumpulkanTugas'])->name('kumpulkan_tugas');
-    
-    // Absensi
-    Route::get('/absensi', [SiswaController::class, 'absensi'])->name('absensi');
-    
-    // Pengajuan Izin
-    Route::get('/pengajuan-izin', [SiswaController::class, 'pengajuanIzin'])->name('pengajuan_izin');
-    Route::get('/pengajuan-izin/create', [SiswaController::class, 'createPengajuanIzin'])->name('create_pengajuan_izin');
-    Route::post('/pengajuan-izin/store', [SiswaController::class, 'storePengajuanIzin'])->name('store_pengajuan_izin');
-    
-    // Pengumuman
-    Route::get('/pengumuman', [SiswaController::class, 'pengumuman'])->name('pengumuman');
-    Route::get('/pengumuman/{id}', [SiswaController::class, 'detailPengumuman'])->name('detail_pengumuman');
+        Route::get('/mapel/{id_guru_mapel}', [SiswaController::class, 'detailMapel'])->name('detail_mapel');
+
+        Route::get('/tugas/{id_tugas}', [SiswaController::class, 'detailTugas'])->name('detail_tugas');
+        Route::post('/tugas/{id_tugas}/kumpulkan', [SiswaController::class, 'kumpulkanTugas'])->name('kumpulkan_tugas');
+
+        Route::get('/absensi', [SiswaController::class, 'absensi'])->name('absensi');
+
+        Route::get('/pengajuan-izin', [SiswaController::class, 'pengajuanIzin'])->name('pengajuan_izin');
+        Route::get('/pengajuan-izin/create', [SiswaController::class, 'createPengajuanIzin'])->name('create_pengajuan_izin');
+        Route::post('/pengajuan-izin/store', [SiswaController::class, 'storePengajuanIzin'])->name('store_pengajuan_izin');
+
+        Route::get('/pengumuman', [SiswaController::class, 'pengumuman'])->name('pengumuman');
+        Route::get('/pengumuman/{id}', [SiswaController::class, 'detailPengumuman'])->name('detail_pengumuman');
+    });
 });

@@ -129,7 +129,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Password (kosongkan jika tidak diganti)</label>
+                        <label class="form-label">Kata Sandi (kosongkan jika tidak diganti)</label>
 
                         <div class="position-relative">
                             <input type="password" id="passwordInput" name="password"
@@ -149,7 +149,7 @@
                 </div>
 
                 <button id="btnUpdate" class="btn btn-green px-4 py-2 mt-3" disabled>
-                    Update Siswa
+                    Perbarui Siswa
                 </button>
             </form>
         </div>

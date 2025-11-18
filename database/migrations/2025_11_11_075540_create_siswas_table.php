@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('siswas', function (Blueprint $table) {
-            $table->bigInteger('nis')->primary();
+            $table->char('nis', 9)->primary();
             $table->string('nama', 200);
             $table->enum('jenis_kelamin', ['L', 'P']);
-            $table->string('tahun_ajaran', 20);
+            $table->char('tahun_ajaran', 9)->nullable(false);
             $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('id_kelas')->constrained(table: 'kelas', column: 'id_kelas')
-                    ->onUpdate('cascade')->onDelete('cascade');
+                ->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }
