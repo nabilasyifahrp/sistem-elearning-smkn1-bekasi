@@ -17,12 +17,9 @@ return new class extends Migration
             $table->enum('status', ['hadir', 'izin', 'sakit', 'alfa']);
             $table->text('keterangan')->nullable();
             $table->timestamps();
-            $table->foreign('nis')->references('nis')->on('siswas')
-                ->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('id_jadwal')->references('id_jadwal')->on('jadwal_mapels')
-                ->onDelete('cascade');
-            $table->foreign('id_pengajuan')->references('id_pengajuan')->on('pengajuan_izin')
-                ->onDelete('set null');
+            $table->foreign('nis')->references('nis')->on('siswas')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('id_jadwal')->references('id_jadwal')->on('jadwal_mapels')->onDelete('cascade');
+            $table->foreign('id_pengajuan')->references('id_pengajuan')->on('pengajuan_izin')->onDelete('set null');
         });
     }
 
