@@ -16,7 +16,9 @@ use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
-Route::get('/', function () {return redirect()->route('login');});
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 Route::post('/login', [AuthController::class, 'authenticate'])->name('authenticate');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -88,14 +90,17 @@ Route::prefix('admin')->middleware(RoleMiddleware::class . ':admin')->group(func
 Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru.')->group(function () {
     Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
     Route::get('/kelas/{id_guru_mapel}', [GuruController::class, 'detailMapel'])->name('kelas.detail');
+
     Route::get('/tugas', [GuruController::class, 'tugasIndex'])->name('tugas.index');
     Route::get('/tugas/{id_tugas}', [GuruController::class, 'tugasDetail'])->name('tugas.detail');
     Route::get('/tugas/{id_tugas}/edit', [GuruController::class, 'tugasEdit'])->name('tugas.edit');
     Route::post('/tugas/{id_tugas}/update', [GuruController::class, 'tugasUpdate'])->name('tugas.update');
     Route::delete('/tugas/{id_tugas}', [GuruController::class, 'tugasDelete'])->name('tugas.delete');
+
     Route::get('/kelas/{id_guru_mapel}/tugas', [GuruController::class, 'kelasTugasIndex'])->name('kelas.tugas.index');
     Route::get('/kelas/{id_guru_mapel}/tugas/create', [GuruController::class, 'kelasTugasCreate'])->name('kelas.tugas.create');
     Route::post('/kelas/{id_guru_mapel}/tugas/store', [GuruController::class, 'kelasTugasStore'])->name('kelas.tugas.store');
+
     Route::get('/tugas/{id_tugas}/pengumpulan', [GuruController::class, 'tugasDetail'])->name('tugas.pengumpulan');
     Route::post('/tugas/{id_tugas}/pengumpulan/{id_pengumpulan}/nilai', [GuruController::class, 'beriNilai'])->name('tugas.pengumpulan.nilai');
     Route::get('/absensi', [GuruController::class, 'absensiIndex'])->name('absensi.index');

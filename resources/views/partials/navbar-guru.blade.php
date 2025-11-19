@@ -68,17 +68,6 @@
         z-index: 1000;
     }
 
-    .topbar-left {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .topbar-title {
-        text-align: left;
-        min-width: fit-content;
-    }
-
     .topbar-right {
         display: flex;
         align-items: center;
@@ -86,35 +75,8 @@
         margin-left: auto;
     }
 
-    .search-box {
-        display: flex;
-        align-items: center;
-        background: #f5f5f5;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 8px 15px;
-        width: 300px;
-    }
-
-    .search-box input {
-        background: none;
-        border: none;
-        outline: none;
-        padding: 0;
-        font-size: 14px;
-        color: #333;
-        width: 100%;
-    }
-
-    .search-box input::placeholder {
-        color: #999;
-    }
-
-    .search-box svg {
-        width: 18px;
-        height: 18px;
-        stroke: #999;
-        margin-right: 8px;
+    .topbar-title {
+        text-align: right;
     }
 
     .content {
@@ -146,22 +108,24 @@
 
         .topbar {
             margin-left: 0 !important;
-            height: auto;
+            height: 70px;
             padding: 10px 15px;
             justify-content: space-between;
             gap: 10px;
             flex-wrap: wrap;
         }
 
-        .topbar-left {
-            order: 1;
+        .topbar-search {
+            order: 3;
             width: 100%;
-            margin-bottom: 10px;
+            margin-top: 8px;
+        }
+
+        .topbar-search input {
+            width: 100%;
         }
 
         .topbar-right {
-            order: 3;
-            width: 100%;
             margin-left: 0;
         }
 
@@ -176,11 +140,6 @@
 
         .topbar img {
             width: 40px;
-        }
-
-        .search-box {
-            width: 100%;
-            order: 2;
         }
 
         .content {
@@ -198,24 +157,13 @@
 </style>
 
 <div class="topbar shadow-md">
-    <div class="topbar-left">
-        <button class="hamburger" id="toggleMenu">☰</button>
-
+    <button class="hamburger" id="toggleMenu">☰</button>
+    <div class="topbar-right">
         <div class="topbar-title">
             <h5 class="fw-bold mb-0">Guru</h5>
             <p class="text-muted small mb-0">{{ date('d M Y') }}</p>
         </div>
 
-        <div class="search-box">
-            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-            </svg>
-            <input type="text" placeholder="Cari kelas, tugas, atau siswa...">
-        </div>
-    </div>
-
-    <div class="topbar-right">
         <img src="{{ asset('assets/images/akun.png') }}" width="55">
     </div>
 </div>
@@ -310,10 +258,5 @@
                 sidebar.classList.remove('show');
             }
         });
-    });
-
-    const searchBox = document.querySelector('.search-box input');
-    searchBox.addEventListener('input', function(e) {
-        console.log('Pencarian:', e.target.value);
     });
 </script>

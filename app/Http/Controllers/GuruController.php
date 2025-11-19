@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Guru;
 use App\Models\GuruMapel;
-use App\Models\JadwalMapel;
 use App\Models\Materi;
 use App\Models\Tugas;
 use App\Models\PengumpulanTugas;
@@ -14,7 +14,6 @@ use App\Models\PengajuanIzin;
 use App\Models\Absensi;
 use App\Models\Siswa;
 use App\Models\Pengumuman;
-use Illuminate\Support\Facades\DB;
 
 class GuruController extends Controller
 {
@@ -37,8 +36,14 @@ class GuruController extends Controller
             ->where('id_guru', $guru->id_guru)
             ->get();
 
-        $totalMateri = Materi::where('id_guru', $guru->id_guru)->count();
-        $totalTugas = Tugas::where('id_guru', $guru->id_guru)->count();
+        $totalMateri = Materi::whereHas('guruMapel', function ($q) use ($guru) {
+            $q->where('id_guru', $guru->id_guru);
+        })->count();
+
+        $totalTugas = Tugas::whereHas('guruMapel', function ($q) use ($guru) {
+            $q->where('id_guru', $guru->id_guru);
+        })->count();
+
         $pengumuman = Pengumuman::orderBy('tanggal_upload', 'desc')->limit(5)->get();
 
         return view('guru.dashboard', compact('guru', 'mapelList', 'totalMateri', 'totalTugas', 'pengumuman'));
@@ -49,18 +54,13 @@ class GuruController extends Controller
         $user = Auth::user();
         $guru = $user ? $user->guru : null;
 
-        $guruMapel = GuruMapel::with(['mapel', 'kelas', 'jadwalMapel'])
-            ->findOrFail($id_guru_mapel);
+        $guruMapel = GuruMapel::with(['mapel', 'kelas'])->findOrFail($id_guru_mapel);
 
-        $materiList = Materi::where('id_guru', $guruMapel->id_guru)
-            ->where('id_mapel', $guruMapel->id_mapel)
-            ->where('id_kelas', $guruMapel->id_kelas)
+        $materiList = Materi::where('id_guru_mapel', $id_guru_mapel)
             ->orderBy('tanggal_upload', 'desc')
             ->get();
 
-        $tugasList = Tugas::where('id_guru', $guruMapel->id_guru)
-            ->where('id_mapel', $guruMapel->id_mapel)
-            ->where('id_kelas', $guruMapel->id_kelas)
+        $tugasList = Tugas::where('id_guru_mapel', $id_guru_mapel)
             ->orderBy('deadline', 'asc')
             ->get();
 
@@ -77,12 +77,13 @@ class GuruController extends Controller
         $tugasByKelas = collect();
 
         if ($guru) {
-            $tugas = Tugas::where('id_guru', $guru->id_guru)->with(['kelas', 'mapel'])->get();
+            $tugas = Tugas::whereHas('guruMapel', function ($q) use ($guru) {
+                $q->where('id_guru', $guru->id_guru);
+            })->with(['guruMapel.kelas', 'guruMapel.mapel'])->get();
 
             $tugasByKelas = $tugas->groupBy(function ($item) {
-                return optional($item->kelas)->tingkat . ' ' .
-                    optional($item->kelas)->jurusan . ' ' .
-                    optional($item->kelas)->kelas;
+                $k = $item->guruMapel->kelas;
+                return $k->tingkat . ' ' . $k->jurusan . ' ' . $k->kelas;
             });
         }
 
@@ -91,11 +92,11 @@ class GuruController extends Controller
 
     public function tugasDetail($id_tugas)
     {
-        $tugas = Tugas::with(['mapel', 'kelas', 'guru'])->findOrFail($id_tugas);
+        $tugas = Tugas::with(['guruMapel.mapel', 'guruMapel.kelas'])->findOrFail($id_tugas);
 
         $pengumpulan = PengumpulanTugas::where('id_tugas', $id_tugas)
             ->with('siswa')
-            ->orderBy('created_at', 'desc') // ✔ fix
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('guru.tugas.detail', compact('tugas', 'pengumpulan'));
@@ -105,11 +106,9 @@ class GuruController extends Controller
     {
         $guruMapel = GuruMapel::with(['mapel', 'kelas'])->findOrFail($id_guru_mapel);
 
-        $tugas = Tugas::where([
-            'id_guru'  => $guruMapel->id_guru,
-            'id_kelas' => $guruMapel->id_kelas,
-            'id_mapel' => $guruMapel->id_mapel,
-        ])->orderBy('deadline')->get();
+        $tugas = Tugas::where('id_guru_mapel', $id_guru_mapel)
+            ->orderBy('deadline')
+            ->get();
 
         return view('guru.tugas.index', compact('guruMapel', 'tugas'));
     }
@@ -127,16 +126,22 @@ class GuruController extends Controller
         $request->validate([
             'judul_tugas' => 'required|max:150',
             'deskripsi'   => 'nullable',
-            'deadline'    => 'required|date'
+            'deadline'    => 'required|date',
+            'file_tugas'  => 'nullable|mimes:pdf,doc,docx,jpg,png,zip|max:2048'
         ]);
 
+        $filePath = null;
+
+        if ($request->hasFile('file_tugas')) {
+            $filePath = $request->file('file_tugas')->store('tugas_files', 'public');
+        }
+
         Tugas::create([
-            'id_guru'  => $guruMapel->id_guru,
-            'id_kelas' => $guruMapel->id_kelas,
-            'id_mapel' => $guruMapel->id_mapel,
-            'judul_tugas' => $request->judul_tugas,
-            'deskripsi'   => $request->deskripsi,
-            'deadline'    => $request->deadline,
+            'id_guru_mapel' => $guruMapel->id_guru_mapel,
+            'judul_tugas'   => $request->judul_tugas,
+            'deskripsi'     => $request->deskripsi,
+            'deadline'      => $request->deadline,
+            'file_path'     => $filePath,
         ]);
 
         return redirect()->route('guru.kelas.detail', $id_guru_mapel)
@@ -154,46 +159,35 @@ class GuruController extends Controller
         $request->validate([
             'judul_tugas' => 'required|max:150',
             'deskripsi'   => 'nullable',
-            'deadline'    => 'required|date'
+            'deadline'    => 'required|date',
+            'file_tugas'  => 'nullable|mimes:pdf,doc,docx,jpg,png,zip|max:2048'
         ]);
 
         $tugas = Tugas::findOrFail($id_tugas);
-        $tugas->update($request->all());
+
+        if ($request->hasFile('file_tugas')) {
+            $path = $request->file('file_tugas')->store('tugas_files', 'public');
+            $tugas->file_path = $path;
+        }
+
+        $tugas->judul_tugas = $request->judul_tugas;
+        $tugas->deskripsi = $request->deskripsi;
+        $tugas->deadline = $request->deadline;
+        $tugas->save();
 
         return redirect()->back()->with('success', 'Tugas berhasil diperbarui');
     }
 
     public function tugasDelete($id_tugas)
     {
-        Tugas::findOrFail($id_tugas)->delete();
+        $tugas = Tugas::findOrFail($id_tugas);
+
+        if ($tugas->file_path && file_exists(storage_path('app/public/' . $tugas->file_path))) {
+            unlink(storage_path('app/public/' . $tugas->file_path));
+        }
+
+        $tugas->delete();
+
         return redirect()->back()->with('success', 'Tugas berhasil dihapus');
-    }
-
-    public function absensiIndex()
-    { /* ... */
-    }
-    public function absensiKelola(Request $request)
-    { /* ... */
-    }
-    public function absensiStore(Request $request, $tanggal)
-    { /* ... */
-    }
-
-    public function izinIndex()
-    { /* ... */
-    }
-    public function izinSetujui($id)
-    { /* ... */
-    }
-    public function izinTolak($id)
-    { /* ... */
-    }
-
-    public function pengumumanIndex()
-    { /* ... */
-    }
-
-    public function beriNilai(Request $request, $id_tugas, $id_pengumpulan)
-    { /* ... */
     }
 }
