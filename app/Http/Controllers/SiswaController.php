@@ -12,6 +12,7 @@ use App\Models\PengajuanIzin;
 use App\Models\Absensi;
 use App\Models\Pengumuman;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -27,14 +28,12 @@ class SiswaController extends Controller
         }
 
         $kelas = $siswa->kelas;
-        
-        // Ambil jadwal mapel berdasarkan kelas siswa
+
         $jadwalMapel = JadwalMapel::where('id_kelas', $kelas->id_kelas)
             ->with(['guruMapel.mapel', 'guruMapel.guru'])
             ->get()
             ->groupBy('id_guru_mapel');
 
-        // Hitung statistik
         $totalMateri = Materi::where('id_kelas', $kelas->id_kelas)->count();
         $totalTugas = Tugas::where('id_kelas', $kelas->id_kelas)->count();
         
@@ -44,7 +43,6 @@ class SiswaController extends Controller
         
         $tugasBelumSelesai = $totalTugas - $tugasSelesai;
 
-        // Ambil pengumuman terbaru
         $pengumuman = Pengumuman::orderBy('tanggal_upload', 'desc')
             ->limit(5)
             ->get();
@@ -76,14 +74,12 @@ class SiswaController extends Controller
                 ->with('error', 'Mata pelajaran tidak ditemukan.');
         }
 
-        // Ambil materi
         $materiList = Materi::where('id_kelas', $siswa->id_kelas)
             ->where('id_mapel', $jadwal->guruMapel->id_mapel)
             ->where('id_guru', $jadwal->guruMapel->id_guru)
             ->orderBy('tanggal_upload', 'desc')
             ->get();
 
-        // Ambil tugas
         $tugasList = Tugas::where('id_kelas', $siswa->id_kelas)
             ->where('id_mapel', $jadwal->guruMapel->id_mapel)
             ->where('id_guru', $jadwal->guruMapel->id_guru)
@@ -158,7 +154,6 @@ class SiswaController extends Controller
             ->orderBy('tanggal', 'desc')
             ->paginate(15);
 
-        // Hitung rekap
         $totalHadir = Absensi::where('nis', $siswa->nis)
             ->where('status', 'hadir')
             ->count();
@@ -245,6 +240,106 @@ class SiswaController extends Controller
             ->with('success', 'Pengajuan izin berhasil dikirim. Menunggu persetujuan wali kelas.');
     }
 
+
+public function editPengajuanIzin($id)
+{
+    $user = Auth::user();
+    $siswa = $user->siswa;
+
+    $pengajuan = PengajuanIzin::where('id_pengajuan', $id)
+        ->where('nis', $siswa->nis)
+        ->firstOrFail();
+
+    if ($pengajuan->status !== 'pending') {
+        return redirect()->route('siswa.pengajuan_izin')
+            ->with('error', 'Pengajuan ini tidak dapat diedit karena sudah diproses.');
+    }
+
+    return view('siswa.edit_pengajuan_izin', compact('pengajuan', 'siswa'));
+}
+
+/**
+ * Update pengajuan izin
+ */
+public function updatePengajuanIzin(Request $request, $id)
+{
+    $user = Auth::user();
+    $siswa = $user->siswa;
+
+    $pengajuan = PengajuanIzin::where('id_pengajuan', $id)
+        ->where('nis', $siswa->nis)
+        ->firstOrFail();
+
+    if ($pengajuan->status !== 'pending') {
+        return redirect()->route('siswa.pengajuan_izin')
+            ->with('error', 'Pengajuan ini tidak dapat diedit karena sudah diproses.');
+    }
+
+    $request->validate([
+        'tanggal_mulai' => 'required|date',
+        'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+        'jenis_izin' => 'required|in:sakit,izin',
+        'alasan' => 'required|string|max:500',
+        'bukti_file' => 'nullable|file|max:5120|mimes:pdf,jpg,jpeg,png',
+    ], [
+        'tanggal_mulai.required' => 'Tanggal mulai wajib diisi.',
+        'tanggal_selesai.required' => 'Tanggal selesai wajib diisi.',
+        'tanggal_selesai.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
+        'jenis_izin.required' => 'Jenis izin wajib dipilih.',
+        'alasan.required' => 'Alasan wajib diisi.',
+        'alasan.max' => 'Alasan maksimal 500 karakter.',
+        'bukti_file.max' => 'Ukuran file maksimal 5MB.',
+    ]);
+
+    $filePath = $pengajuan->bukti_file;
+
+    if ($request->hasFile('bukti_file')) {
+
+        if ($pengajuan->bukti_file) {
+            Storage::disk('public')->delete($pengajuan->bukti_file);
+        }
+        $filePath = $request->file('bukti_file')->store('bukti_izin', 'public');
+    }
+
+    $pengajuan->update([
+        'tanggal_mulai' => $request->tanggal_mulai,
+        'tanggal_selesai' => $request->tanggal_selesai,
+        'jenis_izin' => $request->jenis_izin,
+        'alasan' => $request->alasan,
+        'bukti_file' => $filePath,
+    ]);
+
+    return redirect()->route('siswa.pengajuan_izin')
+        ->with('success', 'Pengajuan izin berhasil diperbarui!');
+}
+
+/**
+ * Batalkan pengajuan izin
+ */
+public function cancelPengajuanIzin($id)
+{
+    $user = Auth::user();
+    $siswa = $user->siswa;
+
+    $pengajuan = PengajuanIzin::where('id_pengajuan', $id)
+        ->where('nis', $siswa->nis)
+        ->firstOrFail();
+
+    if ($pengajuan->status !== 'pending') {
+        return redirect()->route('siswa.pengajuan_izin')
+            ->with('error', 'Pengajuan ini tidak dapat dibatalkan karena sudah diproses.');
+    }
+
+    if ($pengajuan->bukti_file) {
+        Storage::disk('public')->delete($pengajuan->bukti_file);
+    }
+
+    $pengajuan->delete();
+
+    return redirect()->route('siswa.pengajuan_izin')
+        ->with('success', 'Pengajuan izin berhasil dibatalkan.');
+}
+
     public function pengumuman()
     {
         $user = Auth::user();
@@ -265,4 +360,37 @@ class SiswaController extends Controller
 
         return view('siswa.detail_pengumuman', compact('pengumuman', 'siswa'));
     }
+
+    public function ubahPasswordForm()
+{
+    $user = Auth::user();
+    $siswa = $user->siswa;
+    
+    return view('siswa.ubah_password', compact('siswa'));
+}
+
+public function ubahPasswordUpdate(Request $request)
+{
+    $request->validate([
+        'password_lama' => 'required',
+        'password_baru' => 'required|min:6|confirmed',
+    ], [
+        'password_lama.required' => 'Password lama wajib diisi.',
+        'password_baru.required' => 'Password baru wajib diisi.',
+        'password_baru.min' => 'Password baru minimal 6 karakter.',
+        'password_baru.confirmed' => 'Konfirmasi password tidak cocok.',
+    ]);
+
+    $user = Auth::user();
+
+    if (!Hash::check($request->password_lama, $user->password)) {
+        return back()->withErrors(['password_lama' => 'Password lama tidak sesuai.']);
+    }
+
+    $user->password = Hash::make($request->password_baru);
+    $user->save();
+
+    return redirect()->route('siswa.dashboard')
+        ->with('success', 'Password berhasil diubah!');
+}
 }

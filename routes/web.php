@@ -82,7 +82,7 @@ Route::prefix('admin')->middleware(RoleMiddleware::class . ':admin')->group(func
         Route::get('/edit/{id}', [CrudPengumumanController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [CrudPengumumanController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [CrudPengumumanController::class, 'destroy'])->name('destroy');
-    });
+});
 });
 
 Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru.')->group(function () {
@@ -122,8 +122,14 @@ Route::middleware(RoleMiddleware::class . ':siswa')->group(function () {
         Route::get('/pengajuan-izin', [SiswaController::class, 'pengajuanIzin'])->name('pengajuan_izin');
         Route::get('/pengajuan-izin/create', [SiswaController::class, 'createPengajuanIzin'])->name('create_pengajuan_izin');
         Route::post('/pengajuan-izin/store', [SiswaController::class, 'storePengajuanIzin'])->name('store_pengajuan_izin');
+        Route::get('/pengajuan-izin/edit/{id}', [SiswaController::class, 'editPengajuanIzin'])->name('edit_pengajuan_izin');
+        Route::put('/pengajuan-izin/update/{id}', [SiswaController::class, 'updatePengajuanIzin'])->name('update_pengajuan_izin');
+        Route::delete('/pengajuan-izin/cancel/{id}', [SiswaController::class, 'cancelPengajuanIzin'])->name('cancel_pengajuan_izin');
 
         Route::get('/pengumuman', [SiswaController::class, 'pengumuman'])->name('pengumuman');
         Route::get('/pengumuman/{id}', [SiswaController::class, 'detailPengumuman'])->name('detail_pengumuman');
+
+        Route::get('/ubah-password', [SiswaController::class, 'ubahPasswordForm'])->name('ubah_password');
+        Route::post('/ubah-password', [SiswaController::class, 'ubahPasswordUpdate'])->name('ubah_password_update');
     });
 });

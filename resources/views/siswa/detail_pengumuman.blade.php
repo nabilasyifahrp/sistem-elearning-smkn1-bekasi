@@ -141,7 +141,7 @@
     </a>
 
     <div class="detail-card">
-        <!-- Header Pengumuman -->
+
         <div class="pengumuman-title">{{ $pengumuman->judul }}</div>
         
         <div class="pengumuman-date">
@@ -151,12 +151,10 @@
 
         <hr class="divider">
 
-        <!-- Isi Pengumuman -->
         <div class="pengumuman-isi">
             {!! nl2br(e($pengumuman->isi)) !!}
         </div>
 
-        <!-- Lampiran jika ada -->
         @if($pengumuman->file_path)
             <div class="lampiran-section">
                 <h5><i class="bi bi-paperclip"></i> Lampiran</h5>
@@ -168,7 +166,7 @@
                 @endphp
 
                 @if(in_array($fileExt, $imageExts))
-                    <!-- Jika gambar, tampilkan preview -->
+
                     <img src="{{ asset('storage/' . $pengumuman->file_path) }}" 
                          alt="Lampiran Gambar" 
                          class="preview">
@@ -179,7 +177,7 @@
                         <span>Unduh Gambar ({{ $fileName }})</span>
                     </a>
                 @else
-                    <!-- Jika file lain, tampilkan link download -->
+ 
                     <a href="{{ asset('storage/' . $pengumuman->file_path) }}" 
                        target="_blank" 
                        class="lampiran-link">
@@ -194,7 +192,6 @@
             </div>
         @endif
 
-        <!-- Info Pembuat -->
         <div class="mt-4 pt-3 border-top">
             <small class="text-muted">
                 <i class="bi bi-person-circle"></i> 

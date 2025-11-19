@@ -12,7 +12,7 @@ class Siswa extends Model
     protected $table = 'siswas';
     protected $primaryKey = 'nis';
     public $incrementing = false;
-    protected $keyType = 'bigint';
+    protected $keyType = 'char';
 
     protected $fillable = [
         'nis',

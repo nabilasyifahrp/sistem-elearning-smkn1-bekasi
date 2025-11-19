@@ -189,6 +189,15 @@
         Pengumuman
     </a>
 
+    <a href="{{ route('siswa.ubah_password') }}"
+    class="menu-item {{ request()->routeIs('siswa.ubah_password') ? 'active' : '' }}">
+    <svg fill="none" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>
+    Ubah Password
+</a>
+
     <hr class="border-light">
 
     <a href="#" class="menu-item">

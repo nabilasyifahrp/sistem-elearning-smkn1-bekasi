@@ -56,7 +56,6 @@
     <h2 class="fw-bold mb-4" style="color:#256343;">Selamat datang, {{ $siswa->nama }}!</h2>
     <p class="text-muted">Kelas: {{ $kelas->tingkat }} {{ $kelas->jurusan }} {{ $kelas->kelas }}</p>
 
-    <!-- Statistik -->
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
             <div class="info-box">

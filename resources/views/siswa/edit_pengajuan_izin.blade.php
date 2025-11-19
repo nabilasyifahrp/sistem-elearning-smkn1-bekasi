@@ -52,8 +52,8 @@
     }
 
     .info-box {
-        background: #e7f0ec;
-        border-left: 4px solid #256343;
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
         padding: 15px;
         border-radius: 6px;
         margin-bottom: 20px;
@@ -61,7 +61,7 @@
 
     .info-box p {
         margin: 0;
-        color: #256343;
+        color: #856404;
         font-size: 14px;
     }
 
@@ -82,10 +82,10 @@
     <a href="{{ route('siswa.pengajuan_izin') }}" class="btn-back mb-3">← Kembali</a>
 
     <div class="form-card">
-        <h4>Form Pengajuan Izin</h4>
+        <h4>Edit Pengajuan Izin</h4>
 
         <div class="info-box">
-            <p><i class="bi bi-info-circle"></i> Lengkapi form di bawah ini untuk mengajukan izin. Pengajuan akan diverifikasi oleh wali kelas Anda.</p>
+            <p><i class="bi bi-exclamation-triangle"></i> Anda hanya dapat mengedit pengajuan yang masih berstatus "Menunggu Persetujuan".</p>
         </div>
 
         @if($errors->any())
@@ -99,8 +99,9 @@
             </div>
         @endif
 
-        <form action="{{ route('siswa.store_pengajuan_izin') }}" method="POST" enctype="multipart/form-data" id="formPengajuan">
+        <form action="{{ route('siswa.update_pengajuan_izin', $pengajuan->id_pengajuan) }}" method="POST" enctype="multipart/form-data" id="formPengajuan">
             @csrf
+            @method('PUT')
 
             <div class="row mb-3">
                 <div class="col-md-6">
@@ -109,7 +110,7 @@
                            name="tanggal_mulai" 
                            id="tanggalMulai"
                            class="form-control @error('tanggal_mulai') is-invalid @enderror" 
-                           value="{{ old('tanggal_mulai') }}"
+                           value="{{ old('tanggal_mulai', $pengajuan->tanggal_mulai) }}"
                            min="{{ date('Y-m-d') }}"
                            required>
                     @error('tanggal_mulai')
@@ -123,7 +124,7 @@
                            name="tanggal_selesai" 
                            id="tanggalSelesai"
                            class="form-control @error('tanggal_selesai') is-invalid @enderror" 
-                           value="{{ old('tanggal_selesai') }}"
+                           value="{{ old('tanggal_selesai', $pengajuan->tanggal_selesai) }}"
                            min="{{ date('Y-m-d') }}"
                            required>
                     @error('tanggal_selesai')
@@ -138,8 +139,8 @@
                         class="form-control @error('jenis_izin') is-invalid @enderror" 
                         required>
                     <option value="">-- Pilih Jenis Izin --</option>
-                    <option value="sakit" {{ old('jenis_izin') == 'sakit' ? 'selected' : '' }}>Sakit</option>
-                    <option value="izin" {{ old('jenis_izin') == 'izin' ? 'selected' : '' }}>Izin</option>
+                    <option value="sakit" {{ old('jenis_izin', $pengajuan->jenis_izin) == 'sakit' ? 'selected' : '' }}>Sakit</option>
+                    <option value="izin" {{ old('jenis_izin', $pengajuan->jenis_izin) == 'izin' ? 'selected' : '' }}>Izin</option>
                 </select>
                 @error('jenis_izin')
                     <small class="text-danger">{{ $message }}</small>
@@ -154,7 +155,7 @@
                           maxlength="500"
                           class="form-control @error('alasan') is-invalid @enderror" 
                           placeholder="Jelaskan alasan Anda mengajukan izin (maksimal 500 karakter)..." 
-                          required>{{ old('alasan') }}</textarea>
+                          required>{{ old('alasan', $pengajuan->alasan) }}</textarea>
                 <div class="counter" id="alasanCounter">0/500 karakter</div>
                 @error('alasan')
                     <small class="text-danger">{{ $message }}</small>
@@ -163,12 +164,22 @@
 
             <div class="mb-4">
                 <label class="form-label">Bukti/Lampiran (Opsional)</label>
+                
+                @if($pengajuan->bukti_file)
+                    <div class="mb-2">
+                        <small class="text-muted">File saat ini:</small><br>
+                        <a href="{{ asset('storage/' . $pengajuan->bukti_file) }}" target="_blank" class="btn btn-sm btn-info">
+                            <i class="bi bi-file-earmark"></i> Lihat File Lama
+                        </a>
+                    </div>
+                @endif
+                
                 <input type="file" 
                        name="bukti_file" 
                        class="form-control @error('bukti_file') is-invalid @enderror"
                        accept=".pdf,.jpg,.jpeg,.png"
                        id="fileInput">
-                <small class="text-muted">Format: PDF, JPG, JPEG, PNG (Maksimal 5MB). Contoh: surat dokter, surat keterangan, dll.</small>
+                <small class="text-muted">Format: PDF, JPG, JPEG, PNG (Maksimal 5MB). Biarkan kosong jika tidak ingin mengubah file.</small>
                 @error('bukti_file')
                     <small class="text-danger d-block">{{ $message }}</small>
                 @enderror
@@ -176,7 +187,7 @@
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn-submit">
-                    <i class="bi bi-send"></i> Ajukan Izin
+                    <i class="bi bi-save"></i> Simpan Perubahan
                 </button>
                 <a href="{{ route('siswa.pengajuan_izin') }}" class="btn btn-secondary">
                     Batal
@@ -221,24 +232,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('fileInput');
     fileInput.addEventListener('change', function() {
         if (this.files[0]) {
-            const fileSize = this.files[0].size / 1024 / 1024; // dalam MB
+            const fileSize = this.files[0].size / 1024 / 1024; 
             if (fileSize > 5) {
                 alert('Ukuran file terlalu besar! Maksimal 5MB.');
                 this.value = '';
             }
-        }
-    });
-
-    const form = document.getElementById('formPengajuan');
-    form.addEventListener('submit', function(e) {
-        const jenisIzin = form.querySelector('[name="jenis_izin"]').value;
-        const tanggalMulaiVal = form.querySelector('[name="tanggal_mulai"]').value;
-        const tanggalSelesaiVal = form.querySelector('[name="tanggal_selesai"]').value;
-        
-        const confirmMsg = `Apakah Anda yakin ingin mengajukan ${jenisIzin} dari ${tanggalMulaiVal} sampai ${tanggalSelesaiVal}?`;
-        
-        if (!confirm(confirmMsg)) {
-            e.preventDefault();
         }
     });
 });
