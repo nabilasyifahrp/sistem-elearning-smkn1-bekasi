@@ -33,8 +33,4 @@ class Absensi extends Model
         return $this->belongsTo(JadwalMapel::class, 'id_jadwal', 'id_jadwal');
     }
 
-    public function pengajuan()
-    {
-        return $this->belongsTo(PengajuanIzin::class, 'id_pengajuan', 'id_pengajuan');
-    }
 }

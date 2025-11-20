@@ -11,21 +11,20 @@ class PengumpulanTugas extends Model
 
     protected $table = 'pengumpulan_tugas';
     protected $primaryKey = 'id_pengumpulan';
-    public $incrementing = true;
-    protected $keyType = 'int';
 
     protected $fillable = [
         'id_tugas',
         'nis',
         'isi_tugas',
         'file_path',
-        'tanggal_pengumpulan',
         'nilai',
         'feedback',
+        'status',
+        'tanggal_pengumpulan'
     ];
 
     protected $casts = [
-        'tanggal_pengumpulan' => 'datetime',
+        'tanggal_pengumpulan' => 'date'
     ];
 
     public function tugas()

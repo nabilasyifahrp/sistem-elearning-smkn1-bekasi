@@ -18,4 +18,8 @@ class Pengumuman extends Model
         'file_path',
         'tanggal_upload',
     ];
+
+    protected $casts = [
+        'tanggal_upload' => 'date', 
+    ];
 }

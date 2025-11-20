@@ -11,8 +11,8 @@ use App\Http\Controllers\CrudJadwalMapelController;
 use App\Http\Controllers\CrudPengumumanController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\MateriController;
-use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\SiswaController;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
@@ -84,7 +84,7 @@ Route::prefix('admin')->middleware(RoleMiddleware::class . ':admin')->group(func
         Route::get('/edit/{id}', [CrudPengumumanController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [CrudPengumumanController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [CrudPengumumanController::class, 'destroy'])->name('destroy');
-    });
+});
 });
 
 Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru.')->group(function () {
@@ -112,23 +112,24 @@ Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru
     Route::get('/pengumuman', [GuruController::class, 'pengumumanIndex'])->name('pengumuman.index');
 });
 
+Route::prefix('siswa')->middleware([RoleMiddleware::class . ':siswa'])->name('siswa.')->group(function () {
+    Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
 
-Route::middleware(RoleMiddleware::class . ':siswa')->group(function () {
-    Route::prefix('siswa')->name('siswa.')->group(function () {
-        Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
+    Route::get('/kelas/{id_guru_mapel}', [SiswaController::class, 'detailMapel'])->name('kelas.detail');
 
-        Route::get('/mapel/{id_guru_mapel}', [SiswaController::class, 'detailMapel'])->name('detail_mapel');
+    Route::get('/tugas', [SiswaController::class, 'tugasIndex'])->name('tugas.index');
+    Route::get('/tugas/{id_tugas}', [SiswaController::class, 'tugasDetail'])->name('tugas.detail');
+    Route::post('/tugas/{id_tugas}/kumpul', [SiswaController::class, 'tugasKumpul'])->name('tugas.kumpul');
 
-        Route::get('/tugas/{id_tugas}', [SiswaController::class, 'detailTugas'])->name('detail_tugas');
-        Route::post('/tugas/{id_tugas}/kumpulkan', [SiswaController::class, 'kumpulkanTugas'])->name('kumpulkan_tugas');
+    Route::get('/absensi', [SiswaController::class, 'absensiIndex'])->name('absensi.index');
 
-        Route::get('/absensi', [SiswaController::class, 'absensi'])->name('absensi');
+    Route::get('/izin', [SiswaController::class, 'izinIndex'])->name('izin.index');
+    Route::get('/izin/create', [SiswaController::class, 'izinCreate'])->name('izin.create');
+    Route::post('/izin/store', [SiswaController::class, 'izinStore'])->name('izin.store');
 
-        Route::get('/pengajuan-izin', [SiswaController::class, 'pengajuanIzin'])->name('pengajuan_izin');
-        Route::get('/pengajuan-izin/create', [SiswaController::class, 'createPengajuanIzin'])->name('create_pengajuan_izin');
-        Route::post('/pengajuan-izin/store', [SiswaController::class, 'storePengajuanIzin'])->name('store_pengajuan_izin');
+    Route::get('/pengumuman', [SiswaController::class, 'pengumumanIndex'])->name('pengumuman.index');
+    Route::get('/pengumuman/{id}', [SiswaController::class, 'pengumumanShow'])->name('pengumuman.show');
 
-        Route::get('/pengumuman', [SiswaController::class, 'pengumuman'])->name('pengumuman');
-        Route::get('/pengumuman/{id}', [SiswaController::class, 'detailPengumuman'])->name('detail_pengumuman');
-    });
+    Route::get('/profile', [SiswaController::class, 'profileIndex'])->name('profile.index');
+    Route::post('/profile/update', [SiswaController::class, 'profileUpdate'])->name('profile.update');
 });

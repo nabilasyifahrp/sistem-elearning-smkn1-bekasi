@@ -11,8 +11,6 @@ class PengajuanIzin extends Model
 
     protected $table = 'pengajuan_izin';
     protected $primaryKey = 'id_pengajuan';
-    public $incrementing = true;
-    protected $keyType = 'int';
 
     protected $fillable = [
         'nis',
@@ -21,12 +19,12 @@ class PengajuanIzin extends Model
         'jenis_izin',
         'alasan',
         'bukti_file',
-        'status',
+        'status'
     ];
 
     protected $casts = [
         'tanggal_mulai' => 'date',
-        'tanggal_selesai' => 'date',
+        'tanggal_selesai' => 'date'
     ];
 
     public function siswa()
