@@ -14,14 +14,14 @@ return new class extends Migration
             $table->char('nis', 9);
             $table->text('isi_tugas');
             $table->string('file_path')->nullable();
-            $table->dateTime('tanggal_pengumpulan');
+            $table->enum('status', ['Belum Dikumpulkan', 'Sudah Dikumpulkan', 'Terlambat']);
+            $table->date('tanggal_pengumpulan');
             $table->integer('nilai')->nullable();
             $table->text('feedback')->nullable();
             $table->timestamps();
 
             $table->foreign('id_tugas')->references('id_tugas')->on('tugas')->onDelete('cascade');
             $table->foreign('nis')->references('nis')->on('siswas')->onDelete('cascade')->onUpdate('cascade');
-            
             $table->unique(['id_tugas', 'nis']);
         });
     }

@@ -8,23 +8,19 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             padding: 25px;
         }
-
         .form-label {
             font-weight: 600;
             color: #256343;
         }
-
         .btn-green {
             background: #256343;
             color: #ffffff;
             border: none;
         }
-
         .btn-green:hover {
             background: #1e4d32;
             color: #ffffff;
         }
-
         .btn-back {
             background: #256343;
             color: white;
@@ -33,24 +29,20 @@
             text-decoration: none;
             transition: 0.2s;
         }
-
         .btn-back:hover {
             background: #1e4d32;
             color: white;
         }
-
         .btn-green:disabled {
             background-color: #256343 !important;
             color: #ffffff !important;
             cursor: not-allowed !important;
         }
-
         .counter {
             font-size: 13px;
             color: #555;
             text-align: right;
         }
-
         @media(max-width:768px) {
             .form-card {
                 padding: 18px;
@@ -94,45 +86,32 @@
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
-                <button id="btnUpdate" class="btn btn-green px-4 py-2 mt-3" disabled>Perbarui Mapel</button>
 
+                <button id="btnUpdate" class="btn btn-green px-4 py-2 mt-3" disabled>Perbarui Mapel</button>
             </form>
         </div>
 
     </div>
+
     <script>
-        const descInput = document.getElementById('descInput');
-        const descCounter = document.getElementById('descCounter');
+    const descInput = document.getElementById('descInput');
+    const descCounter = document.getElementById('descCounter');
+    const btn = document.getElementById('btnUpdate');
+    const namaInput = document.querySelector("[name='nama_mapel']");
+    
+    descCounter.textContent = `${descInput.value.length}/150 karakter`;
+
+    descInput.addEventListener('input', () => {
+        if (descInput.value.length > 150) {
+            descInput.value = descInput.value.substring(0, 150);
+        }
         descCounter.textContent = `${descInput.value.length}/150 karakter`;
+        btn.disabled = false;
+    });
 
-        descInput.addEventListener('input', () => {
-            if (descInput.value.length > 150) {
-                descInput.value = descInput.value.substring(0, 150);
-            }
-            descCounter.textContent = `${descInput.value.length}/150 karakter`;
-        });
+    namaInput.addEventListener('input', () => {
+        btn.disabled = false;
+    });
+</script>
 
-        document.addEventListener("DOMContentLoaded", function() {
-
-            const form = document.querySelector("form");
-            const btn = document.getElementById("btnUpdate");
-            const initialData = new FormData(form);
-
-            function checkForChanges() {
-                const currentData = new FormData(form);
-                let hasChanged = false;
-
-                for (let [key, value] of currentData.entries()) {
-                    if (value !== initialData.get(key)) {
-                        hasChanged = true;
-                        break;
-                    }
-                }
-
-                btn.disabled = !hasChanged;
-            }
-
-            form.addEventListener("input", checkForChanges);
-        });
-    </script>
 @endsection
