@@ -131,15 +131,63 @@
             font-size: 26px;
             margin-right: 10px;
         }
+
+        @media(max-width: 768px) {
+            .sidebar {
+                left: -260px;
+                z-index: 2000;
+                transition: left 0.3s ease;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+            .topbar {
+                margin-left: 0 !important;
+                height: 70px;
+                padding: 10px 15px;
+                justify-content: space-between;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .topbar-title h5 {
+                font-size: 16px;
+                margin-bottom: 2px;
+            }
+            .topbar-title p {
+                font-size: 12px;
+            }
+            .topbar img {
+                width: 40px;
+            }
+            .content {
+                margin-left: 0 !important;
+                margin-top: 10px;
+                padding: 20px 15px;
+            }
+            .hamburger {
+                display: block;
+                font-size: 26px;
+                margin-right: 10px;
+            }
+            body {
+                overflow-x: hidden;
+            }
+        }
     }
 </style>
 
 <div class="topbar shadow-md">
-    <button class="hamburger" id="toggleMenu">☰</button>
+    {{-- FIX HAMBURGER BUTTON --}}
+    <button class="hamburger" id="toggleMenu">&#9776;</button>
 
     <div class="topbar-title">
-        <h5 class="fw-bold mb-0">{{ Auth::user()->siswa->nama }}</h5>
-        <p class="text-muted small mb-0">{{ Auth::user()->siswa->kelas->tingkat }} {{ Auth::user()->siswa->kelas->jurusan }} {{ Auth::user()->siswa->kelas->kelas }}</p>
+        <h5 class="fw-bold mb-0">{{ Auth::user()->siswa->nama ?? 'Siswa' }}</h5>
+        @php
+            use Carbon\Carbon;
+            Carbon::setLocale('id');
+            $today = Carbon::now()->translatedFormat('l, d F Y');
+        @endphp
+        <p class="text-muted small mb-0">{{ $today }}</p>
     </div>
 
     <img src="{{ asset('assets/images/akun.png') }}" width="55">
@@ -162,45 +210,59 @@
         Beranda
     </a>
 
-    <a href="{{ route('siswa.absensi') }}"
-        class="menu-item {{ request()->routeIs('siswa.absensi') ? 'active' : '' }}">
+    <a href="{{ route('siswa.tugas.index') }}"
+        class="menu-item {{ request()->routeIs('siswa.tugas.*') ? 'active' : '' }}">
+        <svg fill="none" stroke-width="2">
+            <path d="M4 4h16v16H4z" />
+            <path d="M4 10h16" />
+        </svg>
+        Tugas Saya
+    </a>
+
+    <a href="{{ route('siswa.absensi.index') }}"
+        class="menu-item {{ request()->routeIs('siswa.absensi.*') ? 'active' : '' }}">
+        <svg fill="none" stroke-width="2">
+            <circle cx="12" cy="7" r="4" />
+            <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+        Absensi
+    </a>
+
+    <a href="{{ route('siswa.izin.index') }}"
+        class="menu-item {{ request()->routeIs('siswa.izin.*') ? 'active' : '' }}">
         <svg fill="none" stroke-width="2">
             <rect x="3" y="5" width="18" height="16" rx="2" />
             <path d="M16 3v4M8 3v4M3 11h18" />
-            <path d="M9 15l2 2 4-4" />
-        </svg>
-        Absensi Saya
-    </a>
-
-    <a href="{{ route('siswa.pengajuan_izin') }}"
-        class="menu-item {{ request()->routeIs('siswa.pengajuan_izin') || request()->routeIs('siswa.create_pengajuan_izin') ? 'active' : '' }}">
-        <svg fill="none" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <path d="M9 11l2 2 4-4" />
         </svg>
         Pengajuan Izin
     </a>
 
-    <a href="{{ route('siswa.pengumuman') }}"
-        class="menu-item {{ request()->routeIs('siswa.pengumuman') || request()->routeIs('siswa.detail_pengumuman') ? 'active' : '' }}">
+    <a href="{{ route('siswa.pengumuman.index') }}"
+        class="menu-item {{ request()->routeIs('siswa.pengumuman.*') ? 'active' : '' }}">
         <svg fill="none" stroke-width="2">
             <path d="M3 11l18-6v14l-18-6v8l6 2" />
         </svg>
         Pengumuman
     </a>
 
-    <a href="{{ route('siswa.ubah_password') }}"
-    class="menu-item {{ request()->routeIs('siswa.ubah_password') ? 'active' : '' }}">
-    <svg fill="none" stroke-width="2">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-    </svg>
-    Ubah Password
-</a>
+    <a href="{{ route('siswa.profile.index') }}"
+        class="menu-item {{ request()->routeIs('siswa.profile.*') ? 'active' : '' }}">
+        <svg fill="none" stroke-width="2">
+            <circle cx="12" cy="8" r="5" />
+            <path d="M3 21c0-5 4-8 9-8s9 3 9 8" />
+        </svg>
+        Profil
+    </a>
 
     <hr class="border-light">
 
-    <a href="#" class="menu-item">
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+    
+    <a href="#"
+        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+        class="menu-item">
         <svg fill="none" stroke-width="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <path d="M16 17l5-5l-5-5" />

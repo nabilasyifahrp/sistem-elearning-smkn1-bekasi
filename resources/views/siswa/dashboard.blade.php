@@ -1,144 +1,168 @@
 @extends('partials.layouts-siswa')
 
 @section('content')
-<style>
-    .card-mapel {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        transition: 0.2s;
-        cursor: pointer;
-        border-left: 6px solid #256343;
-    }
+<div class="dashboard-page">
+    <style>
+        body {
+            background: #f7f9f8;
+            font-family: 'Poppins', sans-serif;
+        }
 
-    .card-mapel:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
-    }
+        .row-equal>[class*="col-"] {
+            display: flex;
+        }
 
-    .card-mapel h5 {
-        color: #256343;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
+        .info-card {
+            width: 100%;
+            background: #e7f0ec;
+            padding: 15px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
 
-    .info-box {
-        background: #e7f0ec;
-        padding: 20px;
-        border-radius: 12px;
-        text-align: center;
-    }
+        .info-card div {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
 
-    .info-box h3 {
-        font-size: 32px;
-        font-weight: 700;
-        color: #256343;
-        margin-bottom: 5px;
-    }
+        .info-icon {
+            width: 32px;
+            height: 32px;
+            stroke: #256343;
+            flex-shrink: 0;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
 
-    .info-box p {
-        color: #666;
-        margin: 0;
-    }
+        .info-title {
+            font-size: 16px;
+            font-weight: 600;
+            word-break: break-word;
+        }
 
-    .pengumuman-card {
-        background: white;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
-        margin-bottom: 12px;
-        border-left: 4px solid #256343;
-    }
-</style>
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            word-break: break-word;
+        }
 
-<div>
-    <h2 class="fw-bold mb-4" style="color:#256343;">Selamat datang, {{ $siswa->nama }}!</h2>
-    <p class="text-muted">Kelas: {{ $kelas->tingkat }} {{ $kelas->jurusan }} {{ $kelas->kelas }}</p>
+        .kelas-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 15px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
 
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="info-box">
-                <h3>{{ $totalMateri }}</h3>
-                <p>Total Materi</p>
+        .kelas-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(37, 99, 67, 0.15);
+        }
+
+        .kelas-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #256343;
+            margin-bottom: 8px;
+        }
+
+        .kelas-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .pengumuman-box {
+            background: #d9e4dd;
+            padding: 18px 22px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .pengumuman-box:hover {
+            background: #cfd9d3;
+        }
+
+        .pengumuman-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+    </style>
+
+    <h2 class="fw-bold">Selamat datang, {{ $siswa->nama ?? 'Siswa' }}!</h2>
+    <p class="text-muted">Kelas: {{ $siswa->kelas->tingkat ?? '' }} {{ $siswa->kelas->jurusan ?? '' }} {{ $siswa->kelas->kelas ?? '' }}</p>
+
+    <div class="row row-equal mb-4">
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="info-card shadow-sm">
+                <svg class="info-icon" fill="none" stroke-width="2">
+                    <path d="M4 4h16v16H4z" />
+                    <path d="M4 10h16" />
+                </svg>
+                <div>
+                    <div class="info-title">Total Mata Pelajaran</div>
+                    <div class="info-value">{{ $mapelList->count() }} Mapel</div>
+                </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="info-box">
-                <h3>{{ $totalTugas }}</h3>
-                <p>Total Tugas</p>
+
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="info-card shadow-sm">
+                <svg class="info-icon" fill="none" stroke-width="2">
+                    <path d="M4 4h16v16H4z" />
+                    <path d="M9 9h6M9 13h6" />
+                </svg>
+                <div>
+                    <div class="info-title">Tugas Aktif</div>
+                    <div class="info-value">{{ $tugasAktif }} Tugas</div>
+                </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="info-box">
-                <h3>{{ $tugasSelesai }}</h3>
-                <p>Tugas Selesai</p>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="info-box">
-                <h3>{{ $tugasBelumSelesai }}</h3>
-                <p>Tugas Belum Selesai</p>
+
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="info-card shadow-sm">
+                <svg class="info-icon" fill="none" stroke-width="2">
+                    <path d="M3 11l18-6v14l-18-6v8l6 2" />
+                </svg>
+                <div>
+                    <div class="info-title">Pengumuman</div>
+                    <div class="info-value">{{ $pengumuman->count() }} Baru</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <h4 class="fw-bold mb-3">Daftar Mata Pelajaran</h4>
+    <h4 class="fw-bold mb-3">Mata Pelajaran Saya</h4>
 
-    @if($jadwalMapel->count() === 0)
-        <div class="alert alert-info">Belum ada jadwal mata pelajaran untuk kelas Anda.</div>
-    @else
-        <div class="row">
-            @foreach($jadwalMapel as $id_guru_mapel => $jadwals)
-                @php
-                    $jadwal = $jadwals->first();
-                @endphp
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card-mapel" onclick="window.location='{{ route('siswa.detail_mapel', $id_guru_mapel) }}'">
-                        <h5>{{ $jadwal->guruMapel->mapel->nama_mapel ?? '-' }}</h5>
-                        <p class="mb-1"><strong>Guru:</strong> {{ $jadwal->guruMapel->guru->nama ?? '-' }}</p>
-                        <p class="mb-0 text-muted small">
-                            @foreach($jadwals as $j)
-                                {{ $j->hari }} ({{ substr($j->jam_mulai, 0, 5) }} - {{ substr($j->jam_selesai, 0, 5) }})
-                                @if(!$loop->last), @endif
-                            @endforeach
-                        </p>
-                    </div>
-                </div>
-            @endforeach
+    @forelse($mapelList as $item)
+    <div class="kelas-card" onclick="window.location='{{ route('siswa.kelas.detail', $item->id_guru_mapel) }}'">
+        <div class="kelas-title">{{ $item->mapel->nama_mapel }}</div>
+        <div class="kelas-info">
+            Guru: {{ $item->guru->nama }} | 
+            Kelas: {{ $item->kelas->tingkat }} {{ $item->kelas->jurusan }} {{ $item->kelas->kelas }}
         </div>
-    @endif
+    </div>
+    @empty
+    <p class="text-muted">Belum ada mata pelajaran.</p>
+    @endforelse
 
     <h4 class="fw-bold mb-3 mt-5">Pengumuman Terbaru</h4>
 
-    @if($pengumuman->count() === 0)
-        <div class="alert alert-info">Belum ada pengumuman.</div>
-    @else
-        @foreach($pengumuman as $p)
-            <div class="pengumuman-card">
-                <h6 class="fw-bold mb-1">{{ $p->judul }}</h6>
-                <p class="text-muted small mb-2">{{ \Carbon\Carbon::parse($p->tanggal_upload)->format('d M Y') }}</p>
-                <p class="mb-0">{{ Str::limit(strip_tags($p->isi), 100) }}</p>
-                <a href="{{ route('siswa.detail_pengumuman', $p->id_pengumuman) }}" class="text-decoration-none">Baca selengkapnya »</a>
-            </div>
-        @endforeach
-        
-        <a href="{{ route('siswa.pengumuman') }}" class="btn btn-sm mt-2" style="background:#256343; color:white;">Lihat Semua Pengumuman</a>
-    @endif
-</div>
-
-@if(session('success'))
-    <div id="flash-message" style="background:#d4edda; border:1px solid #c3e6cb; color:#155724; padding:12px 16px; border-radius:6px; margin-top:20px; position:fixed; top:90px; right:20px; z-index:9999; transition: opacity 0.5s ease;">
-        {{ session('success') }}
+    @foreach ($pengumuman as $item)
+    <div class="pengumuman-box shadow-sm" onclick="window.location='{{ route('siswa.pengumuman.show', $item->id_pengumuman) }}'">
+        <div class="pengumuman-title">{{ $item->judul }}</div>
+        <p class="mb-0 small text-muted">{{ $item->tanggal_upload->format('d M Y') }}</p>
     </div>
-    <script>
-        setTimeout(() => {
-            const msg = document.getElementById('flash-message');
-            if(msg) {
-                msg.style.opacity = "0";
-                setTimeout(() => msg.remove(), 500);
-            }
-        }, 3000);
-    </script>
-@endif
+    @endforeach
+
+</div>
 @endsection

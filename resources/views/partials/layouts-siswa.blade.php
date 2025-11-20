@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     @include('partials.head')
+
     <style>
         @media (min-width: 769px) {
             .content {
@@ -22,11 +24,13 @@
         }
     </style>
 </head>
+
 <body>
     @include('partials.navbar-siswa')
-
+    
     <div class="content">
         @yield('content')
     </div>
 </body>
+
 </html>
