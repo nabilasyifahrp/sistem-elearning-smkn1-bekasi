@@ -19,13 +19,25 @@
         z-index: 1500;
     }
 
+    .sidebar-close-btn {
+        display: none;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: transparent;
+        border: none;
+        font-size: 26px;
+        color: white;
+        cursor: pointer;
+        z-index: 2001;
+    }
+
     .sidebar .logo-box {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
     }
-
 
     .sidebar .menu-item {
         padding: 10px 12px;
@@ -55,6 +67,9 @@
     }
 
     .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 1200;
         margin-left: 250px;
         height: 90px;
         background: white;
@@ -65,9 +80,8 @@
         justify-content: flex-end;
         gap: 20px;
         transition: .3s;
-        position: relative;
-        z-index: 1000;
     }
+
 
     .topbar-title {
         text-align: right;
@@ -100,13 +114,21 @@
             left: 0;
         }
 
+        .sidebar-close-btn {
+            display: block;
+        }
+
         .topbar {
+            position: sticky;
+            top: 0;
             margin-left: 0 !important;
             height: 70px;
             padding: 10px 15px;
             justify-content: space-between;
             gap: 10px;
+            z-index: 1200;
         }
+
 
         .topbar-title h5 {
             font-size: 16px;
@@ -134,6 +156,7 @@
         }
     }
 </style>
+
 <div class="topbar shadow-md">
     <button class="hamburger" id="toggleMenu">☰</button>
 
@@ -151,6 +174,9 @@
 </div>
 
 <div class="sidebar" id="sidebar">
+    <button id="closeSidebar" class="sidebar-close-btn">
+        <i class="bi bi-x-lg"></i>
+    </button>
 
     <div class="logo-box mb-4">
         <img src="{{ asset('assets/images/logo-smk.png') }}" width="80" class="mb-2">
@@ -178,8 +204,7 @@
 
     <a href="{{ route('admin.kelas.index') }}"
         class="menu-item {{ request()->routeIs('admin.kelas.*') ? 'active' : '' }}">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg width="22" height="22" fill="none" stroke-width="2">
             <rect x="2" y="4" width="20" height="14" rx="1.5"></rect>
             <path d="M8 20h8"></path>
             <path d="M7 8h10"></path>
@@ -187,7 +212,6 @@
         </svg>
         Kelola Kelas
     </a>
-
 
     <a href="{{ route('admin.siswa.index') }}"
         class="menu-item {{ request()->routeIs('admin.siswa.*') ? 'active' : '' }}">
@@ -228,23 +252,30 @@
 
     <hr class="border-light">
 
-    <a href="#" class="menu-item">
-        <svg fill="none" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <path d="M16 17l5-5l-5-5" />
-            <path d="M21 12H9" />
-        </svg>
-        Keluar
-    </a>
-
+    <form action="{{ route('logout') }}" method="POST" class="menu-item">
+        @csrf
+        <button type="submit" class="flex items-center gap-2 w-full text-left">
+            <svg fill="none" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="M16 17l5-5l-5-5" />
+                <path d="M21 12H9" />
+            </svg>
+            Keluar
+        </button>
+    </form>
 </div>
 
 <script>
     const toggleMenu = document.getElementById('toggleMenu');
     const sidebar = document.getElementById('sidebar');
+    const closeSidebar = document.getElementById('closeSidebar');
 
     toggleMenu.addEventListener('click', () => {
         sidebar.classList.toggle('show');
+    });
+
+    closeSidebar.addEventListener('click', () => {
+        sidebar.classList.remove('show');
     });
 
     document.querySelectorAll('.menu-item').forEach(item => {

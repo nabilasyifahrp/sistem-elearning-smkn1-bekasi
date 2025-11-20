@@ -45,20 +45,6 @@
             color: #ffffff;
         }
 
-        .btn-back {
-            background: #256343;
-            color: #ffffff;
-            padding: 8px 14px;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: 0.2s;
-        }
-
-        .btn-back:hover {
-            background: #1e4d32;
-            color: #ffffff;
-        }
-
         @media(max-width:768px) {
             .form-card {
                 padding: 18px;
@@ -73,7 +59,7 @@
         </a>
 
         <div class="form-card mt-6">
-            <form action="{{ route('admin.kelas.update', $kelas->id_kelas) }}" method="POST">
+            <form id="formEditKelas" action="{{ route('admin.kelas.update', $kelas->id_kelas) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -83,10 +69,8 @@
                         <select name="tingkat" class="form-control @error('tingkat') is-invalid @enderror" required>
                             <option value="">-- Pilih Tingkat --</option>
                             <option value="X" {{ old('tingkat', $kelas->tingkat) == 'X' ? 'selected' : '' }}>X</option>
-                            <option value="XI" {{ old('tingkat', $kelas->tingkat) == 'XI' ? 'selected' : '' }}>XI
-                            </option>
-                            <option value="XII"{{ old('tingkat', $kelas->tingkat) == 'XII' ? 'selected' : '' }}>XII
-                            </option>
+                            <option value="XI" {{ old('tingkat', $kelas->tingkat) == 'XI' ? 'selected' : '' }}>XI</option>
+                            <option value="XII" {{ old('tingkat', $kelas->tingkat) == 'XII' ? 'selected' : '' }}>XII</option>
                         </select>
                         @error('tingkat')
                             <small class="text-danger">{{ $message }}</small>
@@ -98,8 +82,7 @@
                         <select name="jurusan" class="form-control @error('jurusan') is-invalid @enderror" required>
                             <option value="">-- Pilih Jurusan --</option>
                             @foreach (['RPL', 'DKV', 'TKJ', 'AK', 'BB', 'TP', 'TKR', 'TPL'] as $jur)
-                                <option value="{{ $jur }}"
-                                    {{ old('jurusan', $kelas->jurusan) == $jur ? 'selected' : '' }}>
+                                <option value="{{ $jur }}" {{ old('jurusan', $kelas->jurusan) == $jur ? 'selected' : '' }}>
                                     {{ $jur }}
                                 </option>
                             @endforeach
@@ -151,31 +134,37 @@
             </form>
 
         </div>
-
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
 
-            const form = document.querySelector("form");
+            const form = document.getElementById("formEditKelas");
             const btn = document.getElementById("btnUpdate");
-            const initialData = new FormData(form);
 
-            function checkForChanges() {
-                const currentData = new FormData(form);
-                let hasChanged = false;
-
-                for (let [key, value] of currentData.entries()) {
-                    if (value !== initialData.get(key)) {
-                        hasChanged = true;
-                        break;
-                    }
+            const initial = {};
+            [...form.elements].forEach(el => {
+                if (el.name && el.type !== "hidden") {
+                    initial[el.name] = el.value;
                 }
+            });
 
-                btn.disabled = !hasChanged;
+            function detectChange() {
+                let changed = false;
+
+                [...form.elements].forEach(el => {
+                    if (el.name && el.type !== "hidden") {
+                        if (el.value !== initial[el.name]) {
+                            changed = true;
+                        }
+                    }
+                });
+
+                btn.disabled = !changed;
             }
 
-            form.addEventListener("input", checkForChanges);
+            form.addEventListener("input", detectChange);
         });
     </script>
+
 @endsection

@@ -22,7 +22,6 @@ class PengajuanIzin extends Model
         'alasan',
         'bukti_file',
         'status',
-        'keterangan_wali',
     ];
 
     protected $casts = [

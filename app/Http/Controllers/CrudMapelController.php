@@ -21,9 +21,12 @@ class CrudMapelController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_mapel' => 'required|string|max:150',
-            'deskripsi'  => 'nullable|string|max:200', 
+            'nama_mapel' => 'required|unique:mapels,nama_mapel',
+            'deskripsi' => 'nullable'
+        ], [
+            'nama_mapel.unique' => 'Nama mapel sudah ada'
         ]);
+
 
         Mapel::create([
             'nama_mapel' => $request->nama_mapel,
@@ -44,8 +47,10 @@ class CrudMapelController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nama_mapel' => 'required|string|max:150',
-            'deskripsi'  => 'nullable|string|max:150',
+            'nama_mapel' => 'required|unique:mapels,nama_mapel,' . $id . ',id_mapel',
+            'deskripsi' => 'nullable'
+        ], [
+            'nama_mapel.unique' => 'Nama mapel sudah ada'
         ]);
 
         $mapel = Mapel::findOrFail($id);
