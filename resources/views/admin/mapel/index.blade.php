@@ -107,9 +107,10 @@
             }
 
             td[data-label="Aksi"] .aksi-container {
-                flex-direction: column !important;
-                justify-content: flex-start;
+                flex-direction: row !important;
+                justify-content: flex-start !important;
                 gap: 8px !important;
+                flex-wrap: nowrap !important;
             }
         }
 
@@ -148,16 +149,13 @@
                             <td data-label="Deskripsi">{{ $mapel->deskripsi }}</td>
                             <td data-label="Aksi">
                                 <div class="aksi-container">
-                                    <a href="{{ route('admin.mapel.edit', $mapel->id_mapel) }}"
-                                        class="btn-action btn-green">
+                                    <a href="{{ route('admin.mapel.edit', $mapel->id_mapel) }}" class="btn-action btn-green">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <form action="{{ route('admin.mapel.destroy', $mapel->id_mapel) }}" method="POST"
-                                        class="d-inline">
+                                    <form action="{{ route('admin.mapel.destroy', $mapel->id_mapel) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn-action btn-red"
-                                            onclick="return confirm('Yakin ingin menghapus mapel ini?')">
+                                        <button class="btn-action btn-red" onclick="return confirm('Yakin ingin menghapus mapel ini?')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -197,13 +195,8 @@
                 const rows = listContainer.querySelectorAll('tr');
 
                 rows.forEach(row => {
-                    const name = row.querySelector('td[data-label="Nama Mapel"]').textContent
-                        .toLowerCase();
-                    if (name.includes(query)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
+                    const name = row.querySelector('td[data-label="Nama Mapel"]').textContent.toLowerCase();
+                    row.style.display = name.includes(query) ? '' : 'none';
                 });
             });
         });
