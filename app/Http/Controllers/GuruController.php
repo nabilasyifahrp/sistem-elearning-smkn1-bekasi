@@ -190,4 +190,105 @@ class GuruController extends Controller
 
         return redirect()->back()->with('success', 'Tugas berhasil dihapus');
     }
+
+    public function kelasMateriIndex($id_guru_mapel)
+    {
+        $guruMapel = GuruMapel::with(['mapel', 'kelas'])->findOrFail($id_guru_mapel);
+
+        $materi = Materi::where('id_guru_mapel', $id_guru_mapel)
+            ->orderBy('tanggal_upload', 'desc')
+            ->get();
+
+        return view('guru.materi.index', compact('guruMapel', 'materi'));
+    }
+
+    public function kelasMateriCreate($id_guru_mapel)
+    {
+        $guruMapel = GuruMapel::with(['mapel', 'kelas'])->findOrFail($id_guru_mapel);
+
+        return view('guru.materi.create', compact('guruMapel'));
+    }
+
+    public function kelasMateriStore(Request $request, $id_guru_mapel)
+    {
+        $guruMapel = GuruMapel::findOrFail($id_guru_mapel);
+
+        $request->validate([
+            'judul_materi' => 'required|max:150',
+            'deskripsi'    => 'nullable',
+            'file_materi'  => 'nullable|mimes:pdf,doc,docx,ppt,pptx,zip,jpg,png|max:20480',
+        ]);
+
+        $path = null;
+        if ($request->hasFile('file_materi')) {
+            $path = $request->file('file_materi')->store('materi_files', 'public');
+        }
+
+        Materi::create([
+            'id_guru_mapel' => $id_guru_mapel,
+            'judul_materi'  => $request->judul_materi,
+            'deskripsi'     => $request->deskripsi,
+            'file_path'     => $path,
+            'tanggal_upload' => date('Y-m-d'),
+        ]);
+
+        return redirect()->route('guru.kelas.detail', $id_guru_mapel)
+            ->with('success', 'Materi berhasil ditambahkan.');
+    }
+
+    public function materiDetail($id_materi)
+    {
+        $materi = Materi::with(['guruMapel.mapel', 'guruMapel.kelas'])->findOrFail($id_materi);
+
+        return view('guru.materi.detail', compact('materi'));
+    }
+
+    public function materiEdit($id_materi)
+    {
+        $materi = Materi::findOrFail($id_materi);
+
+        return view('guru.materi.edit', compact('materi'));
+    }
+
+    public function materiUpdate(Request $request, $id_materi)
+    {
+        $materi = Materi::findOrFail($id_materi);
+
+        $request->validate([
+            'judul_materi' => 'required|max:150',
+            'deskripsi'    => 'nullable',
+            'file_materi'  => 'nullable|mimes:pdf,doc,docx,ppt,pptx,zip,jpg,png|max:4096',
+        ]);
+
+        if ($request->hasFile('file_materi')) {
+            $path = $request->file('file_materi')->store('materi_files', 'public');
+            $materi->file_path = $path;
+        }
+
+        $materi->judul_materi = $request->judul_materi;
+        $materi->deskripsi    = $request->deskripsi;
+        $materi->save();
+
+        return redirect()->back()->with('success', 'Materi berhasil diperbarui.');
+    }
+
+    public function materiDelete($id_materi)
+    {
+        $materi = Materi::findOrFail($id_materi);
+
+        if ($materi->file_path && file_exists(storage_path('app/public/' . $materi->file_path))) {
+            unlink(storage_path('app/public/' . $materi->file_path));
+        }
+
+        $materi->delete();
+
+        return redirect()->back()->with('success', 'Materi berhasil dihapus.');
+    }
+
+    public function pengumumanIndex()
+    {
+        $pengumuman = Pengumuman::orderBy('tanggal_upload', 'desc')->get();
+
+        return view('guru.pengumuman.index', compact('pengumuman'));
+    }
 }

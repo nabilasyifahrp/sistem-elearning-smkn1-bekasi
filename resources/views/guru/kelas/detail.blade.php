@@ -5,7 +5,7 @@
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="h3 mb-0" style="color: #256343;">Matematika - X IPA 1</h1>
-            <p class="text-muted">Kode Kelas: MTK-101 | Tahun Ajaran: 2024/2025</p>
+            <p class="text-muted">Tahun Ajaran: 2024/2025</p>
         </div>
     </div>
 
@@ -165,49 +165,73 @@
                         <div class="col-md-9">
                             <h5 class="mb-0">Daftar Materi</h5>
                         </div>
+
                         <div class="col-md-3 text-end">
-                            <button class="btn btn-sm btn-light">
+                            <a href="{{ route('guru.kelas.materi.create', $guruMapel->id_guru_mapel) }}"
+                                class="btn btn-sm btn-light">
                                 <i class="bi bi-plus-circle"></i> Tambah Materi
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
+
                 <div class="card-body">
+
+                    @if($materiList->isEmpty())
+                    <p class="text-muted text-center">Belum ada materi untuk kelas ini.</p>
+                    @else
+
                     <div class="list-group">
+
+                        @foreach($materiList as $materi)
                         <div class="list-group-item d-flex justify-content-between align-items-center">
+
                             <div>
-                                <h6 class="mb-1"><i class="bi bi-file-earmark-pdf"></i> Persamaan Linear Satu Variabel</h6>
-                                <p class="text-muted small mb-0">Diupload 15 Nov 2024 | 2.5 MB PDF</p>
+                                <h6 class="mb-1">
+                                    <i class="bi bi-file-earmark"></i> {{ $materi->judul_materi }}
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    Diupload {{ \Carbon\Carbon::parse($materi->tanggal_upload)->format('d M Y') }}
+                                </p>
                             </div>
+
                             <div>
-                                <button class="btn btn-sm btn-outline-secondary me-2"><i class="bi bi-download"></i></button>
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+
+                                @if($materi->file_path)
+                                <a href="{{ asset('storage/'.$materi->file_path) }}"
+                                    target="_blank"
+                                    class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="bi bi-eye"></i> </a>
+                                @endif
+
+                                <a href="{{ route('guru.materi.edit', $materi->id_materi) }}"
+                                    class="btn btn-sm btn-outline-success me-2">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <form action="{{ route('guru.materi.delete', $materi->id_materi) }}"
+                                    method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Hapus materi ini?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+
                             </div>
+
                         </div>
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1"><i class="bi bi-file-earmark-text"></i> Sistem Persamaan Linear Dua Variabel</h6>
-                                <p class="text-muted small mb-0">Diupload 10 Nov 2024 | File PPT</p>
-                            </div>
-                            <div>
-                                <button class="btn btn-sm btn-outline-secondary me-2"><i class="bi bi-download"></i></button>
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                            </div>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1"><i class="bi bi-link"></i> Video Materi Fungsi Kuadrat</h6>
-                                <p class="text-muted small mb-0">Diupload 5 Nov 2024 | Link YouTube</p>
-                            </div>
-                            <div>
-                                <button class="btn btn-sm btn-outline-secondary me-2"><i class="bi bi-eye"></i></button>
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                            </div>
-                        </div>
+                        @endforeach
+
                     </div>
+
+                    @endif
                 </div>
             </div>
         </div>
+
 
         <div class="tab-pane fade" id="tugas" role="tabpanel">
             <div class="card border-0 shadow-sm">

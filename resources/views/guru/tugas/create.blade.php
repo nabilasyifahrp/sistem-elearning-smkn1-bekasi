@@ -12,25 +12,25 @@
         <div class="card-body">
 
             @if ($errors->any())
-                <div class="alert alert-danger">
-                    <strong>Terjadi kesalahan:</strong>
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+            <div class="alert alert-danger">
+                <strong>Terjadi kesalahan:</strong>
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
             @endif
 
             <form action="{{ route('guru.kelas.tugas.store', $guruMapel->id_guru_mapel) }}"
-                  method="POST" enctype="multipart/form-data">
+                method="POST" enctype="multipart/form-data">
 
                 @csrf
 
                 <div class="mb-3">
                     <label class="form-label">Judul Tugas</label>
                     <input type="text" name="judul_tugas" class="form-control"
-                           value="{{ old('judul_tugas') }}" required>
+                        value="{{ old('judul_tugas') }}" required>
                 </div>
 
                 <div class="mb-3">
@@ -41,13 +41,13 @@
                 <div class="mb-3">
                     <label class="form-label">File Tugas (Opsional)</label>
                     <input type="file" name="file_tugas" class="form-control"
-                           accept=".pdf,.doc,.docx,.jpg,.png,.zip">
+                        accept=".pdf,.doc,.docx,.jpg,.png,.zip">
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Deadline</label>
                     <input type="date" name="deadline" class="form-control"
-                           value="{{ old('deadline') }}" required>
+                        value="{{ old('deadline') }}" required>
                 </div>
 
                 <button class="btn btn-success" style="background:#256343;">Simpan Tugas</button>

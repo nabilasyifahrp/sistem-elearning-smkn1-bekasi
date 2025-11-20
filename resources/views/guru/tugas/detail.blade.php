@@ -8,7 +8,7 @@
             <h3 class="mb-0" style="color:#256343;">Detail Tugas</h3>
             <p class="text-muted mb-0">
                 {{ $tugas->guruMapel->mapel->nama_mapel }}
-                – {{ $tugas->guruMapel->kelas->tingkat }}
+                {{ $tugas->guruMapel->kelas->tingkat }}
                 {{ $tugas->guruMapel->kelas->jurusan }}
                 {{ $tugas->guruMapel->kelas->kelas }}
             </p>
@@ -19,7 +19,6 @@
         </a>
     </div>
 
-    {{-- Informasi Tugas --}}
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header text-white" style="background:#256343;">
             <h5 class="mb-0">Informasi Tugas</h5>
@@ -53,7 +52,6 @@
         </div>
     </div>
 
-    {{-- Tabel Pengumpulan --}}
     <div class="card shadow-sm border-0">
         <div class="card-header text-white" style="background:#256343;">
             <h5 class="mb-0">Daftar Pengumpulan</h5>
