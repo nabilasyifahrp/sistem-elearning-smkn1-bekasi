@@ -84,12 +84,21 @@ Route::prefix('admin')->middleware(RoleMiddleware::class . ':admin')->group(func
         Route::get('/edit/{id}', [CrudPengumumanController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [CrudPengumumanController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [CrudPengumumanController::class, 'destroy'])->name('destroy');
-});
+    });
 });
 
 Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru.')->group(function () {
     Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
     Route::get('/kelas/{id_guru_mapel}', [GuruController::class, 'detailMapel'])->name('kelas.detail');
+
+    Route::get('/kelas/{id_guru_mapel}/materi', [GuruController::class, 'kelasMateriIndex'])->name('kelas.materi.index');
+    Route::get('/kelas/{id_guru_mapel}/materi/create', [GuruController::class, 'kelasMateriCreate'])->name('kelas.materi.create');
+    Route::post('/kelas/{id_guru_mapel}/materi/store', [GuruController::class, 'kelasMateriStore'])->name('kelas.materi.store');
+
+    Route::get('/materi/{id_materi}', [GuruController::class, 'materiDetail'])->name('materi.detail');
+    Route::get('/materi/{id_materi}/edit', [GuruController::class, 'materiEdit'])->name('materi.edit');
+    Route::put('/materi/{id_materi}/update', [GuruController::class, 'materiUpdate'])->name('materi.update');
+    Route::delete('/materi/{id_materi}', [GuruController::class, 'materiDelete'])->name('materi.delete');
 
     Route::get('/tugas', [GuruController::class, 'tugasIndex'])->name('tugas.index');
     Route::get('/tugas/{id_tugas}', [GuruController::class, 'tugasDetail'])->name('tugas.detail');
@@ -111,6 +120,7 @@ Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru
     Route::post('/izin/{id}/tolak', [GuruController::class, 'izinTolak'])->name('izin.tolak');
     Route::get('/pengumuman', [GuruController::class, 'pengumumanIndex'])->name('pengumuman.index');
 });
+
 
 Route::prefix('siswa')->middleware([RoleMiddleware::class . ':siswa'])->name('siswa.')->group(function () {
     Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');

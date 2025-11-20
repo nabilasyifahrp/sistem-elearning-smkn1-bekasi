@@ -32,5 +32,4 @@ class Absensi extends Model
     {
         return $this->belongsTo(JadwalMapel::class, 'id_jadwal', 'id_jadwal');
     }
-
 }

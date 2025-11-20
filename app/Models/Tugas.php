@@ -31,5 +31,8 @@ class Tugas extends Model
         return $this->belongsTo(GuruMapel::class, 'id_guru_mapel', 'id_guru_mapel');
     }
 
-    
+    public function pengumpulan()
+    {
+        return $this->hasMany(PengumpulanTugas::class, 'id_tugas', 'id_tugas');
+    }
 }

@@ -160,8 +160,13 @@
     <button class="hamburger" id="toggleMenu">☰</button>
     <div class="topbar-right">
         <div class="topbar-title">
-            <h5 class="fw-bold mb-0">Guru</h5>
-            <p class="text-muted small mb-0">{{ date('d M Y') }}</p>
+            <h5 class="fw-bold mb-0">{{ Auth::user()->guru->nama }}</h5>
+            @php
+            use Carbon\Carbon;
+            Carbon::setLocale('id');
+            $today = Carbon::now()->translatedFormat('l, d F Y');
+            @endphp
+            <p class="text-muted small mb-0">{{ $today }}</p>
         </div>
 
         <img src="{{ asset('assets/images/akun.png') }}" width="55">
@@ -241,6 +246,10 @@
         </svg>
         Keluar
     </a>
+
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 
 </div>
 
