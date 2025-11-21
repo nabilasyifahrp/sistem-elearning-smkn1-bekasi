@@ -7,22 +7,11 @@
             <div class="d-flex justify-content-between align-items-start">
                 <div>
                     <h1 class="mb-2" style="color: #256343; font-weight: 700; font-size: 2.5rem;">
-                        Selamat Datang Kembali
+                        Selamat Datang Kembali!
                     </h1>
-                    <p class="text-muted mb-0" style="font-size: 1.1rem;">
-                        {{ now()->translatedFormat('l, d F Y') }}
-                    </p>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="row mb-4">
-    <div class="col-12">
-        <a href="{{ route('guru.absensi.index') }}" class="btn btn-lg" style="background-color: #256343; color: white; padding: 12px 24px; font-weight: 600; transition: all 0.3s; border: none;">
-            <i class="bi bi-clipboard-check"></i> Kelola Absensi & Lihat Rekap
-        </a>
     </div>
 </div>
 

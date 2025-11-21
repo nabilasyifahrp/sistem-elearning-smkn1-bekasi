@@ -67,6 +67,12 @@
                         <i class="bi bi-people"></i> Siswa
                     </button>
                 </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="absensi-tab" data-bs-toggle="tab" data-bs-target="#absensi" type="button" style="color: #256343;">
+                        <i class="bi bi-calendar-check"></i> Absensi
+                    </button>
+                </li>
             </ul>
         </div>
     </div>
@@ -408,6 +414,92 @@
                 </div>
             </div>
         </div>
+
+        <div class="tab-pane fade" id="absensi" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header" style="background-color:#256343; color:white;">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-0">Absensi Siswa</h5>
+                        </div>
+
+                        <div class="col-md-6 text-end">
+                            <form action="{{ route('guru.absensi.buka', $guruMapel->id_guru_mapel) }}" method="POST">
+                                @csrf
+                                <button class="btn btn-light btn-sm">
+                                    <i class="bi bi-plus-circle"></i> Mulai Absensi
+                                </button>
+                            </form>
+
+
+                            <a href="{{ route('guru.absensi.rekap.wali', $guruMapel->kelas->id_kelas) }}"
+                                class="btn btn-outline-light btn-sm ms-2">
+                                <i class="bi bi-table"></i> Rekap Absensi
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card-body">
+
+                    @if(!$isWali)
+                    <p class="text-muted">Anda hanya dapat melihat rekap absensi.</p>
+                    @endif
+
+                    @if($rekapAbsensi->isEmpty())
+                    <p class="text-center text-muted">Belum ada data absensi.</p>
+                    @else
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead style="background-color:#f0f0f0;">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Tanggal</th>
+                                    <th>Nama Siswa</th>
+                                    <th>Status</th>
+                                    <th>Keterangan</th>
+
+                                    @if($isWali)
+                                    <th>Aksi</th>
+                                    @endif
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach($rekapAbsensi as $absen)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($absen->tanggal)->format('d M Y') }}</td>
+                                    <td>{{ $absen->siswa->nama }}</td>
+                                    <td>
+                                        <span class="badge 
+                                        @if($absen->status == 'hadir') bg-success 
+                                        @elseif($absen->status == 'izin') bg-info 
+                                        @elseif($absen->status == 'sakit') bg-warning 
+                                        @else bg-danger @endif">
+                                            {{ ucfirst($absen->status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $absen->keterangan ?? '-' }}</td>
+
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    @endif
+
+                </div>
+            </div>
+        </div>
+
     </div>
+    @endsection
 </div>
-@endsection
+</div>
+</div>
+
+</div>
+</div>
