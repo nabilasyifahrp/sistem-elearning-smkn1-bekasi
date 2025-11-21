@@ -24,13 +24,11 @@
         }
     </style>
 
-
 </head>
 
 <body>
 
     @include('partials.navbar-guru')
-    {{-- <script src="/assets/js/spa.js"></script> --}}
 
     <div class="content">
         @yield('content')

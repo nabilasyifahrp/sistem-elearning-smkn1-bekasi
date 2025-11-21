@@ -159,15 +159,18 @@
 <div class="topbar shadow-md">
     <button class="hamburger" id="toggleMenu">☰</button>
     <div class="topbar-right">
-        <div class="topbar-title">
-            <h5 class="fw-bold mb-0">{{ Auth::user()->guru->nama }}</h5>
-            @php
-            use Carbon\Carbon;
-            Carbon::setLocale('id');
-            $today = Carbon::now()->translatedFormat('l, d F Y');
-            @endphp
-            <p class="text-muted small mb-0">{{ $today }}</p>
-        </div>
+        <a href="{{ route('guru.profile.index') }}" class="text-decoration-none text-dark">
+            <div class="topbar-title">
+                <h5 class="fw-bold mb-0">{{ Auth::user()->guru->nama }}</h5>
+                @php
+                use Carbon\Carbon;
+                Carbon::setLocale('id');
+                $today = Carbon::now()->translatedFormat('l, d F Y');
+                @endphp
+                <p class="text-muted small mb-0">{{ $today }}</p>
+            </div>
+        </a>
+
 
         <img src="{{ asset('assets/images/akun.png') }}" width="55">
     </div>
@@ -188,24 +191,6 @@
             <path d="M3 12L12 3l9 9v9H3z" />
         </svg>
         Beranda
-    </a>
-
-    <a href="{{ Route::has('guru.kelas.index') ? route('guru.kelas.index') : route('guru.dashboard') }}"
-        class="menu-item {{ request()->routeIs('guru.kelas.*') ? 'active' : '' }}">
-        <svg fill="none" stroke-width="2">
-            <rect x="3" y="5" width="18" height="16" rx="2" />
-            <path d="M16 3v4M8 3v4M3 11h18" />
-        </svg>
-        Kelas Saya
-    </a>
-
-    <a href="{{ Route::has('guru.tugas.index') ? route('guru.tugas.index') : route('guru.dashboard') }}"
-        class="menu-item {{ request()->routeIs('guru.tugas.*') ? 'active' : '' }}">
-        <svg fill="none" stroke-width="2">
-            <path d="M4 4h16v16H4z" />
-            <path d="M4 10h16" />
-        </svg>
-        Tugas
     </a>
 
     <a href="{{ Route::has('guru.absensi.index') ? route('guru.absensi.index') : route('guru.dashboard') }}"
@@ -234,10 +219,19 @@
         Pengumuman
     </a>
 
+    <a href="{{ route('guru.profile.index') }}"
+        class="menu-item {{ request()->routeIs('guru.profile.*') ? 'active' : '' }}">
+        <svg fill="none" stroke-width="2">
+            <circle cx="12" cy="8" r="5" />
+            <path d="M3 21c0-5 4-8 9-8s9 3 9 8" />
+        </svg>
+        Profile
+    </a>
+
+
     <hr class="border-light">
 
-    <a href="#"
-        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
         class="menu-item">
         <svg fill="none" stroke-width="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

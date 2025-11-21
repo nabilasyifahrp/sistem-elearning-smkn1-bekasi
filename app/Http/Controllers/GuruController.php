@@ -12,8 +12,11 @@ use App\Models\Tugas;
 use App\Models\PengumpulanTugas;
 use App\Models\PengajuanIzin;
 use App\Models\Absensi;
+use App\Models\JadwalMapel;
 use App\Models\Siswa;
 use App\Models\Pengumuman;
+use App\Models\WaliKelas;
+use Illuminate\Support\Facades\Hash;
 
 class GuruController extends Controller
 {
@@ -66,7 +69,19 @@ class GuruController extends Controller
 
         $isWali = $guru ? $guru->waliKelas()->exists() : false;
 
-        return view('guru.kelas.detail', compact('guru', 'guruMapel', 'materiList', 'tugasList', 'isWali'));
+        $rekapAbsensi = Absensi::where('id_jadwal', $id_guru_mapel)
+            ->with('siswa')
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('guru.kelas.detail', compact(
+            'guru',
+            'guruMapel',
+            'materiList',
+            'tugasList',
+            'isWali',
+            'rekapAbsensi'
+        ));
     }
 
     public function tugasIndex()
@@ -290,5 +305,154 @@ class GuruController extends Controller
         $pengumuman = Pengumuman::orderBy('tanggal_upload', 'desc')->get();
 
         return view('guru.pengumuman.index', compact('pengumuman'));
+    }
+
+    public function detailTugasSiswa($id_tugas, $id_pengumpulan)
+    {
+        $tugas = Tugas::where('id_tugas', $id_tugas)->firstOrFail();
+        $pengumpulan = PengumpulanTugas::where('id_pengumpulan', $id_pengumpulan)
+            ->where('id_tugas', $id_tugas)
+            ->with('siswa')
+            ->firstOrFail();
+
+        return view('guru.tugas.detail-tugas-siswa', compact('tugas', 'pengumpulan'));
+    }
+
+    public function nilaiPengumpulan(Request $request, $id_tugas, $id_pengumpulan)
+    {
+        $request->validate([
+            'nilai' => ['required', 'regex:/^\d+([,.]\d+)?$/'],
+            'feedback' => 'nullable|string'
+        ]);
+
+        $nilai = str_replace(',', '.', $request->nilai);
+
+        $pengumpulan = PengumpulanTugas::findOrFail($id_pengumpulan);
+
+        $pengumpulan->nilai = $nilai;
+        $pengumpulan->feedback = $request->feedback;
+        $pengumpulan->save();
+
+        return back()->with('success', 'Nilai & feedback berhasil disimpan!');
+    }
+
+    public function submitNilai(Request $request, $id_tugas, $id_pengumpulan)
+    {
+        $request->validate([
+            'nilai' => 'required|numeric|min:0|max:100',
+            'feedback' => 'nullable|string',
+        ]);
+
+        $pengumpulan = PengumpulanTugas::where('id_pengumpulan', $id_pengumpulan)->firstOrFail();
+
+        $pengumpulan->nilai = $request->nilai;
+        $pengumpulan->feedback = $request->feedback;
+        $pengumpulan->save();
+
+        return redirect()->back()->with('success', 'Grade submitted successfully.');
+    }
+
+    public function profileIndex()
+    {
+        $user = Auth::user();
+        $guru = $user->guru;
+        return view('guru.profile.index', compact('guru'));
+    }
+
+    public function profileUpdate(Request $request)
+    {
+        $user = Auth::user();
+        $request->validate([
+            'password_baru' => 'nullable|min:6|confirmed'
+        ], [
+            'password_baru.min' => 'Password minimal 6 karakter.',
+            'password_baru.confirmed' => 'Konfirmasi password tidak cocok.'
+        ]);
+
+        if ($request->filled('password_baru')) {
+            $user->password = Hash::make($request->password_baru);
+            $user->save();
+
+            return redirect()->route('guru.profile.index')->with('success', 'Password berhasil diperbarui!');
+        }
+
+        return redirect()->route('guru.profile.index')->with('info', 'Tidak ada perubahan pada akun Anda.');
+    }
+
+    public function izinIndex()
+    {
+        $guru = Auth::user()->guru;
+        $waliKelas = $guru->waliKelas;
+
+        if (!$waliKelas) {
+            $pengajuanIzin = collect();
+        } else {
+            $pengajuanIzin = PengajuanIzin::whereIn('nis', function ($query) use ($waliKelas) {
+                $query->select('nis')
+                    ->from('siswas')
+                    ->where('id_kelas', $waliKelas->id_kelas);
+            })->orderBy('tanggal_mulai', 'desc')->get();
+        }
+
+        return view('guru.izin.index', compact('pengajuanIzin'));
+    }
+
+    public function izinSetujui($id)
+    {
+        $izin = PengajuanIzin::findOrFail($id);
+        $izin->status = 'disetujui';
+        $izin->save();
+
+        return redirect()->route('guru.izin.index')->with('success', 'Pengajuan izin disetujui.');
+    }
+
+    public function izinTolak($id)
+    {
+        $izin = PengajuanIzin::findOrFail($id);
+        $izin->status = 'ditolak';
+        $izin->save();
+
+        return redirect()->route('guru.izin.index')->with('success', 'Pengajuan izin ditolak.');
+    }
+
+    public function bukaAbsensi($id_guru_mapel)
+    {
+        $jadwal = JadwalMapel::where('id_guru_mapel', $id_guru_mapel)->first();
+
+        $kelas = $jadwal->kelas;
+
+        $siswaList = Siswa::where('id_kelas', $kelas->id_kelas)->get();
+
+        foreach ($siswaList as $siswa) {
+            Absensi::create([
+                'nis' => $siswa->nis,
+                'id_jadwal' => $jadwal->id_jadwal,
+                'tanggal' => now()->toDateString(),
+                'status' => 'alfa',
+            ]);
+        }
+
+        return back()->with('success', 'Sesi absensi dibuka untuk semua siswa.');
+    }
+
+    public function siswaHadir($id_jadwal)
+    {
+        Absensi::create([
+            'nis' => auth()->user()->nis,
+            'id_jadwal' => $id_jadwal,
+            'tanggal' => now()->toDateString(),
+            'status' => 'hadir',
+        ]);
+
+        return back()->with('success', 'Terima kasih, absensi berhasil!');
+    }
+
+    public function rekapAbsensiKelas($id_kelas)
+    {
+        $rekap = Absensi::whereHas('siswa', function ($q) use ($id_kelas) {
+            $q->where('id_kelas', $id_kelas);
+        })->orderBy('tanggal', 'desc')->get();
+
+        return view('guru.rekap-absensi', compact('rekap'));
     }
 }
