@@ -89,7 +89,6 @@ Route::prefix('admin')->middleware(RoleMiddleware::class . ':admin')->group(func
 
 Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru.')->group(function () {
     Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
-
     Route::get('/kelas/{id_guru_mapel}', [GuruController::class, 'detailMapel'])->name('kelas.detail');
 
     Route::get('/kelas/{id_guru_mapel}/materi', [GuruController::class, 'kelasMateriIndex'])->name('kelas.materi.index');
@@ -103,7 +102,7 @@ Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru
 
     Route::get('/tugas', [GuruController::class, 'tugasIndex'])->name('tugas.index');
     Route::get('/tugas/{id_tugas}/edit', [GuruController::class, 'tugasEdit'])->name('tugas.edit');
-    Route::post('/tugas/{id_tugas}/update', [GuruController::class, 'tugasUpdate'])->name('tugas.update');
+    Route::put('/tugas/{id_tugas}/update', [GuruController::class, 'tugasUpdate'])->name('tugas.update');
     Route::delete('/tugas/{id_tugas}', [GuruController::class, 'tugasDelete'])->name('tugas.delete');
     Route::get('/kelas/{id_guru_mapel}/tugas/create', [GuruController::class, 'kelasTugasCreate'])->name('kelas.tugas.create');
     Route::post('/kelas/{id_guru_mapel}/tugas/store', [GuruController::class, 'kelasTugasStore'])->name('kelas.tugas.store');
@@ -113,35 +112,31 @@ Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru
     Route::get('/tugas/{id_tugas}/pengumpulan', [GuruController::class, 'tugasDetail'])->name('tugas.pengumpulan');
     Route::get('/tugas/{id_tugas}', [GuruController::class, 'tugasDetail'])->name('tugas.detail');
 
-    Route::post('/kelas/{id_guru_mapel}/absensi/buka', [GuruController::class, 'bukaAbsensi'])->name('absensi.buka');
-    Route::post('/siswa/absensi/{id_jadwal}/hadir', [GuruController::class, 'siswaHadir'])->name('absensi.siswa.hadir');
-    Route::get('/kelas/{id_kelas}/absensi/rekap', [GuruController::class, 'rekapAbsensiKelas'])->name('absensi.rekap.wali');
+    Route::get('/kelas/{id_guru_mapel}/siswa/{nis}', [GuruController::class, 'detailSiswa'])->name('kelas.siswa.detail');
 
     Route::get('/izin', [GuruController::class, 'izinIndex'])->name('izin.index');
     Route::post('/izin/{id}/setujui', [GuruController::class, 'izinSetujui'])->name('izin.setujui');
     Route::post('/izin/{id}/tolak', [GuruController::class, 'izinTolak'])->name('izin.tolak');
     Route::get('/pengumuman', [GuruController::class, 'pengumumanIndex'])->name('pengumuman.index');
+    Route::get('/show/{id}', [GuruController::class, 'pengumumanShow'])->name('pengumuman.show');
 
-    Route::get('/izin', [GuruController::class, 'izinIndex'])->name('izin.index');
-    Route::post('/izin/{id}/setujui', [GuruController::class, 'izinSetujui'])->name('izin.setujui');
-    Route::post('/izin/{id}/tolak', [GuruController::class, 'izinTolak'])->name('izin.tolak');
-
+    Route::get('/kelas/{id}/absensi', [GuruController::class, 'absensiKelas'])->name('absensi.kelas');
+    Route::post('/absensi/{id}/buka', [GuruController::class, 'bukaSesiAbsensi'])->name('absensi.buka');
+    Route::post('/absensi/{id}/tutup/{tanggal}', [GuruController::class, 'tutupSesiAbsensi'])->name('absensi.tutup');
+    Route::get('/absensi/{id}/rekap', [GuruController::class, 'rekapAbsensi'])->name('absensi.rekap');
 
     Route::get('/profile', [GuruController::class, 'profileIndex'])->name('profile.index');
     Route::post('/profile/update', [GuruController::class, 'profileUpdate'])->name('profile.update');
 });
 
-
 Route::prefix('siswa')->middleware([RoleMiddleware::class . ':siswa'])->name('siswa.')->group(function () {
     Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
-
     Route::get('/kelas/{id_guru_mapel}', [SiswaController::class, 'detailMapel'])->name('kelas.detail');
 
     Route::get('/tugas', [SiswaController::class, 'tugasIndex'])->name('tugas.index');
     Route::get('/tugas/{id_tugas}', [SiswaController::class, 'tugasDetail'])->name('tugas.detail');
     Route::post('/tugas/{id_tugas}/kumpul', [SiswaController::class, 'tugasKumpul'])->name('tugas.kumpul');
-
-    Route::get('/absensi', [SiswaController::class, 'absensiIndex'])->name('absensi.index');
+    Route::delete('/tugas/{id_tugas}/batalkan', [SiswaController::class, 'tugasBatalkan'])->name('tugas.batalkan');
 
     Route::get('/izin', [SiswaController::class, 'izinIndex'])->name('izin.index');
     Route::get('/izin/create', [SiswaController::class, 'izinCreate'])->name('izin.create');
@@ -152,4 +147,7 @@ Route::prefix('siswa')->middleware([RoleMiddleware::class . ':siswa'])->name('si
 
     Route::get('/profile', [SiswaController::class, 'profileIndex'])->name('profile.index');
     Route::post('/profile/update', [SiswaController::class, 'profileUpdate'])->name('profile.update');
+
+    Route::post('/absensi/hadir/{id_guru_mapel}', [SiswaController::class, 'absenHadir'])->name('absensi.hadir');
+    Route::get('/siswa/absensi', [SiswaController::class, 'absensiIndex'])->name('absensi.index');
 });

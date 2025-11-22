@@ -138,9 +138,11 @@
                 z-index: 2000;
                 transition: left 0.3s ease;
             }
+
             .sidebar.show {
                 left: 0;
             }
+
             .topbar {
                 margin-left: 0 !important;
                 height: 70px;
@@ -149,26 +151,32 @@
                 gap: 10px;
                 flex-wrap: wrap;
             }
+
             .topbar-title h5 {
                 font-size: 16px;
                 margin-bottom: 2px;
             }
+
             .topbar-title p {
                 font-size: 12px;
             }
+
             .topbar img {
                 width: 40px;
             }
+
             .content {
                 margin-left: 0 !important;
                 margin-top: 10px;
                 padding: 20px 15px;
             }
+
             .hamburger {
                 display: block;
                 font-size: 26px;
                 margin-right: 10px;
             }
+
             body {
                 overflow-x: hidden;
             }
@@ -177,15 +185,14 @@
 </style>
 
 <div class="topbar shadow-md">
-    {{-- FIX HAMBURGER BUTTON --}}
     <button class="hamburger" id="toggleMenu">&#9776;</button>
 
     <div class="topbar-title">
         <h5 class="fw-bold mb-0">{{ Auth::user()->siswa->nama ?? 'Siswa' }}</h5>
         @php
-            use Carbon\Carbon;
-            Carbon::setLocale('id');
-            $today = Carbon::now()->translatedFormat('l, d F Y');
+        use Carbon\Carbon;
+        Carbon::setLocale('id');
+        $today = Carbon::now()->translatedFormat('l, d F Y');
         @endphp
         <p class="text-muted small mb-0">{{ $today }}</p>
     </div>
@@ -219,15 +226,6 @@
         Tugas Saya
     </a>
 
-    <a href="{{ route('siswa.absensi.index') }}"
-        class="menu-item {{ request()->routeIs('siswa.absensi.*') ? 'active' : '' }}">
-        <svg fill="none" stroke-width="2">
-            <circle cx="12" cy="7" r="4" />
-            <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
-        </svg>
-        Absensi
-    </a>
-
     <a href="{{ route('siswa.izin.index') }}"
         class="menu-item {{ request()->routeIs('siswa.izin.*') ? 'active' : '' }}">
         <svg fill="none" stroke-width="2">
@@ -259,7 +257,7 @@
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
     </form>
-    
+
     <a href="#"
         onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
         class="menu-item">

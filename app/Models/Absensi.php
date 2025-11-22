@@ -23,6 +23,10 @@ class Absensi extends Model
         'keterangan',
     ];
 
+    protected $casts = [
+        'tanggal' => 'date',
+    ];
+
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'nis', 'nis');
@@ -31,5 +35,10 @@ class Absensi extends Model
     public function jadwal()
     {
         return $this->belongsTo(JadwalMapel::class, 'id_jadwal', 'id_jadwal');
+    }
+
+    public function pengajuan()
+    {
+        return $this->belongsTo(PengajuanIzin::class, 'id_pengajuan', 'id_pengajuan');
     }
 }
