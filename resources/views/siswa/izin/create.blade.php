@@ -20,14 +20,14 @@
         </div>
         <div class="card-body">
             @if($errors->any())
-                <div class="alert alert-danger">
-                    <strong>Terjadi Kesalahan!</strong>
-                    <ul class="mb-0">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+            <div class="alert alert-danger">
+                <strong>Terjadi Kesalahan!</strong>
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
             @endif
 
             <form action="{{ route('siswa.izin.store') }}" method="POST" enctype="multipart/form-data">
@@ -38,13 +38,13 @@
                         <label class="form-label fw-bold">
                             Tanggal Mulai <span class="text-danger">*</span>
                         </label>
-                        <input type="date" 
-                               name="tanggal_mulai" 
-                               class="form-control @error('tanggal_mulai') is-invalid @enderror"
-                               value="{{ old('tanggal_mulai') }}"
-                               required>
+                        <input type="date"
+                            name="tanggal_mulai"
+                            class="form-control @error('tanggal_mulai') is-invalid @enderror"
+                            value="{{ old('tanggal_mulai') }}"
+                            required>
                         @error('tanggal_mulai')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <small class="text-muted">Pilih tanggal mulai izin</small>
                     </div>
@@ -53,13 +53,13 @@
                         <label class="form-label fw-bold">
                             Tanggal Selesai <span class="text-danger">*</span>
                         </label>
-                        <input type="date" 
-                               name="tanggal_selesai" 
-                               class="form-control @error('tanggal_selesai') is-invalid @enderror"
-                               value="{{ old('tanggal_selesai') }}"
-                               required>
+                        <input type="date"
+                            name="tanggal_selesai"
+                            class="form-control @error('tanggal_selesai') is-invalid @enderror"
+                            value="{{ old('tanggal_selesai') }}"
+                            required>
                         @error('tanggal_selesai')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <small class="text-muted">Pilih tanggal selesai izin</small>
                     </div>
@@ -71,17 +71,17 @@
                     </label>
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-check p-3 border rounded mb-2" 
-                                 style="cursor: pointer; transition: 0.2s;"
-                                 onmouseover="this.style.backgroundColor='#f8f9fa'"
-                                 onmouseout="this.style.backgroundColor='white'">
-                                <input class="form-check-input" 
-                                       type="radio" 
-                                       name="jenis_izin" 
-                                       id="izinSakit" 
-                                       value="sakit"
-                                       {{ old('jenis_izin') == 'sakit' ? 'checked' : '' }}
-                                       required>
+                            <div class="form-check p-3 border rounded mb-2"
+                                style="cursor: pointer; transition: 0.2s;"
+                                onmouseover="this.style.backgroundColor='#f8f9fa'"
+                                onmouseout="this.style.backgroundColor='white'">
+                                <input class="form-check-input"
+                                    type="radio"
+                                    name="jenis_izin"
+                                    id="izinSakit"
+                                    value="sakit"
+                                    {{ old('jenis_izin') == 'sakit' ? 'checked' : '' }}
+                                    required>
                                 <label class="form-check-label w-100" for="izinSakit" style="cursor: pointer;">
                                     <i class="bi bi-heart-pulse" style="color: #ff9800;"></i>
                                     <strong>Sakit</strong>
@@ -91,17 +91,17 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-check p-3 border rounded mb-2" 
-                                 style="cursor: pointer; transition: 0.2s;"
-                                 onmouseover="this.style.backgroundColor='#f8f9fa'"
-                                 onmouseout="this.style.backgroundColor='white'">
-                                <input class="form-check-input" 
-                                       type="radio" 
-                                       name="jenis_izin" 
-                                       id="izinKeperluan" 
-                                       value="izin"
-                                       {{ old('jenis_izin') == 'izin' ? 'checked' : '' }}
-                                       required>
+                            <div class="form-check p-3 border rounded mb-2"
+                                style="cursor: pointer; transition: 0.2s;"
+                                onmouseover="this.style.backgroundColor='#f8f9fa'"
+                                onmouseout="this.style.backgroundColor='white'">
+                                <input class="form-check-input"
+                                    type="radio"
+                                    name="jenis_izin"
+                                    id="izinKeperluan"
+                                    value="izin"
+                                    {{ old('jenis_izin') == 'izin' ? 'checked' : '' }}
+                                    required>
                                 <label class="form-check-label w-100" for="izinKeperluan" style="cursor: pointer;">
                                     <i class="bi bi-calendar-event" style="color: #17a2b8;"></i>
                                     <strong>Izin</strong>
@@ -112,7 +112,7 @@
                         </div>
                     </div>
                     @error('jenis_izin')
-                        <small class="text-danger">{{ $message }}</small>
+                    <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
 
@@ -120,16 +120,16 @@
                     <label class="form-label fw-bold">
                         Alasan <span class="text-danger">*</span>
                     </label>
-                    <textarea name="alasan" 
-                              class="form-control @error('alasan') is-invalid @enderror"
-                              rows="5"
-                              placeholder="Jelaskan alasan izin Anda dengan jelas dan lengkap..."
-                              required>{{ old('alasan') }}</textarea>
+                    <textarea name="alasan"
+                        class="form-control @error('alasan') is-invalid @enderror"
+                        rows="5"
+                        placeholder="Jelaskan alasan izin Anda dengan jelas dan lengkap..."
+                        required>{{ old('alasan') }}</textarea>
                     @error('alasan')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                     <small class="text-muted">
-                        Contoh: Sakit demam tinggi dan tidak bisa masuk sekolah, 
+                        Contoh: Sakit demam tinggi dan tidak bisa masuk sekolah,
                         atau ada keperluan keluarga yang mendesak
                     </small>
                 </div>
@@ -138,15 +138,15 @@
                     <label class="form-label fw-bold">
                         Bukti Pendukung (Opsional)
                     </label>
-                    <input type="file" 
-                           name="bukti_file" 
-                           class="form-control @error('bukti_file') is-invalid @enderror"
-                           accept=".pdf,.jpg,.jpeg,.png">
+                    <input type="file"
+                        name="bukti_file"
+                        class="form-control @error('bukti_file') is-invalid @enderror"
+                        accept=".pdf,.jpg,.jpeg,.png">
                     @error('bukti_file')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                     <small class="text-muted">
-                        Upload surat keterangan dokter, foto, atau dokumen pendukung lainnya 
+                        Upload surat keterangan dokter, foto, atau dokumen pendukung lainnya
                         (Format: PDF, JPG, PNG | Max: 2MB)
                     </small>
                 </div>
@@ -162,9 +162,9 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" 
-                            class="btn text-white" 
-                            style="background-color: #256343;">
+                    <button type="submit"
+                        class="btn text-white"
+                        style="background-color: #256343;">
                         <i class="bi bi-send"></i> Ajukan Izin
                     </button>
                     <a href="{{ route('siswa.izin.index') }}" class="btn btn-secondary">

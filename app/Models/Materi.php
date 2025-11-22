@@ -22,6 +22,10 @@ class Materi extends Model
         'id_guru_mapel',
     ];
 
+    protected $casts = [
+        'tanggal_upload' => 'date',
+    ];
+
     public function guruMapel()
     {
         return $this->belongsTo(GuruMapel::class, 'id_guru_mapel', 'id_guru_mapel');

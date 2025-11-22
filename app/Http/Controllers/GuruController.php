@@ -16,6 +16,7 @@ use App\Models\JadwalMapel;
 use App\Models\Siswa;
 use App\Models\Pengumuman;
 use App\Models\WaliKelas;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class GuruController extends Controller
@@ -69,63 +70,13 @@ class GuruController extends Controller
 
         $isWali = $guru ? $guru->waliKelas()->exists() : false;
 
-        $rekapAbsensi = Absensi::where('id_jadwal', $id_guru_mapel)
-            ->with('siswa')
-            ->orderBy('tanggal', 'desc')
-            ->get();
-
         return view('guru.kelas.detail', compact(
             'guru',
             'guruMapel',
             'materiList',
             'tugasList',
             'isWali',
-            'rekapAbsensi'
         ));
-    }
-
-    public function tugasIndex()
-    {
-        $user = Auth::user();
-        $guru = $user ? $user->guru : null;
-
-        $tugasByKelas = collect();
-
-        if ($guru) {
-            $tugas = Tugas::whereHas('guruMapel', function ($q) use ($guru) {
-                $q->where('id_guru', $guru->id_guru);
-            })->with(['guruMapel.kelas', 'guruMapel.mapel'])->get();
-
-            $tugasByKelas = $tugas->groupBy(function ($item) {
-                $k = $item->guruMapel->kelas;
-                return $k->tingkat . ' ' . $k->jurusan . ' ' . $k->kelas;
-            });
-        }
-
-        return view('guru.tugas.index', ['tugas' => $tugasByKelas]);
-    }
-
-    public function tugasDetail($id_tugas)
-    {
-        $tugas = Tugas::with(['guruMapel.mapel', 'guruMapel.kelas'])->findOrFail($id_tugas);
-
-        $pengumpulan = PengumpulanTugas::where('id_tugas', $id_tugas)
-            ->with('siswa')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('guru.tugas.detail', compact('tugas', 'pengumpulan'));
-    }
-
-    public function kelasTugasIndex($id_guru_mapel)
-    {
-        $guruMapel = GuruMapel::with(['mapel', 'kelas'])->findOrFail($id_guru_mapel);
-
-        $tugas = Tugas::where('id_guru_mapel', $id_guru_mapel)
-            ->orderBy('deadline')
-            ->get();
-
-        return view('guru.tugas.index', compact('guruMapel', 'tugas'));
     }
 
     public function kelasTugasCreate($id_guru_mapel)
@@ -159,8 +110,7 @@ class GuruController extends Controller
             'file_path'     => $filePath,
         ]);
 
-        return redirect()->route('guru.kelas.detail', $id_guru_mapel)
-            ->with('success', 'Tugas berhasil dibuat.');
+        return redirect()->back()->with('success', 'Tugas berhasil ditambahkan.');
     }
 
     public function tugasEdit($id_tugas)
@@ -247,8 +197,7 @@ class GuruController extends Controller
             'tanggal_upload' => date('Y-m-d'),
         ]);
 
-        return redirect()->route('guru.kelas.detail', $id_guru_mapel)
-            ->with('success', 'Materi berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Materi berhasil ditambahkan');
     }
 
     public function materiDetail($id_materi)
@@ -307,12 +256,18 @@ class GuruController extends Controller
         return view('guru.pengumuman.index', compact('pengumuman'));
     }
 
+    public function pengumumanShow($id)
+    {
+        $pengumuman = Pengumuman::findOrFail($id);
+        return view('guru.pengumuman.show', compact('pengumuman'));
+    }
+
     public function detailTugasSiswa($id_tugas, $id_pengumpulan)
     {
         $tugas = Tugas::where('id_tugas', $id_tugas)->firstOrFail();
         $pengumpulan = PengumpulanTugas::where('id_pengumpulan', $id_pengumpulan)
             ->where('id_tugas', $id_tugas)
-            ->with('siswa')
+            ->with('siswa.user')
             ->firstOrFail();
 
         return view('guru.tugas.detail-tugas-siswa', compact('tugas', 'pengumpulan'));
@@ -350,6 +305,24 @@ class GuruController extends Controller
         $pengumpulan->save();
 
         return redirect()->back()->with('success', 'Grade submitted successfully.');
+    }
+
+    public function detailSiswa($id_guru_mapel, $nis)
+    {
+        $guruMapel = GuruMapel::with(['mapel', 'kelas.siswa'])->findOrFail($id_guru_mapel);
+
+        $siswa = Siswa::where('nis', $nis)->firstOrFail();
+
+        $tugasList = Tugas::where('id_guru_mapel', $id_guru_mapel)->get();
+
+        $pengumpulan = PengumpulanTugas::where('nis', $nis)->get()->keyBy('id_tugas');
+
+        return view('guru.kelas.siswa-detail', compact(
+            'guruMapel',
+            'siswa',
+            'tugasList',
+            'pengumpulan'
+        ));
     }
 
     public function profileIndex()
@@ -415,44 +388,163 @@ class GuruController extends Controller
         return redirect()->route('guru.izin.index')->with('success', 'Pengajuan izin ditolak.');
     }
 
-    public function bukaAbsensi($id_guru_mapel)
+    public function absensiKelas($id_guru_mapel)
     {
-        $jadwal = JadwalMapel::where('id_guru_mapel', $id_guru_mapel)->first();
+        $user = Auth::user();
+        $guru = $user ? $user->guru : null;
 
-        $kelas = $jadwal->kelas;
+        $guruMapel = GuruMapel::with(['mapel', 'kelas.siswa'])
+            ->findOrFail($id_guru_mapel);
 
-        $siswaList = Siswa::where('id_kelas', $kelas->id_kelas)->get();
+        $today = now()->toDateString();
 
-        foreach ($siswaList as $siswa) {
-            Absensi::create([
-                'nis' => $siswa->nis,
-                'id_jadwal' => $jadwal->id_jadwal,
-                'tanggal' => now()->toDateString(),
-                'status' => 'alfa',
-            ]);
-        }
+        $absensiHariIni = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
+            $q->where('id_guru_mapel', $id_guru_mapel);
+        })
+            ->where('tanggal', $today)
+            ->get()
+            ->keyBy('nis');
 
-        return back()->with('success', 'Sesi absensi dibuka untuk semua siswa.');
+        $belumAbsen = $absensiHariIni
+            ->filter(fn($a) => $a->status === 'alfa' && $a->keterangan === null)
+            ->count();
+
+        $alfa = $absensiHariIni
+            ->filter(fn($a) => $a->status === 'alfa' && $a->keterangan !== null)
+            ->count();
+
+        $siswaIzin = PengajuanIzin::where('status', 'disetujui')
+            ->where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->whereIn('nis', $guruMapel->kelas->siswa->pluck('nis'))
+            ->get()
+            ->keyBy('nis');
+
+        return view('guru.absensi.kelas', compact(
+            'guru',
+            'guruMapel',
+            'absensiHariIni',
+            'siswaIzin',
+            'belumAbsen',
+            'alfa'
+        ));
     }
 
-    public function siswaHadir($id_jadwal)
+    public function bukaSesiAbsensi(Request $request, $id_guru_mapel)
     {
-        Absensi::create([
-            'nis' => auth()->user()->nis,
-            'id_jadwal' => $id_jadwal,
-            'tanggal' => now()->toDateString(),
-            'status' => 'hadir',
+        $request->validate([
+            'tanggal' => 'required|date',
         ]);
 
-        return back()->with('success', 'Terima kasih, absensi berhasil!');
+        $guruMapel = GuruMapel::with('kelas.siswa')
+            ->findOrFail($id_guru_mapel);
+
+        $tanggal = $request->tanggal;
+
+        $jadwal = JadwalMapel::where('id_guru_mapel', $id_guru_mapel)->first();
+
+        if (!$jadwal) {
+            return back()->with('error', 'Jadwal tidak ditemukan untuk kelas ini!');
+        }
+
+        $sudahAda = Absensi::where('id_jadwal', $jadwal->id_jadwal)
+            ->where('tanggal', $tanggal)
+            ->exists();
+
+        if ($sudahAda) {
+            return back()->with('error', 'Sesi absensi untuk tanggal ini sudah dibuka!');
+        }
+
+        $siswaIzin = PengajuanIzin::where('status', 'disetujui')
+            ->where('tanggal_mulai', '<=', $tanggal)
+            ->where('tanggal_selesai', '>=', $tanggal)
+            ->whereIn('nis', $guruMapel->kelas->siswa->pluck('nis'))
+            ->get()
+            ->keyBy('nis');
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($guruMapel->kelas->siswa as $siswa) {
+
+                if (isset($siswaIzin[$siswa->nis])) {
+                    $izin = $siswaIzin[$siswa->nis];
+
+                    $status = $izin->jenis_izin === 'sakit' ? 'sakit' : 'izin';
+
+                    Absensi::create([
+                        'nis' => $siswa->nis,
+                        'id_jadwal' => $jadwal->id_jadwal,
+                        'id_pengajuan' => $izin->id_pengajuan,
+                        'tanggal' => $tanggal,
+                        'status' => $status,
+                        'keterangan' => 'Otomatis: Izin disetujui wali kelas',
+                    ]);
+                } else {
+                    Absensi::create([
+                        'nis' => $siswa->nis,
+                        'id_jadwal' => $jadwal->id_jadwal,
+                        'tanggal' => $tanggal,
+                        'status' => 'alfa',
+                        'keterangan' => null,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return back()->with('success', 'Sesi absensi berhasil dibuka!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with(
+                'error',
+                'Terjadi kesalahan saat membuka sesi absensi: ' . $e->getMessage()
+            );
+        }
     }
 
-    public function rekapAbsensiKelas($id_kelas)
+    public function tutupSesiAbsensi($id_guru_mapel, $tanggal)
     {
-        $rekap = Absensi::whereHas('siswa', function ($q) use ($id_kelas) {
-            $q->where('id_kelas', $id_kelas);
-        })->orderBy('tanggal', 'desc')->get();
+        Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
+            $q->where('id_guru_mapel', $id_guru_mapel);
+        })
+            ->where('tanggal', $tanggal)
+            ->where('status', 'alfa')
+            ->whereNull('id_pengajuan')
+            ->update([
+                'keterangan' => 'Tidak hadir dan tidak ada keterangan'
+            ]);
 
-        return view('guru.rekap-absensi', compact('rekap'));
+        return back()->with('success', 'Sesi absensi ditutup. Siswa yang tidak hadir tetap alfa.');
+    }
+
+    public function rekapAbsensi(Request $request, $id_guru_mapel)
+    {
+        $guruMapel = GuruMapel::with(['mapel', 'kelas.siswa'])
+            ->findOrFail($id_guru_mapel);
+
+        $bulan = $request->input('bulan', now()->format('m'));
+        $tahun = $request->input('tahun', now()->format('Y'));
+
+        $absensiData = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
+            $q->where('id_guru_mapel', $id_guru_mapel);
+        })
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->get();
+
+        $rekap = $guruMapel->kelas->siswa->map(function ($siswa) use ($absensiData) {
+            $absensiSiswa = $absensiData->where('nis', $siswa->nis);
+
+            return [
+                'siswa' => $siswa,
+                'total' => $absensiSiswa->count(),
+                'hadir' => $absensiSiswa->where('status', 'hadir')->count(),
+                'izin'  => $absensiSiswa->where('status', 'izin')->count(),
+                'sakit' => $absensiSiswa->where('status', 'sakit')->count(),
+                'alfa'  => $absensiSiswa->where('status', 'alfa')->count(),
+            ];
+        });
+
+        return view('guru.absensi.rekap', compact('guruMapel', 'rekap', 'bulan', 'tahun'));
     }
 }

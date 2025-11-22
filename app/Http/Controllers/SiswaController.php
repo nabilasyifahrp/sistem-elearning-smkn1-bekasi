@@ -38,7 +38,7 @@ class SiswaController extends Controller
 
         $tugasAktif = Tugas::whereHas('guruMapel', function ($q) use ($siswa) {
             $q->where('id_kelas', $siswa->id_kelas)
-              ->where('tahun_ajaran', $siswa->tahun_ajaran);
+                ->where('tahun_ajaran', $siswa->tahun_ajaran);
         })->where('deadline', '>=', now())->count();
 
         $pengumuman = Pengumuman::orderBy('tanggal_upload', 'desc')->limit(5)->get();
@@ -46,6 +46,9 @@ class SiswaController extends Controller
         return view('siswa.dashboard', compact('siswa', 'mapelList', 'tugasAktif', 'pengumuman'));
     }
 
+    /**
+     * DETAIL MAPEL (UPDATED — termasuk absensi)
+     */
     public function detailMapel($id_guru_mapel)
     {
         $user = Auth::user();
@@ -65,8 +68,55 @@ class SiswaController extends Controller
             ->orderBy('deadline', 'asc')
             ->get();
 
-        return view('siswa.kelas.detail', compact('siswa', 'guruMapel', 'materiList', 'tugasList'));
+        // CEK ABSENSI HARI INI
+        $today = now()->toDateString();
+        $absensiHariIni = null;
+
+        if ($siswa) {
+            $absensiHariIni = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
+                $q->where('id_guru_mapel', $id_guru_mapel);
+            })
+                ->where('nis', $siswa->nis)
+                ->where('tanggal', $today)
+                ->first();
+        }
+
+        return view('siswa.kelas.detail', compact('siswa', 'guruMapel', 'materiList', 'tugasList', 'absensiHariIni'));
     }
+
+    public function absenHadir($id_guru_mapel)
+    {
+        $user = Auth::user();
+        $siswa = $user->siswa;
+        $today = now()->toDateString();
+
+        $absensi = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
+            $q->where('id_guru_mapel', $id_guru_mapel);
+        })
+            ->where('nis', $siswa->nis)
+            ->where('tanggal', $today)
+            ->first();
+
+        if (!$absensi) {
+            return back()->with('error', 'Sesi absensi belum dibuka oleh guru!');
+        }
+
+        if ($absensi->id_pengajuan) {
+            return back()->with('error', 'Anda sudah tercatat izin hari ini!');
+        }
+
+        if ($absensi->status === 'hadir') {
+            return back()->with('info', 'Anda sudah melakukan absensi hari ini!');
+        }
+
+        $absensi->update([
+            'status' => 'hadir',
+            'keterangan' => 'Hadir',
+        ]);
+
+        return back()->with('success', 'Absensi berhasil! Anda tercatat hadir.');
+    }
+
 
     public function tugasIndex()
     {
@@ -78,7 +128,7 @@ class SiswaController extends Controller
         if ($siswa) {
             $tugasList = Tugas::whereHas('guruMapel', function ($q) use ($siswa) {
                 $q->where('id_kelas', $siswa->id_kelas)
-                  ->where('tahun_ajaran', $siswa->tahun_ajaran);
+                    ->where('tahun_ajaran', $siswa->tahun_ajaran);
             })->with(['guruMapel.kelas', 'guruMapel.mapel'])
                 ->orderBy('deadline', 'asc')
                 ->get();
@@ -98,12 +148,9 @@ class SiswaController extends Controller
             abort(403, 'Anda tidak memiliki akses ke tugas ini.');
         }
 
-        $pengumpulan = null;
-        if ($siswa) {
-            $pengumpulan = PengumpulanTugas::where('id_tugas', $id_tugas)
-                ->where('nis', $siswa->nis)
-                ->first();
-        }
+        $pengumpulan = PengumpulanTugas::where('id_tugas', $id_tugas)
+            ->where('nis', $siswa->nis)
+            ->first();
 
         return view('siswa.tugas.detail', compact('tugas', 'pengumpulan', 'siswa'));
     }
@@ -114,18 +161,18 @@ class SiswaController extends Controller
         $siswa = $user->siswa;
 
         $request->validate([
-            'isi_tugas' => 'required|string',
-            'file_tugas' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,zip|max:5120'
-        ], [
-            'isi_tugas.required' => 'Isi tugas wajib diisi.',
-            'file_tugas.mimes' => 'Format file tidak didukung. Gunakan: PDF, DOC, DOCX, JPG, PNG, atau ZIP.',
-            'file_tugas.max' => 'Ukuran file maksimal 5MB.'
+            'jawaban' => 'nullable|string',
+            'file_tugas' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,zip,rar,ppt,pptx,xls,xlsx',
         ]);
+
+        if (!$request->jawaban && !$request->hasFile('file_tugas')) {
+            return redirect()->back()->with('error', 'Isi jawaban atau unggah file.');
+        }
 
         $tugas = Tugas::findOrFail($id_tugas);
 
         if ($tugas->guruMapel->id_kelas !== $siswa->id_kelas) {
-            abort(403, 'Anda tidak memiliki akses untuk mengumpulkan tugas ini.');
+            abort(403);
         }
 
         $existing = PengumpulanTugas::where('id_tugas', $id_tugas)
@@ -133,13 +180,14 @@ class SiswaController extends Controller
             ->first();
 
         if ($existing) {
-            return redirect()->route('siswa.tugas.detail', $id_tugas)
-                ->with('error', 'Anda sudah mengumpulkan tugas ini sebelumnya.');
+            return back()->with('error', 'Anda sudah mengumpulkan tugas ini');
         }
 
         $filePath = null;
         if ($request->hasFile('file_tugas')) {
-            $filePath = $request->file('file_tugas')->store('pengumpulan_tugas', 'public');
+            $file = $request->file('file_tugas');
+            $fileName = time() . $siswa->nis . $file->getClientOriginalName();
+            $filePath = $file->storeAs('pengumpulan_tugas', $fileName, 'public');
         }
 
         $status = now() > $tugas->deadline ? 'Terlambat' : 'Sudah Dikumpulkan';
@@ -147,9 +195,12 @@ class SiswaController extends Controller
         PengumpulanTugas::create([
             'id_tugas' => $id_tugas,
             'nis' => $siswa->nis,
-            'isi_tugas' => $request->isi_tugas,
+            'isi_tugas' => $request->jawaban,
+            'jawaban' => $request->jawaban,
             'file_path' => $filePath,
+            'file_pengumpulan' => $filePath,
             'status' => $status,
+            'waktu_pengumpulan' => now(),
             'tanggal_pengumpulan' => now()
         ]);
 
@@ -157,80 +208,94 @@ class SiswaController extends Controller
             ->with('success', 'Tugas berhasil dikumpulkan!');
     }
 
+    public function tugasBatalkan($id_tugas)
+    {
+        $siswa = Auth::user()->siswa;
+
+        $pengumpulan = PengumpulanTugas::where('id_tugas', $id_tugas)
+            ->where('nis', $siswa->nis)
+            ->first();
+
+        if (!$pengumpulan) {
+            return back()->with('error', 'Pengumpulan tidak ditemukan.');
+        }
+
+        if ($pengumpulan->nilai !== null) {
+            return back()->with('error', 'Tugas sudah dinilai, tidak bisa dibatalkan.');
+        }
+
+        if ($pengumpulan->file_pengumpulan && Storage::exists('public/' . $pengumpulan->file_pengumpulan)) {
+            Storage::delete('public/' . $pengumpulan->file_pengumpulan);
+        }
+
+        $pengumpulan->delete();
+
+        return back()->with('success', 'Pengumpulan tugas dibatalkan.');
+    }
+
     public function absensiIndex()
     {
         $user = Auth::user();
         $siswa = $user ? $user->siswa : null;
 
-        $absensiList = collect();
-        if ($siswa) {
-            $absensiList = Absensi::where('nis', $siswa->nis)
-                ->with(['jadwal.guruMapel.mapel'])
-                ->orderBy('tanggal', 'desc')
-                ->paginate(15);
-        }
+        $absensiList = Absensi::where('nis', $siswa->nis)
+            ->with(['jadwal.guruMapel.mapel'])
+            ->orderBy('tanggal', 'desc')
+            ->paginate(15);
 
         return view('siswa.absensi.index', compact('absensiList', 'siswa'));
     }
 
     public function izinIndex()
     {
-        $user = Auth::user();
-        $siswa = $user ? $user->siswa : null;
+        $siswa = Auth::user()->siswa;
 
-        $izinList = collect();
-        if ($siswa) {
-            $izinList = PengajuanIzin::where('nis', $siswa->nis)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        }
+        $izinList = PengajuanIzin::where('nis', $siswa->nis)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('siswa.izin.index', compact('izinList', 'siswa'));
     }
 
     public function izinCreate()
     {
-        $user = Auth::user();
-        $siswa = $user->siswa;
-        
+        $siswa = Auth::user()->siswa;
         return view('siswa.izin.create', compact('siswa'));
     }
 
     public function izinStore(Request $request)
     {
-        $user = Auth::user();
-        $siswa = $user->siswa;
+        $siswa = Auth::user()->siswa;
 
         $request->validate([
-            'tanggal_mulai' => 'required|date|after_or_equal:today',
+            'jenis' => 'required|in:izin,sakit',
+            'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'jenis_izin' => 'required|in:sakit,izin',
-            'alasan' => 'required|string|min:10',
-            'bukti_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048'
-        ], [
-            'tanggal_mulai.after_or_equal' => 'Tanggal mulai tidak boleh sebelum hari ini.',
-            'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.',
-            'alasan.min' => 'Alasan minimal 10 karakter.',
-            'bukti_file.max' => 'Ukuran file maksimal 2MB.'
+            'alasan' => 'required|string',
+            'bukti_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx'
         ]);
 
         $filePath = null;
         if ($request->hasFile('bukti_file')) {
-            $filePath = $request->file('bukti_file')->store('izin_files', 'public');
+            $file = $request->file('bukti_file');
+            $fileName = time() . $siswa->nis . $file->getClientOriginalName();
+            $filePath = $file->storeAs('bukti_izin', $fileName, 'public');
         }
 
         PengajuanIzin::create([
             'nis' => $siswa->nis,
+            'jenis' => $request->jenis,
+            'jenis_izin' => $request->jenis,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
-            'jenis_izin' => $request->jenis_izin,
             'alasan' => $request->alasan,
             'bukti_file' => $filePath,
-            'status' => 'pending'
+            'status' => 'pending',
+            'tanggal_pengajuan' => now(),
         ]);
 
         return redirect()->route('siswa.izin.index')
-            ->with('success', 'Pengajuan izin berhasil dikirim!');
+            ->with('success', 'Pengajuan izin berhasil dikirim.');
     }
 
     public function pengumumanIndex()
@@ -247,8 +312,7 @@ class SiswaController extends Controller
 
     public function profileIndex()
     {
-        $user = Auth::user();
-        $siswa = $user->siswa;
+        $siswa = Auth::user()->siswa;
         return view('siswa.profile.index', compact('siswa'));
     }
 
@@ -258,9 +322,6 @@ class SiswaController extends Controller
 
         $request->validate([
             'password_baru' => 'nullable|min:6|confirmed'
-        ], [
-            'password_baru.min' => 'Password minimal 6 karakter.',
-            'password_baru.confirmed' => 'Konfirmasi password tidak cocok.'
         ]);
 
         if ($request->filled('password_baru')) {
@@ -273,5 +334,29 @@ class SiswaController extends Controller
 
         return redirect()->route('siswa.profile.index')
             ->with('info', 'Tidak ada perubahan.');
+    }
+
+    public function rekapAbsensi(Request $request)
+    {
+        $siswa = Auth::user()->siswa;
+
+        $bulan = $request->bulan ?? now()->month;
+        $tahun = $request->tahun ?? now()->year;
+
+        $absensi = Absensi::where('nis', $siswa->nis)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->with(['jadwal.guruMapel.mapel'])
+            ->get();
+
+        $rekap = [
+            'pertemuan' => $absensi->count(),
+            'hadir' => $absensi->where('status', 'hadir')->count(),
+            'izin'  => $absensi->where('status', 'izin')->count(),
+            'sakit' => $absensi->where('status', 'sakit')->count(),
+            'alfa'  => $absensi->where('status', 'alfa')->count(),
+        ];
+
+        return view('siswa.absensi.rekap', compact('rekap', 'absensi', 'bulan', 'tahun', 'siswa'));
     }
 }

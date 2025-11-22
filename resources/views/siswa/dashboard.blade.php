@@ -42,38 +42,42 @@
         .info-title {
             font-size: 16px;
             font-weight: 600;
-            word-break: break-word;
         }
 
         .info-value {
             font-size: 14px;
             font-weight: 500;
-            word-break: break-word;
         }
 
-        .kelas-card {
+        .mapel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .mapel-card {
             background: white;
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-            margin-bottom: 15px;
             transition: 0.3s;
             cursor: pointer;
         }
 
-        .kelas-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(37, 99, 67, 0.15);
+        .mapel-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 18px rgba(37, 99, 67, 0.18);
         }
 
-        .kelas-title {
+        .mapel-title {
             font-size: 18px;
             font-weight: 700;
             color: #256343;
             margin-bottom: 8px;
         }
 
-        .kelas-info {
+        .mapel-info {
             font-size: 14px;
             color: #666;
         }
@@ -99,7 +103,11 @@
     </style>
 
     <h2 class="fw-bold">Selamat datang, {{ $siswa->nama ?? 'Siswa' }}!</h2>
-    <p class="text-muted">Kelas: {{ $siswa->kelas->tingkat ?? '' }} {{ $siswa->kelas->jurusan ?? '' }} {{ $siswa->kelas->kelas ?? '' }}</p>
+    <p class="text-muted">Kelas:
+        {{ $siswa->kelas->tingkat ?? '' }}
+        {{ $siswa->kelas->jurusan ?? '' }}
+        {{ $siswa->kelas->kelas ?? '' }}
+    </p>
 
     <div class="row row-equal mb-4">
         <div class="col-12 col-sm-6 col-md-4 mb-3">
@@ -143,22 +151,26 @@
 
     <h4 class="fw-bold mb-3">Mata Pelajaran Saya</h4>
 
-    @forelse($mapelList as $item)
-    <div class="kelas-card" onclick="window.location='{{ route('siswa.kelas.detail', $item->id_guru_mapel) }}'">
-        <div class="kelas-title">{{ $item->mapel->nama_mapel }}</div>
-        <div class="kelas-info">
-            Guru: {{ $item->guru->nama }} | 
-            Kelas: {{ $item->kelas->tingkat }} {{ $item->kelas->jurusan }} {{ $item->kelas->kelas }}
-        </div>
-    </div>
-    @empty
-    <p class="text-muted">Belum ada mata pelajaran.</p>
-    @endforelse
+    <div class="mapel-grid">
+        @forelse($mapelList as $item)
+        <div class="mapel-card" onclick="window.location='{{ route('siswa.kelas.detail', $item->id_guru_mapel) }}'">
+            <div class="mapel-title">{{ $item->mapel->nama_mapel }}</div>
 
-    <h4 class="fw-bold mb-3 mt-5">Pengumuman Terbaru</h4>
+            <div class="mapel-info">
+                Guru: {{ $item->guru->nama }} <br>
+                Kelas: {{ $item->kelas->tingkat }} {{ $item->kelas->jurusan }} {{ $item->kelas->kelas }}
+            </div>
+        </div>
+        @empty
+        <p class="text-muted">Belum ada mata pelajaran.</p>
+        @endforelse
+    </div>
+
+    <h4 class="fw-bold mb-3 mt-4">Pengumuman Terbaru</h4>
 
     @foreach ($pengumuman as $item)
-    <div class="pengumuman-box shadow-sm" onclick="window.location='{{ route('siswa.pengumuman.show', $item->id_pengumuman) }}'">
+    <div class="pengumuman-box shadow-sm"
+        onclick="window.location='{{ route('siswa.pengumuman.show', $item->id_pengumuman) }}'">
         <div class="pengumuman-title">{{ $item->judul }}</div>
         <p class="mb-0 small text-muted">{{ $item->tanggal_upload->format('d M Y') }}</p>
     </div>

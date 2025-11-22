@@ -171,7 +171,6 @@
             </div>
         </a>
 
-
         <img src="{{ asset('assets/images/akun.png') }}" width="55">
     </div>
 </div>
@@ -193,15 +192,7 @@
         Beranda
     </a>
 
-    <a href="{{ Route::has('guru.absensi.index') ? route('guru.absensi.index') : route('guru.dashboard') }}"
-        class="menu-item {{ request()->routeIs('guru.absensi.*') ? 'active' : '' }}">
-        <svg fill="none" stroke-width="2">
-            <circle cx="12" cy="7" r="4" />
-            <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
-        </svg>
-        Absensi
-    </a>
-
+    @if(Auth::user()->guru->waliKelas ?? false)
     <a href="{{ Route::has('guru.izin.index') ? route('guru.izin.index') : route('guru.dashboard') }}"
         class="menu-item {{ request()->routeIs('guru.izin.*') ? 'active' : '' }}">
         <svg fill="none" stroke-width="2">
@@ -210,6 +201,7 @@
         </svg>
         Pengajuan Izin
     </a>
+    @endif
 
     <a href="{{ Route::has('guru.pengumuman.index') ? route('guru.pengumuman.index') : route('guru.dashboard') }}"
         class="menu-item {{ request()->routeIs('guru.pengumuman.*') ? 'active' : '' }}">
@@ -227,7 +219,6 @@
         </svg>
         Profile
     </a>
-
 
     <hr class="border-light">
 
