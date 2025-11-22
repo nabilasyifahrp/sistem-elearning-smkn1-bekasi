@@ -143,6 +143,18 @@ class GuruController extends Controller
         return redirect()->back()->with('success', 'Tugas berhasil diperbarui');
     }
 
+    public function tugasDetail($id_tugas)
+    {
+        $tugas = Tugas::with(['guruMapel.mapel', 'guruMapel.kelas'])->findOrFail($id_tugas);
+
+        $pengumpulan = PengumpulanTugas::where('id_tugas', $id_tugas)
+            ->with('siswa')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('guru.tugas.detail', compact('tugas', 'pengumpulan'));
+    }
+
     public function tugasDelete($id_tugas)
     {
         $tugas = Tugas::findOrFail($id_tugas);
@@ -285,10 +297,10 @@ class GuruController extends Controller
         $pengumpulan = PengumpulanTugas::findOrFail($id_pengumpulan);
 
         $pengumpulan->nilai = $nilai;
-        $pengumpulan->feedback = $request->feedback;
+        $pengumpulan->feedback = $request->feedback ?? null;
         $pengumpulan->save();
 
-        return back()->with('success', 'Nilai & feedback berhasil disimpan!');
+        return back()->with('success', 'Nilai berhasil disimpan!');
     }
 
     public function submitNilai(Request $request, $id_tugas, $id_pengumpulan)
@@ -301,11 +313,12 @@ class GuruController extends Controller
         $pengumpulan = PengumpulanTugas::where('id_pengumpulan', $id_pengumpulan)->firstOrFail();
 
         $pengumpulan->nilai = $request->nilai;
-        $pengumpulan->feedback = $request->feedback;
+        $pengumpulan->feedback = $request->feedback ?? null;
         $pengumpulan->save();
 
-        return redirect()->back()->with('success', 'Grade submitted successfully.');
+        return redirect()->back()->with('success', 'Nilai berhasil diberikan!');
     }
+
 
     public function detailSiswa($id_guru_mapel, $nis)
     {
