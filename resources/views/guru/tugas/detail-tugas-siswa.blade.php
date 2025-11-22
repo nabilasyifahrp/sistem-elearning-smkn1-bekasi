@@ -1,5 +1,25 @@
 @extends('partials.layouts-guru')
 @section('content')
+
+@if(session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>{{ session('success') }}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+@if($errors->any())
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>Terjadi kesalahan:</strong>
+    <ul class="mb-0">
+        @foreach($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
 <style>
     .box {
         background: white;
@@ -68,12 +88,13 @@
 
         <div class="mb-3">
             <label class="form-label">Nilai</label>
-            <input type="number" name="nilai" class="form-control" value="{{ old('nilai', $pengumpulan->nilai) }}"
+            <input type="number" name="nilai" class="form-control"
+                value="{{ old('nilai', $pengumpulan->nilai) }}"
                 required>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Feedback</label>
+            <label class="form-label">Feedback (Opsional)</label>
             <textarea name="feedback" class="form-control" rows="4">{{ old('feedback', $pengumpulan->feedback) }}</textarea>
         </div>
 
@@ -86,4 +107,5 @@
         </button>
     </form>
 </div>
+
 @endsection
