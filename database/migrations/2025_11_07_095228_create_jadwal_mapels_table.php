@@ -23,7 +23,6 @@ return new class extends Migration
             $table->foreignId('id_guru_mapel')->constrained(table: 'guru_mapels', column: 'id_guru_mapel')
                 ->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
-            $table->unique(['hari', 'jam_mulai', 'id_kelas', 'tahun_ajaran']);
         });
     }
 

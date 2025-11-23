@@ -1,5 +1,7 @@
 @extends('partials.layouts-guru')
 
+@section('title', 'Profil Saya')
+
 @section('content')
 <div class="container-fluid py-4">
 
@@ -34,7 +36,6 @@
                         <i class="bi bi-person-circle me-1"></i> Informasi Pribadi
                     </h5>
                 </div>
-
                 <div class="card-body">
 
                     <div class="text-center mb-4">

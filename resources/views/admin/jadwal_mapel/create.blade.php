@@ -39,6 +39,17 @@
         .btn-back:hover {
             background: #1d4c31;
         }
+
+        .error-wrap {
+            min-height: 18px;
+        }
+
+        .error-absolute {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 12px;
+        }
     </style>
 
     <div class="container">
@@ -46,9 +57,6 @@
         <a href="{{ route('admin.jadwalmapel.index') }}" class="btn-back">Kembali</a>
 
         <div class="form-card mt-4">
-            @if ($errors->has('error'))
-                <div class="alert alert-danger">{{ $errors->first('error') }}</div>
-            @endif
             <form action="{{ route('admin.jadwalmapel.store') }}" method="POST">
                 @csrf
 
@@ -158,9 +166,13 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('id_mapel')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
+                        <div class="error-wrap position-relative mb-1">
+                            @if ($errors->has('error'))
+                                <small class="text-danger error-absolute">
+                                    {{ $errors->first('error') }}
+                                </small>
+                            @endif
+                        </div>
                     </div>
                 </div>
 

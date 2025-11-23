@@ -23,7 +23,9 @@ Route::post('/login', [AuthController::class, 'authenticate'])->name('authentica
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::prefix('admin')->middleware(RoleMiddleware::class . ':admin')->group(function () {
+
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
     Route::prefix('kelas')->name('admin.kelas.')->group(function () {
         Route::get('/', [CrudKelasController::class, 'index'])->name('index');
         Route::get('/create', [CrudKelasController::class, 'create'])->name('create');
@@ -117,6 +119,7 @@ Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru
     Route::get('/izin', [GuruController::class, 'izinIndex'])->name('izin.index');
     Route::post('/izin/{id}/setujui', [GuruController::class, 'izinSetujui'])->name('izin.setujui');
     Route::post('/izin/{id}/tolak', [GuruController::class, 'izinTolak'])->name('izin.tolak');
+
     Route::get('/pengumuman', [GuruController::class, 'pengumumanIndex'])->name('pengumuman.index');
     Route::get('/show/{id}', [GuruController::class, 'pengumumanShow'])->name('pengumuman.show');
 
@@ -127,9 +130,11 @@ Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru
 
     Route::get('/profile', [GuruController::class, 'profileIndex'])->name('profile.index');
     Route::post('/profile/update', [GuruController::class, 'profileUpdate'])->name('profile.update');
+        
 });
 
 Route::prefix('siswa')->middleware([RoleMiddleware::class . ':siswa'])->name('siswa.')->group(function () {
+
     Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
     Route::get('/kelas/{id_guru_mapel}', [SiswaController::class, 'detailMapel'])->name('kelas.detail');
 
@@ -141,6 +146,7 @@ Route::prefix('siswa')->middleware([RoleMiddleware::class . ':siswa'])->name('si
     Route::get('/izin', [SiswaController::class, 'izinIndex'])->name('izin.index');
     Route::get('/izin/create', [SiswaController::class, 'izinCreate'])->name('izin.create');
     Route::post('/izin/store', [SiswaController::class, 'izinStore'])->name('izin.store');
+    Route::delete('/izin/batalkan/{id}', [SiswaController::class, 'batalkanIzin'])->name('izin.batalkan');
 
     Route::get('/pengumuman', [SiswaController::class, 'pengumumanIndex'])->name('pengumuman.index');
     Route::get('/pengumuman/{id}', [SiswaController::class, 'pengumumanShow'])->name('pengumuman.show');

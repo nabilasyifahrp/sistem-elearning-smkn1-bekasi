@@ -43,9 +43,7 @@
                                 <small>
                                     <i class="bi bi-calendar"></i> 
                                     {{ \Carbon\Carbon::parse($pengumuman->tanggal_upload)->format('d M Y') }}
-                                    · 
-                                    <i class="bi bi-clock"></i>
-                                    {{ \Carbon\Carbon::parse($pengumuman->tanggal_upload)->diffForHumans() }}
+                                    
                                 </small>
                             </p>
                             <p class="mb-0 text-secondary">
