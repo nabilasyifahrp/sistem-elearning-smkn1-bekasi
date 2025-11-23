@@ -28,20 +28,11 @@
         <strong>Anda sudah absen hari ini!</strong> Status: Hadir
     </div>
 
-    @elseif($absensiHariIni->id_pengajuan)
+    @elseif($absensiHariIni->id_pengajuan && in_array($absensiHariIni->status, ['izin', 'sakit']))
     <div class="alert alert-info">
         <i class="bi bi-info-circle"></i>
         <strong>Anda tercatat {{ $absensiHariIni->status }} hari ini</strong>
         (Izin disetujui wali kelas)
-    </div>
-
-    @elseif($absensiHariIni->status === 'alfa' && $izinHariIni && $izinHariIni->status === 'pending')
-    <div class="alert alert-warning">
-        <i class="bi bi-hourglass-split"></i>
-        <strong>Pengajuan izin Anda sedang menunggu persetujuan wali kelas</strong>
-        <br>
-        <small>Jenis: {{ ucfirst($izinHariIni->jenis_izin) }} |
-            Periode: {{ $izinHariIni->tanggal_mulai->format('d M') }} - {{ $izinHariIni->tanggal_selesai->format('d M Y') }}</small>
     </div>
 
     @elseif($absensiHariIni->status === 'alfa' && $absensiHariIni->keterangan === null && !$izinHariIni)
@@ -59,6 +50,15 @@
                 </button>
             </form>
         </div>
+    </div>
+
+    @elseif($absensiHariIni->status === 'alfa' && $absensiHariIni->keterangan === null && $izinHariIni && $izinHariIni->status === 'pending')
+    <div class="alert alert-warning">
+        <i class="bi bi-hourglass-split"></i>
+        <strong>Pengajuan izin Anda sedang menunggu persetujuan wali kelas</strong>
+        <br>
+        <small>Jenis: {{ ucfirst($izinHariIni->jenis_izin) }} |
+            Periode: {{ $izinHariIni->tanggal_mulai->format('d M') }} - {{ $izinHariIni->tanggal_selesai->format('d M Y') }}</small>
     </div>
 
     @elseif($absensiHariIni->status === 'alfa' && $absensiHariIni->keterangan !== null)
@@ -279,6 +279,13 @@
                     $absensiMapel = \App\Models\Absensi::where('nis', $siswa->nis)
                     ->whereMonth('tanggal', $bulan)
                     ->whereYear('tanggal', $tahun)
+                    ->where(function($q) {
+                    $q->where('status', '!=', 'alfa')
+                    ->orWhere(function($sub) {
+                    $sub->where('status', 'alfa')
+                    ->whereNotNull('keterangan');
+                    });
+                    })
                     ->whereHas('jadwal', function($q) use ($guruMapel) {
                     $q->where('id_guru_mapel', $guruMapel->id_guru_mapel);
                     })
