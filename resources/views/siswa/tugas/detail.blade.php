@@ -10,6 +10,9 @@
                 {{ $tugas->guruMapel->mapel->nama_mapel }} —
                 {{ $tugas->guruMapel->kelas->tingkat }}
                 {{ $tugas->guruMapel->kelas->jurusan }}
+                {{ $tugas->guruMapel->mapel->nama_mapel }} —
+                {{ $tugas->guruMapel->kelas->tingkat }}
+                {{ $tugas->guruMapel->kelas->jurusan }}
                 {{ $tugas->guruMapel->kelas->kelas }}
             </p>
         </div>
@@ -25,6 +28,7 @@
         <div class="card-body">
             <h4 class="fw-bold mb-3">{{ $tugas->judul_tugas }}</h4>
 
+
             <div class="row mb-3">
                 <div class="col-md-6">
                     <p class="mb-1"><strong>Tenggat Waktu:</strong></p>
@@ -34,6 +38,7 @@
                 </div>
                 <div class="col-md-6">
                     <p class="mb-1"><strong>Status Pengumpulan:</strong></p>
+
 
                     @if($pengumpulan)
                     @if($pengumpulan->nilai)

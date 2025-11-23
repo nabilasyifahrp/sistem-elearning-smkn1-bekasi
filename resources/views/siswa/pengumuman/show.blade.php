@@ -24,10 +24,7 @@
                     <i class="bi bi-calendar"></i> 
                     {{ \Carbon\Carbon::parse($data->tanggal_upload)->format('d F Y') }}
                 </span>
-                <span>
-                    <i class="bi bi-clock"></i> 
-                    {{ \Carbon\Carbon::parse($data->tanggal_upload)->diffForHumans() }}
-                </span>
+                
             </div>
 
             <hr>

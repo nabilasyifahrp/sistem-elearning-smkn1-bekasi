@@ -168,6 +168,70 @@ class GuruController extends Controller
         return redirect()->back()->with('success', 'Tugas berhasil dihapus');
     }
 
+    public function detailTugasSiswa($id_tugas, $id_pengumpulan)
+    {
+        $tugas = Tugas::where('id_tugas', $id_tugas)->firstOrFail();
+        $pengumpulan = PengumpulanTugas::where('id_pengumpulan', $id_pengumpulan)
+            ->where('id_tugas', $id_tugas)
+            ->with('siswa.user')
+            ->firstOrFail();
+
+        return view('guru.tugas.detail-tugas-siswa', compact('tugas', 'pengumpulan'));
+    }
+
+    public function nilaiPengumpulan(Request $request, $id_tugas, $id_pengumpulan)
+    {
+        $request->validate([
+            'nilai' => ['required', 'regex:/^\d+([,.]\d+)?$/'],
+            'feedback' => 'nullable|string'
+        ]);
+
+        $nilai = str_replace(',', '.', $request->nilai);
+
+        $pengumpulan = PengumpulanTugas::findOrFail($id_pengumpulan);
+
+        $pengumpulan->nilai = $nilai;
+        $pengumpulan->feedback = $request->feedback ?? null;
+        $pengumpulan->save();
+
+        return back()->with('success', 'Nilai berhasil disimpan!');
+    }
+
+    public function submitNilai(Request $request, $id_tugas, $id_pengumpulan)
+    {
+        $request->validate([
+            'nilai' => 'required|numeric|min:0|max:100',
+            'feedback' => 'nullable|string',
+        ]);
+
+        $pengumpulan = PengumpulanTugas::where('id_pengumpulan', $id_pengumpulan)->firstOrFail();
+
+        $pengumpulan->nilai = $request->nilai;
+        $pengumpulan->feedback = $request->feedback ?? null;
+        $pengumpulan->save();
+
+        return redirect()->back()->with('success', 'Nilai berhasil diberikan!');
+    }
+
+
+    public function detailSiswa($id_guru_mapel, $nis)
+    {
+        $guruMapel = GuruMapel::with(['mapel', 'kelas.siswa'])->findOrFail($id_guru_mapel);
+
+        $siswa = Siswa::where('nis', $nis)->firstOrFail();
+
+        $tugasList = Tugas::where('id_guru_mapel', $id_guru_mapel)->get();
+
+        $pengumpulan = PengumpulanTugas::where('nis', $nis)->get()->keyBy('id_tugas');
+
+        return view('guru.kelas.siswa-detail', compact(
+            'guruMapel',
+            'siswa',
+            'tugasList',
+            'pengumpulan'
+        ));
+    }
+
     public function kelasMateriIndex($id_guru_mapel)
     {
         $guruMapel = GuruMapel::with(['mapel', 'kelas'])->findOrFail($id_guru_mapel);
@@ -274,70 +338,6 @@ class GuruController extends Controller
         return view('guru.pengumuman.show', compact('pengumuman'));
     }
 
-    public function detailTugasSiswa($id_tugas, $id_pengumpulan)
-    {
-        $tugas = Tugas::where('id_tugas', $id_tugas)->firstOrFail();
-        $pengumpulan = PengumpulanTugas::where('id_pengumpulan', $id_pengumpulan)
-            ->where('id_tugas', $id_tugas)
-            ->with('siswa.user')
-            ->firstOrFail();
-
-        return view('guru.tugas.detail-tugas-siswa', compact('tugas', 'pengumpulan'));
-    }
-
-    public function nilaiPengumpulan(Request $request, $id_tugas, $id_pengumpulan)
-    {
-        $request->validate([
-            'nilai' => ['required', 'regex:/^\d+([,.]\d+)?$/'],
-            'feedback' => 'nullable|string'
-        ]);
-
-        $nilai = str_replace(',', '.', $request->nilai);
-
-        $pengumpulan = PengumpulanTugas::findOrFail($id_pengumpulan);
-
-        $pengumpulan->nilai = $nilai;
-        $pengumpulan->feedback = $request->feedback ?? null;
-        $pengumpulan->save();
-
-        return back()->with('success', 'Nilai berhasil disimpan!');
-    }
-
-    public function submitNilai(Request $request, $id_tugas, $id_pengumpulan)
-    {
-        $request->validate([
-            'nilai' => 'required|numeric|min:0|max:100',
-            'feedback' => 'nullable|string',
-        ]);
-
-        $pengumpulan = PengumpulanTugas::where('id_pengumpulan', $id_pengumpulan)->firstOrFail();
-
-        $pengumpulan->nilai = $request->nilai;
-        $pengumpulan->feedback = $request->feedback ?? null;
-        $pengumpulan->save();
-
-        return redirect()->back()->with('success', 'Nilai berhasil diberikan!');
-    }
-
-
-    public function detailSiswa($id_guru_mapel, $nis)
-    {
-        $guruMapel = GuruMapel::with(['mapel', 'kelas.siswa'])->findOrFail($id_guru_mapel);
-
-        $siswa = Siswa::where('nis', $nis)->firstOrFail();
-
-        $tugasList = Tugas::where('id_guru_mapel', $id_guru_mapel)->get();
-
-        $pengumpulan = PengumpulanTugas::where('nis', $nis)->get()->keyBy('id_tugas');
-
-        return view('guru.kelas.siswa-detail', compact(
-            'guruMapel',
-            'siswa',
-            'tugasList',
-            'pengumpulan'
-        ));
-    }
-
     public function profileIndex()
     {
         $user = Auth::user();
@@ -384,13 +384,41 @@ class GuruController extends Controller
     }
 
     public function izinSetujui($id)
-    {
-        $izin = PengajuanIzin::findOrFail($id);
-        $izin->status = 'disetujui';
-        $izin->save();
+{
+    $izin = PengajuanIzin::findOrFail($id);
+    
+    // ✅ SET STATUS JADI DISETUJUI
+    $izin->status = 'disetujui';
+    $izin->save();
 
-        return redirect()->route('guru.izin.index')->with('success', 'Pengajuan izin disetujui.');
+    // ✅ UPDATE SEMUA ABSENSI YANG ADA DI RENTANG TANGGAL IZIN
+    $startDate = $izin->tanggal_mulai;
+    $endDate = $izin->tanggal_selesai;
+    
+    // Ambil semua jadwal mapel untuk kelas siswa ini
+    $siswa = Siswa::where('nis', $izin->nis)->first();
+    
+    if ($siswa) {
+        $jadwalIds = JadwalMapel::whereHas('guruMapel', function($q) use ($siswa) {
+            $q->where('id_kelas', $siswa->id_kelas);
+        })->pluck('id_jadwal');
+        
+        // Update semua absensi yang masih pending (alfa tanpa keterangan)
+        Absensi::where('nis', $izin->nis)
+            ->whereIn('id_jadwal', $jadwalIds)
+            ->whereBetween('tanggal', [$startDate, $endDate])
+            ->where('status', 'alfa')
+            ->whereNull('keterangan')
+            ->update([
+                'id_pengajuan' => $izin->id_pengajuan,
+                'status' => $izin->jenis_izin === 'sakit' ? 'sakit' : 'izin',
+                'keterangan' => 'Izin disetujui wali kelas: ' . $izin->alasan,
+            ]);
     }
+
+    return redirect()->route('guru.izin.index')
+        ->with('success', 'Pengajuan izin berhasil disetujui dan absensi telah diperbarui!');
+}
 
     public function izinTolak($id)
     {
@@ -402,46 +430,51 @@ class GuruController extends Controller
     }
 
     public function absensiKelas($id_guru_mapel)
-    {
-        $user = Auth::user();
-        $guru = $user ? $user->guru : null;
+{
+    $user = Auth::user();
+    $guru = $user ? $user->guru : null;
 
-        $guruMapel = GuruMapel::with(['mapel', 'kelas.siswa'])
-            ->findOrFail($id_guru_mapel);
+    $guruMapel = GuruMapel::with(['mapel', 'kelas.siswa'])
+        ->findOrFail($id_guru_mapel);
 
-        $today = now()->toDateString();
+    $today = now()->toDateString();
 
-        $absensiHariIni = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
-            $q->where('id_guru_mapel', $id_guru_mapel);
-        })
-            ->where('tanggal', $today)
-            ->get()
-            ->keyBy('nis');
+    $absensiHariIni = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
+        $q->where('id_guru_mapel', $id_guru_mapel);
+    })
+        ->where('tanggal', $today)
+        ->get()
+        ->keyBy('nis');
 
-        $belumAbsen = $absensiHariIni
-            ->filter(fn($a) => $a->status === 'alfa' && $a->keterangan === null)
-            ->count();
+    $belumAbsen = $absensiHariIni
+        ->filter(fn($a) => $a->status === 'alfa' && $a->keterangan === null)
+        ->count();
 
-        $alfa = $absensiHariIni
-            ->filter(fn($a) => $a->status === 'alfa' && $a->keterangan !== null)
-            ->count();
+    // ✅ AMBIL IZIN YANG SUDAH DISETUJUI
+    $siswaIzinDisetujui = PengajuanIzin::where('status', 'disetujui')
+        ->where('tanggal_mulai', '<=', $today)
+        ->where('tanggal_selesai', '>=', $today)
+        ->whereIn('nis', $guruMapel->kelas->siswa->pluck('nis'))
+        ->get()
+        ->keyBy('nis');
 
-        $siswaIzin = PengajuanIzin::where('status', 'disetujui')
-            ->where('tanggal_mulai', '<=', $today)
-            ->where('tanggal_selesai', '>=', $today)
-            ->whereIn('nis', $guruMapel->kelas->siswa->pluck('nis'))
-            ->get()
-            ->keyBy('nis');
+    // ✅ AMBIL IZIN YANG MASIH PENDING (untuk info saja)
+    $siswaIzinPending = PengajuanIzin::where('status', 'pending')
+        ->where('tanggal_mulai', '<=', $today)
+        ->where('tanggal_selesai', '>=', $today)
+        ->whereIn('nis', $guruMapel->kelas->siswa->pluck('nis'))
+        ->get()
+        ->keyBy('nis');
 
-        return view('guru.absensi.kelas', compact(
-            'guru',
-            'guruMapel',
-            'absensiHariIni',
-            'siswaIzin',
-            'belumAbsen',
-            'alfa'
-        ));
-    }
+    return view('guru.absensi.kelas', compact(
+        'guru',
+        'guruMapel',
+        'absensiHariIni',
+        'siswaIzinDisetujui',
+        'siswaIzinPending',
+        'belumAbsen'
+    ));
+}
 
     public function bukaSesiAbsensi(Request $request, $id_guru_mapel)
     {
@@ -491,7 +524,7 @@ class GuruController extends Controller
                         'id_pengajuan' => $izin->id_pengajuan,
                         'tanggal' => $tanggal,
                         'status' => $status,
-                        'keterangan' => 'Otomatis: Izin disetujui wali kelas',
+                        'keterangan' => 'Izin disetujui wali kelas: ' . $izin->alasan,
                     ]);
                 } else {
                     Absensi::create([
@@ -527,6 +560,7 @@ class GuruController extends Controller
                 'keterangan' => 'Tidak hadir dan tidak ada keterangan'
             ]);
 
+        return back()->with('success', 'Sesi absensi ditutup. Siswa yang tidak hadir tetap alfa.');
         return back()->with('success', 'Sesi absensi ditutup. Siswa yang tidak hadir tetap alfa.');
     }
 

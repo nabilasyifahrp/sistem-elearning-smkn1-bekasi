@@ -75,7 +75,9 @@
                 <div class="card-body d-flex justify-content-between align-items-start">
                     <div style="max-width: 80%;">
                         <h4 class="fw-bold" style="color:#256343;">{{ $pengumuman->judul }}</h4>
-                        <p class="text-muted mb-2" style="font-size: 14px;">{{ $pengumuman->tanggal_upload }}</p>
+                        <p class="text-muted mb-2" style="font-size: 14px;">
+                            {{ \Carbon\Carbon::parse($pengumuman->tanggal_upload)->translatedFormat('d F Y') }}
+                        </p>
                         <p style="color:#444; font-size:15px;">{{ Str::limit(strip_tags($pengumuman->isi), 140) }}</p>
                     </div>
                     <div class="d-flex flex-column gap-2">

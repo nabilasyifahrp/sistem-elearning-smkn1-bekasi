@@ -6,6 +6,7 @@ use App\Models\GuruMapel;
 use App\Models\JadwalMapel;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CrudJadwalMapelController extends Controller
 {
@@ -46,7 +47,6 @@ class CrudJadwalMapelController extends Controller
         return view('admin.jadwal_mapel.index', compact('jadwalList', 'kelasList', 'guruList', 'mapelList'));
     }
 
-
     public function create()
     {
         $kelasList = Kelas::all();
@@ -58,51 +58,65 @@ class CrudJadwalMapelController extends Controller
 
     public function store(Request $request)
     {
-        $messages = [
-            'jam_mulai.required' => 'Jam mulai wajib diisi.',
-            'jam_mulai.after_or_equal' => 'Jam mulai harus 06:30 atau lebih.',
-            'jam_mulai.before_or_equal' => 'Jam mulai maksimal 17:00.',
-            'jam_selesai.required' => 'Jam selesai wajib diisi.',
-            'jam_selesai.after' => 'Jam selesai harus setelah jam mulai.',
-            'jam_selesai.before_or_equal' => 'Jam selesai maksimal jam 17:00.',
-            'hari.required' => 'Hari wajib dipilih.',
-            'tipe.required' => 'Tipe wajib dipilih.',
-            'tahun_ajaran.required' => 'Tahun ajaran wajib diisi.',
-            'id_kelas.required' => 'Kelas wajib dipilih.',
-            'id_guru.required' => 'Guru wajib dipilih.',
-            'id_mapel.required' => 'Mapel wajib dipilih.',
-        ];
-
         $validated = $request->validate([
             'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat',
-            'jam_mulai' => 'required|after_or_equal:06:30|before_or_equal:17:00',
-            'jam_selesai' => 'required|after:jam_mulai|before_or_equal:17:00',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required',
             'tipe' => 'required|in:Teori,Tefa',
-            'tahun_ajaran' => 'required|string|max:9',
+            'tahun_ajaran' => 'required',
             'id_kelas' => 'required|exists:kelas,id_kelas',
             'id_guru' => 'required|exists:gurus,id_guru',
             'id_mapel' => 'required|exists:mapels,id_mapel',
-        ], $messages);
+        ]);
 
-        try {
-            $guruMapel = GuruMapel::firstOrCreate([
-                'id_guru' => $validated['id_guru'],
-                'id_mapel' => $validated['id_mapel'],
-                'id_kelas' => $validated['id_kelas'],
-                'tahun_ajaran' => $validated['tahun_ajaran'],
-            ]);
+        $validated['jam_mulai'] = date('H:i:s', strtotime($validated['jam_mulai']));
+        $validated['jam_selesai'] = date('H:i:s', strtotime($validated['jam_selesai']));
 
-            $validated['id_guru_mapel'] = $guruMapel->id_guru_mapel;
+        $guruMapel = GuruMapel::firstOrCreate([
+            'id_guru' => $validated['id_guru'],
+            'id_mapel' => $validated['id_mapel'],
+            'id_kelas' => $validated['id_kelas'],
+            'tahun_ajaran' => $validated['tahun_ajaran'],
+        ]);
 
-            JadwalMapel::create($validated);
+        $validated['id_guru_mapel'] = $guruMapel->id_guru_mapel;
 
-            return redirect()->route('admin.jadwalmapel.index')
-                ->with('success', 'Jadwal berhasil ditambahkan!');
-        } catch (\Exception $e) {
+        $cekKelas = JadwalMapel::where('hari', $validated['hari'])
+            ->where('id_kelas', $validated['id_kelas'])
+            ->where('tahun_ajaran', $validated['tahun_ajaran'])
+            ->where(function ($q) use ($validated) {
+                $q->where('jam_mulai', '<', $validated['jam_selesai'])
+                  ->where('jam_selesai', '>', $validated['jam_mulai']);
+            })
+            ->exists();
+
+        if ($cekKelas) {
             return back()->withInput()->withErrors([
-                'error' => 'Jadwal bentrok (hari, jam, kelas, dan tahun ajaran harus unik).'
+                'error' => 'Jadwal bentrok! Waktu bertabrakan.'
             ]);
         }
+
+        $cekGuru = JadwalMapel::where('hari', $validated['hari'])
+            ->where('tahun_ajaran', $validated['tahun_ajaran'])
+            ->whereHas('guruMapel', function ($q) use ($validated) {
+                $q->where('id_guru', $validated['id_guru']);
+            })
+            ->where(function ($q) use ($validated) {
+                $q->where('jam_mulai', '<', $validated['jam_selesai'])
+                  ->where('jam_selesai', '>', $validated['jam_mulai']);
+            })
+            ->exists();
+
+        if ($cekGuru) {
+            return back()->withInput()->withErrors([
+                'error' => 'Guru bentrok mengajar di kelas lain pada waktu ini.'
+            ]);
+        }
+
+        JadwalMapel::create($validated);
+
+        return redirect()->route('admin.jadwalmapel.index')
+            ->with('success', 'Jadwal berhasil ditambahkan!');
     }
 
     public function edit($id)
@@ -115,56 +129,75 @@ class CrudJadwalMapelController extends Controller
         return view('admin.jadwal_mapel.edit', compact('jadwal', 'kelasList', 'guruList', 'mapelList'));
     }
 
-
-    public function update(Request $request, $id)
+    public function update(Request $request, $id_jadwal)
     {
-        $jadwal = JadwalMapel::findOrFail($id);
+        $jadwal = JadwalMapel::findOrFail($id_jadwal);
 
-        $messages = [
-            'jam_mulai.required' => 'Jam mulai wajib diisi.',
-            'jam_mulai.after_or_equal' => 'Jam mulai harus 06:30 atau lebih.',
-            'jam_mulai.before_or_equal' => 'Jam mulai maksimal 17:00.',
-            'jam_selesai.required' => 'Jam selesai wajib diisi.',
-            'jam_selesai.after' => 'Jam selesai harus setelah jam mulai.',
-            'jam_selesai.before_or_equal' => 'Jam selesai maksimal jam 17:00.',
-            'hari.required' => 'Hari wajib dipilih.',
-            'tipe.required' => 'Tipe wajib dipilih.',
-            'tahun_ajaran.required' => 'Tahun ajaran wajib diisi.',
-            'id_kelas.required' => 'Kelas wajib dipilih.',
-            'id_guru.required' => 'Guru wajib dipilih.',
-            'id_mapel.required' => 'Mapel wajib dipilih.',
-        ];
-
-        $validated = $request->validate([
-            'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat',
-            'jam_mulai' => 'required|after_or_equal:06:30|before_or_equal:17:00',
-            'jam_selesai' => 'required|after:jam_mulai|before_or_equal:17:00',
-            'tipe' => 'required|in:Teori,Tefa',
-            'tahun_ajaran' => 'required|string|max:9',
+        $validator = Validator::make($request->all(), [
+            'hari' => 'required',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required',
+            'tipe' => 'required',
+            'tahun_ajaran' => 'required',
             'id_kelas' => 'required|exists:kelas,id_kelas',
             'id_guru' => 'required|exists:gurus,id_guru',
             'id_mapel' => 'required|exists:mapels,id_mapel',
-        ], $messages);
+        ]);
 
-        try {
-            $guruMapel = GuruMapel::firstOrCreate([
-                'id_guru' => $validated['id_guru'],
-                'id_mapel' => $validated['id_mapel'],
-                'id_kelas' => $validated['id_kelas'],
-                'tahun_ajaran' => $validated['tahun_ajaran'],
-            ]);
-
-            $validated['id_guru_mapel'] = $guruMapel->id_guru_mapel;
-
-            $jadwal->update($validated);
-
-            return redirect()->route('admin.jadwalmapel.index')
-                ->with('success', 'Jadwal berhasil diperbarui!');
-        } catch (\Exception $e) {
-            return back()->withInput()->withErrors([
-                'error' => 'Jadwal bentrok (hari, jam, kelas, dan tahun ajaran harus unik).'
-            ]);
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
         }
+
+        $guruMapel = GuruMapel::firstOrCreate([
+            'id_guru' => $request->id_guru,
+            'id_mapel' => $request->id_mapel,
+            'id_kelas' => $request->id_kelas,
+            'tahun_ajaran' => $request->tahun_ajaran,
+        ]);
+
+        $request['id_guru_mapel'] = $guruMapel->id_guru_mapel;
+
+        $cekKelas = JadwalMapel::where('hari', $request->hari)
+            ->where('id_kelas', $request->id_kelas)
+            ->where('tahun_ajaran', $request->tahun_ajaran)
+            ->where('id_jadwal', '!=', $id_jadwal)
+            ->where(function ($q) use ($request) {
+                $q->where('jam_mulai', '<', $request->jam_selesai)
+                  ->where('jam_selesai', '>', $request->jam_mulai);
+            })
+            ->exists();
+
+        if ($cekKelas) {
+            return back()->withErrors(['error' => 'Jadwal bentrok! Waktu bertabrakan.'])->withInput();
+        }
+
+        $cekGuru = JadwalMapel::where('hari', $request->hari)
+            ->where('tahun_ajaran', $request->tahun_ajaran)
+            ->where('id_jadwal', '!=', $id_jadwal)
+            ->whereHas('guruMapel', function ($q) use ($request) {
+                $q->where('id_guru', $request->id_guru);
+            })
+            ->where(function ($q) use ($request) {
+                $q->where('jam_mulai', '<', $request->jam_selesai)
+                  ->where('jam_selesai', '>', $request->jam_mulai);
+            })
+            ->exists();
+
+        if ($cekGuru) {
+            return back()->withErrors(['error' => 'Guru bentrok mengajar di kelas lain pada waktu ini.'])->withInput();
+        }
+
+        $jadwal->update([
+            'hari' => $request->hari,
+            'jam_mulai' => $request->jam_mulai,
+            'jam_selesai' => $request->jam_selesai,
+            'tipe' => $request->tipe,
+            'tahun_ajaran' => $request->tahun_ajaran,
+            'id_kelas' => $request->id_kelas,
+            'id_guru_mapel' => $guruMapel->id_guru_mapel,
+        ]);
+
+        return redirect()->back()->with('success', 'Jadwal berhasil diperbarui!');
     }
 
     public function show($id)
@@ -175,7 +208,6 @@ class CrudJadwalMapelController extends Controller
         return view('admin.jadwal_mapel.show', compact('jadwal'));
     }
 
-
     public function destroy($id)
     {
         $jadwal = JadwalMapel::findOrFail($id);
@@ -183,5 +215,5 @@ class CrudJadwalMapelController extends Controller
 
         return redirect()->route('admin.jadwalmapel.index')
             ->with('success', 'Jadwal berhasil dihapus!');
-    }
+        }
 }
