@@ -506,7 +506,6 @@ class GuruController extends Controller
 
                 if (isset($siswaIzin[$siswa->nis])) {
                     $izin = $siswaIzin[$siswa->nis];
-
                     $status = $izin->jenis_izin === 'sakit' ? 'sakit' : 'izin';
 
                     Absensi::create([
@@ -546,13 +545,13 @@ class GuruController extends Controller
         })
             ->where('tanggal', $tanggal)
             ->where('status', 'alfa')
+            ->whereNull('keterangan')
             ->whereNull('id_pengajuan')
             ->update([
                 'keterangan' => 'Tidak hadir dan tidak ada keterangan'
             ]);
 
-        return back()->with('success', 'Sesi absensi ditutup. Siswa yang tidak hadir tetap alfa.');
-        return back()->with('success', 'Sesi absensi ditutup. Siswa yang tidak hadir tetap alfa.');
+        return back()->with('success', 'Sesi absensi ditutup. Siswa yang tidak hadir dinyatakan alfa.');
     }
 
     public function rekapAbsensi(Request $request, $id_guru_mapel)
@@ -568,6 +567,13 @@ class GuruController extends Controller
         })
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'alfa')
+                    ->orWhere(function ($sub) {
+                        $sub->where('status', 'alfa')
+                            ->whereNotNull('keterangan');
+                    });
+            })
             ->get();
 
         $rekap = $guruMapel->kelas->siswa->map(function ($siswa) use ($absensiData) {

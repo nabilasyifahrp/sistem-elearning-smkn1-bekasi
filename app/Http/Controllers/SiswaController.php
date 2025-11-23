@@ -116,8 +116,8 @@ class SiswaController extends Controller
             return back()->with('error', 'Anda sudah tercatat izin hari ini!');
         }
 
-        if ($absensi->status === 'hadir') {
-            return back()->with('info', 'Anda sudah melakukan absensi hari ini!');
+        if ($absensi->status === 'alfa' && $absensi->keterangan !== null) {
+            return back()->with('error', 'Sesi absensi sudah ditutup!');
         }
 
         $absensi->update([
@@ -401,6 +401,13 @@ class SiswaController extends Controller
         $absensi = Absensi::where('nis', $siswa->nis)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'alfa')
+                    ->orWhere(function ($sub) {
+                        $sub->where('status', 'alfa')
+                            ->whereNotNull('keterangan');
+                    });
+            })
             ->with(['jadwal.guruMapel.mapel'])
             ->get();
 
