@@ -193,15 +193,15 @@
     </a>
 
     @if(Auth::user()->guru->waliKelas ?? false)
-<a href="{{ Route::has('guru.izin.index') ? route('guru.izin.index') : route('guru.dashboard') }}"
-    class="menu-item {{ request()->routeIs('guru.izin.*') ? 'active' : '' }}">
-    <svg fill="none" stroke-width="2">
-        <path d="M4 4h16v16H4z" />
-        <path d="M4 10h16" />
-    </svg>
-    Pengajuan Izin
-</a>
-@endif
+    <a href="{{ Route::has('guru.izin.index') ? route('guru.izin.index') : route('guru.dashboard') }}"
+        class="menu-item {{ request()->routeIs('guru.izin.*') ? 'active' : '' }}">
+        <svg fill="none" stroke-width="2">
+            <path d="M4 4h16v16H4z" />
+            <path d="M4 10h16" />
+        </svg>
+        Pengajuan Izin
+    </a>
+    @endif
 
     <a href="{{ Route::has('guru.pengumuman.index') ? route('guru.pengumuman.index') : route('guru.dashboard') }}"
         class="menu-item {{ request()->routeIs('guru.pengumuman.*') ? 'active' : '' }}">

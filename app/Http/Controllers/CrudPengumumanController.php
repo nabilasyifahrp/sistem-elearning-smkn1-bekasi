@@ -54,7 +54,7 @@ class CrudPengumumanController extends Controller
         return view('admin.pengumuman.show', compact('data'));
     }
 
-    
+
     public function edit($id)
     {
         $data = Pengumuman::findOrFail($id);

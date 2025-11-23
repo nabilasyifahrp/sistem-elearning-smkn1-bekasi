@@ -10,17 +10,17 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
     @endif
 
     @if(session('info'))
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <i class="bi bi-info-circle"></i> {{ session('info') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="bi bi-info-circle"></i> {{ session('info') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
     @endif
 
     <div class="row">
@@ -32,7 +32,7 @@
                 <div class="card-body">
                     <div class="text-center mb-4">
                         <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
-                             style="width: 100px; height: 100px; background-color: #e7f0ec;">
+                            style="width: 100px; height: 100px; background-color: #e7f0ec;">
                             <i class="bi bi-person-fill" style="font-size: 3rem; color: #256343;"></i>
                         </div>
                     </div>
@@ -81,14 +81,14 @@
                     <p class="text-muted">Ubah password Anda secara berkala untuk menjaga keamanan akun.</p>
 
                     @if($errors->any())
-                        <div class="alert alert-danger">
-                            <strong>Terjadi Kesalahan!</strong>
-                            <ul class="mb-0">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
+                    <div class="alert alert-danger">
+                        <strong>Terjadi Kesalahan!</strong>
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
                     @endif
 
                     <form action="{{ route('siswa.profile.update') }}" method="POST">
@@ -97,38 +97,38 @@
                         <div class="mb-3">
                             <label class="form-label fw-bold">Password Baru</label>
                             <div class="position-relative">
-                                <input type="password" 
-                                       id="passwordBaru"
-                                       name="password_baru" 
-                                       class="form-control @error('password_baru') is-invalid @enderror pe-5"
-                                       placeholder="Masukkan password baru (minimal 6 karakter)">
-                                <button type="button" 
-                                        class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0"
-                                        onclick="togglePassword('passwordBaru', 'eyeBaru')">
+                                <input type="password"
+                                    id="passwordBaru"
+                                    name="password_baru"
+                                    class="form-control @error('password_baru') is-invalid @enderror pe-5"
+                                    placeholder="Masukkan password baru (minimal 6 karakter)">
+                                <button type="button"
+                                    class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0"
+                                    onclick="togglePassword('passwordBaru', 'eyeBaru')">
                                     <i id="eyeBaru" class="bi bi-eye text-muted fs-5"></i>
                                 </button>
                             </div>
                             @error('password_baru')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Konfirmasi Password Baru</label>
                             <div class="position-relative">
-                                <input type="password" 
-                                       id="passwordConfirm"
-                                       name="password_baru_confirmation" 
-                                       class="form-control @error('password_baru_confirmation') is-invalid @enderror pe-5"
-                                       placeholder="Ketik ulang password baru">
-                                <button type="button" 
-                                        class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0"
-                                        onclick="togglePassword('passwordConfirm', 'eyeConfirm')">
+                                <input type="password"
+                                    id="passwordConfirm"
+                                    name="password_baru_confirmation"
+                                    class="form-control @error('password_baru_confirmation') is-invalid @enderror pe-5"
+                                    placeholder="Ketik ulang password baru">
+                                <button type="button"
+                                    class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0"
+                                    onclick="togglePassword('passwordConfirm', 'eyeConfirm')">
                                     <i id="eyeConfirm" class="bi bi-eye text-muted fs-5"></i>
                                 </button>
                             </div>
                             @error('password_baru_confirmation')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -142,9 +142,9 @@
                             </ul>
                         </div>
 
-                        <button type="submit" 
-                                class="btn text-white w-100" 
-                                style="background-color: #256343;">
+                        <button type="submit"
+                            class="btn text-white w-100"
+                            style="background-color: #256343;">
                             <i class="bi bi-save"></i> Simpan Perubahan
                         </button>
                     </form>
@@ -158,7 +158,7 @@
     function togglePassword(inputId, iconId) {
         const input = document.getElementById(inputId);
         const icon = document.getElementById(iconId);
-        
+
         if (input.type === 'password') {
             input.type = 'text';
             icon.classList.remove('bi-eye');

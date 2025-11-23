@@ -130,7 +130,6 @@ Route::prefix('guru')->middleware([RoleMiddleware::class . ':guru'])->name('guru
 
     Route::get('/profile', [GuruController::class, 'profileIndex'])->name('profile.index');
     Route::post('/profile/update', [GuruController::class, 'profileUpdate'])->name('profile.update');
-        
 });
 
 Route::prefix('siswa')->middleware([RoleMiddleware::class . ':siswa'])->name('siswa.')->group(function () {

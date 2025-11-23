@@ -86,7 +86,7 @@ class CrudJadwalMapelController extends Controller
             ->where('tahun_ajaran', $validated['tahun_ajaran'])
             ->where(function ($q) use ($validated) {
                 $q->where('jam_mulai', '<', $validated['jam_selesai'])
-                  ->where('jam_selesai', '>', $validated['jam_mulai']);
+                    ->where('jam_selesai', '>', $validated['jam_mulai']);
             })
             ->exists();
 
@@ -103,7 +103,7 @@ class CrudJadwalMapelController extends Controller
             })
             ->where(function ($q) use ($validated) {
                 $q->where('jam_mulai', '<', $validated['jam_selesai'])
-                  ->where('jam_selesai', '>', $validated['jam_mulai']);
+                    ->where('jam_selesai', '>', $validated['jam_mulai']);
             })
             ->exists();
 
@@ -163,7 +163,7 @@ class CrudJadwalMapelController extends Controller
             ->where('id_jadwal', '!=', $id_jadwal)
             ->where(function ($q) use ($request) {
                 $q->where('jam_mulai', '<', $request->jam_selesai)
-                  ->where('jam_selesai', '>', $request->jam_mulai);
+                    ->where('jam_selesai', '>', $request->jam_mulai);
             })
             ->exists();
 
@@ -179,7 +179,7 @@ class CrudJadwalMapelController extends Controller
             })
             ->where(function ($q) use ($request) {
                 $q->where('jam_mulai', '<', $request->jam_selesai)
-                  ->where('jam_selesai', '>', $request->jam_mulai);
+                    ->where('jam_selesai', '>', $request->jam_mulai);
             })
             ->exists();
 
@@ -215,5 +215,5 @@ class CrudJadwalMapelController extends Controller
 
         return redirect()->route('admin.jadwalmapel.index')
             ->with('success', 'Jadwal berhasil dihapus!');
-        }
+    }
 }

@@ -62,7 +62,7 @@
 
                     <div class="col-12 mb-3">
                         <label class="form-label fw-semibold">Deskripsi</label>
-                        <textarea name="deskripsi" class="form-control rounded-3" rows="4">{{ old('deskripsi', $materi->deskripsi) }}</textarea>
+                        <textarea name="deskripsi" class="form-control rounded-3" rows="4" required>{{ old('deskripsi', $materi->deskripsi) }}</textarea>
                     </div>
 
                 </div>

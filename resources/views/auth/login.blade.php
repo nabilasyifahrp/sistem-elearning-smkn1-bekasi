@@ -117,7 +117,7 @@
                             class="form-control input-with-icon bg-light" required>
 
                         @error('email')
-                            <small class="text-danger">{{ $message }}</small>
+                        <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
 
@@ -133,10 +133,10 @@
                         </button>
                     </div>
                     @if (session('loginError'))
-                            <div class="text-danger mb-2 mt-2 text-center">
-                                {{ session('loginError') }}
-                            </div>
-                        @endif
+                    <div class="text-danger mb-2 mt-2 text-center">
+                        {{ session('loginError') }}
+                    </div>
+                    @endif
                     <button class="btn btn-login w-100 fw-semibold text-white">Masuk</button>
                 </form>
             </div>

@@ -27,7 +27,7 @@
 
 <body>
     @include('partials.navbar-siswa')
-    
+
     <div class="content">
         @yield('content')
     </div>

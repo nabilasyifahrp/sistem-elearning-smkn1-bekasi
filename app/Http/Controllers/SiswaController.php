@@ -47,54 +47,54 @@ class SiswaController extends Controller
     }
 
     public function detailMapel($id_guru_mapel)
-{
-    $user = Auth::user();
-    $siswa = $user ? $user->siswa : null;
+    {
+        $user = Auth::user();
+        $siswa = $user ? $user->siswa : null;
 
-    $guruMapel = GuruMapel::with(['mapel', 'kelas', 'guru'])->findOrFail($id_guru_mapel);
+        $guruMapel = GuruMapel::with(['mapel', 'kelas', 'guru'])->findOrFail($id_guru_mapel);
 
-    if ($siswa && $guruMapel->id_kelas !== $siswa->id_kelas) {
-        abort(403, 'Anda tidak memiliki akses ke kelas ini.');
+        if ($siswa && $guruMapel->id_kelas !== $siswa->id_kelas) {
+            abort(403, 'Anda tidak memiliki akses ke kelas ini.');
+        }
+
+        $materiList = Materi::where('id_guru_mapel', $id_guru_mapel)
+            ->orderBy('tanggal_upload', 'desc')
+            ->get();
+
+        $tugasList = Tugas::where('id_guru_mapel', $id_guru_mapel)
+            ->orderBy('deadline', 'asc')
+            ->get();
+
+        $today = now()->toDateString();
+        $absensiHariIni = null;
+
+        if ($siswa) {
+            $absensiHariIni = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
+                $q->where('id_guru_mapel', $id_guru_mapel);
+            })
+                ->where('nis', $siswa->nis)
+                ->where('tanggal', $today)
+                ->first();
+        }
+
+        $izinHariIni = null;
+        if ($siswa) {
+            $izinHariIni = PengajuanIzin::where('nis', $siswa->nis)
+                ->where('tanggal_mulai', '<=', $today)
+                ->where('tanggal_selesai', '>=', $today)
+                ->whereIn('status', ['pending', 'disetujui'])
+                ->first();
+        }
+
+        return view('siswa.kelas.detail', compact(
+            'siswa',
+            'guruMapel',
+            'materiList',
+            'tugasList',
+            'absensiHariIni',
+            'izinHariIni'
+        ));
     }
-
-    $materiList = Materi::where('id_guru_mapel', $id_guru_mapel)
-        ->orderBy('tanggal_upload', 'desc')
-        ->get();
-
-    $tugasList = Tugas::where('id_guru_mapel', $id_guru_mapel)
-        ->orderBy('deadline', 'asc')
-        ->get();
-
-    $today = now()->toDateString();
-    $absensiHariIni = null;
-
-    if ($siswa) {
-        $absensiHariIni = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
-            $q->where('id_guru_mapel', $id_guru_mapel);
-        })
-            ->where('nis', $siswa->nis)
-            ->where('tanggal', $today)
-            ->first();
-    }
-
-    $izinHariIni = null;
-    if ($siswa) {
-        $izinHariIni = PengajuanIzin::where('nis', $siswa->nis)
-            ->where('tanggal_mulai', '<=', $today)
-            ->where('tanggal_selesai', '>=', $today)
-            ->whereIn('status', ['pending', 'disetujui'])
-            ->first();
-    }
-
-    return view('siswa.kelas.detail', compact(
-        'siswa', 
-        'guruMapel', 
-        'materiList', 
-        'tugasList', 
-        'absensiHariIni',
-        'izinHariIni' 
-    ));
-}
     public function absenHadir($id_guru_mapel)
     {
         $user = Auth::user();
@@ -303,55 +303,55 @@ class SiswaController extends Controller
     }
 
     public function izinStore(Request $request)
-{
-    $siswa = Auth::user()->siswa;
+    {
+        $siswa = Auth::user()->siswa;
 
-    $request->validate([
-        'jenis_izin' => 'required|in:izin,sakit',
-        'tanggal_mulai' => 'required|date',
-        'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        'alasan' => 'required|string',
-        'bukti_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx',
-    ]);
+        $request->validate([
+            'jenis_izin' => 'required|in:izin,sakit',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'alasan' => 'required|string',
+            'bukti_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx',
+        ]);
 
-    $filePath = null;
-    if ($request->hasFile('bukti_file')) {
-        $file = $request->file('bukti_file');
-        $fileName = time() . $siswa->nis . $file->getClientOriginalName();
-        $filePath = $file->storeAs('bukti_izin', $fileName, 'public');
+        $filePath = null;
+        if ($request->hasFile('bukti_file')) {
+            $file = $request->file('bukti_file');
+            $fileName = time() . $siswa->nis . $file->getClientOriginalName();
+            $filePath = $file->storeAs('bukti_izin', $fileName, 'public');
+        }
+
+        PengajuanIzin::create([
+            'nis' => $siswa->nis,
+            'jenis_izin' => $request->jenis_izin,
+            'tanggal_mulai' => $request->tanggal_mulai,
+            'tanggal_selesai' => $request->tanggal_selesai,
+            'alasan' => $request->alasan,
+            'bukti_file' => $filePath,
+            'status' => 'pending',
+        ]);
+
+        return redirect()->route('siswa.izin.index')
+            ->with('success', 'Pengajuan izin berhasit dikirim.');
     }
 
-    PengajuanIzin::create([
-        'nis' => $siswa->nis,
-        'jenis_izin' => $request->jenis_izin,
-        'tanggal_mulai' => $request->tanggal_mulai,
-        'tanggal_selesai' => $request->tanggal_selesai,
-        'alasan' => $request->alasan,
-        'bukti_file' => $filePath,
-        'status' => 'pending',
-    ]);
+    public function batalkanIzin($id)
+    {
+        $user = Auth::user();
+        $siswa = $user->siswa;
 
-    return redirect()->route('siswa.izin.index')
-        ->with('success', 'Pengajuan izin berhasit dikirim.');
-}
+        $izin = PengajuanIzin::where('id_pengajuan', $id)
+            ->where('nis', $siswa->nis)
+            ->firstOrFail();
 
-public function batalkanIzin($id)
-{
-    $user = Auth::user();
-    $siswa = $user->siswa;
+        if ($izin->status !== 'pending') {
+            return back()->with('error', 'Pengajuan izin sudah diproses dan tidak dapat dibatalkan.');
+        }
 
-    $izin = PengajuanIzin::where('id_pengajuan', $id)
-        ->where('nis', $siswa->nis)
-        ->firstOrFail();
+        $izin->delete();
 
-    if ($izin->status !== 'pending') {
-        return back()->with('error', 'Pengajuan izin sudah diproses dan tidak dapat dibatalkan.');
+        return back()->with('success', 'Pengajuan izin berhasil dibatalkan.');
     }
-
-    $izin->delete();
-
-    return back()->with('success', 'Pengajuan izin berhasil dibatalkan.');
-}
     public function pengumumanIndex()
     {
         $pengumumanList = Pengumuman::orderBy('tanggal_upload', 'desc')->paginate(10);

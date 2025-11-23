@@ -163,9 +163,9 @@
     <div class="topbar-title">
         <h5 class="fw-bold mb-0">kurikulum@smkn1.com</h5>
         @php
-            use Carbon\Carbon;
-            Carbon::setLocale('id');
-            $today = Carbon::now()->translatedFormat('l, d F Y');
+        use Carbon\Carbon;
+        Carbon::setLocale('id');
+        $today = Carbon::now()->translatedFormat('l, d F Y');
         @endphp
         <p class="text-muted small mb-0">{{ $today }}</p>
     </div>

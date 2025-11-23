@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 abstract class Controller
 {
-    public function loginForm(){
+    public function loginForm()
+    {
         return view('auth.login');
     }
 }

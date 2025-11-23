@@ -40,8 +40,8 @@
         <i class="bi bi-hourglass-split"></i>
         <strong>Pengajuan izin Anda sedang menunggu persetujuan wali kelas</strong>
         <br>
-        <small>Jenis: {{ ucfirst($izinHariIni->jenis_izin) }} | 
-        Periode: {{ $izinHariIni->tanggal_mulai->format('d M') }} - {{ $izinHariIni->tanggal_selesai->format('d M Y') }}</small>
+        <small>Jenis: {{ ucfirst($izinHariIni->jenis_izin) }} |
+            Periode: {{ $izinHariIni->tanggal_mulai->format('d M') }} - {{ $izinHariIni->tanggal_selesai->format('d M Y') }}</small>
     </div>
 
     @elseif($absensiHariIni->status === 'alfa' && $absensiHariIni->keterangan === null && !$izinHariIni)
@@ -71,24 +71,24 @@
 
     @endif
 
-@elseif($izinHariIni && $izinHariIni->status === 'pending')
-<div class="alert alert-warning">
-    <i class="bi bi-hourglass-split"></i>
-    <strong>Pengajuan izin Anda sedang menunggu persetujuan wali kelas</strong>
-    <br>
-    <small>Jenis: {{ ucfirst($izinHariIni->jenis_izin) }} | 
-    Periode: {{ $izinHariIni->tanggal_mulai->format('d M') }} - {{ $izinHariIni->tanggal_selesai->format('d M Y') }}</small>
-</div>
+    @elseif($izinHariIni && $izinHariIni->status === 'pending')
+    <div class="alert alert-warning">
+        <i class="bi bi-hourglass-split"></i>
+        <strong>Pengajuan izin Anda sedang menunggu persetujuan wali kelas</strong>
+        <br>
+        <small>Jenis: {{ ucfirst($izinHariIni->jenis_izin) }} |
+            Periode: {{ $izinHariIni->tanggal_mulai->format('d M') }} - {{ $izinHariIni->tanggal_selesai->format('d M Y') }}</small>
+    </div>
 
-@elseif($izinHariIni && $izinHariIni->status === 'disetujui')
-<div class="alert alert-success">
-    <i class="bi bi-check-circle"></i>
-    <strong>Izin Anda telah disetujui wali kelas</strong>
-    <br>
-    <small>Anda akan tercatat {{ $izinHariIni->jenis_izin }} ketika guru membuka sesi absensi</small>
-</div>
+    @elseif($izinHariIni && $izinHariIni->status === 'disetujui')
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i>
+        <strong>Izin Anda telah disetujui wali kelas</strong>
+        <br>
+        <small>Anda akan tercatat {{ $izinHariIni->jenis_izin }} ketika guru membuka sesi absensi</small>
+    </div>
 
-@endif
+    @endif
 
 
     <div class="row mb-3">
@@ -238,11 +238,11 @@
                 <div class="card-header text-white" style="background-color: #256343;">
                     <h5 class="mb-0">Rekap Absensi Bulanan</h5>
                 </div>
-        
+
                 <div class="card-body">
                     <form method="GET" class="row g-2 mb-4">
                         <input type="hidden" name="tab" value="absensi">
-        
+
                         <div class="col-md-3">
                             <label class="form-label">Bulan</label>
                             <select name="bulan" class="form-control">
@@ -250,10 +250,10 @@
                                     <option value="{{ $i }}" {{ request('bulan', now()->month) == $i ? 'selected' : '' }}>
                                     {{ DateTime::createFromFormat('!m', $i)->format('F') }}
                                     </option>
-                                @endfor
+                                    @endfor
                             </select>
                         </div>
-        
+
                         <div class="col-md-3">
                             <label class="form-label">Tahun</label>
                             <select name="tahun" class="form-control">
@@ -261,39 +261,39 @@
                                     <option value="{{ $y }}" {{ request('tahun', now()->year) == $y ? 'selected' : '' }}>
                                         {{ $y }}
                                     </option>
-                                @endfor
+                                    @endfor
                             </select>
                         </div>
-        
+
                         <div class="col-md-3 d-flex align-items-end">
                             <button class="btn text-white" style="background-color: #256343;">
                                 <i class="bi bi-filter"></i> Filter
                             </button>
                         </div>
                     </form>
-        
+
                     @php
                     $bulan = request('bulan', now()->month);
                     $tahun = request('tahun', now()->year);
 
                     $absensiMapel = \App\Models\Absensi::where('nis', $siswa->nis)
-                        ->whereMonth('tanggal', $bulan)
-                        ->whereYear('tanggal', $tahun)
-                        ->whereHas('jadwal', function($q) use ($guruMapel) {
-                            $q->where('id_guru_mapel', $guruMapel->id_guru_mapel);
-                        })
-                        ->orderBy('tanggal')
-                        ->get();
-        
+                    ->whereMonth('tanggal', $bulan)
+                    ->whereYear('tanggal', $tahun)
+                    ->whereHas('jadwal', function($q) use ($guruMapel) {
+                    $q->where('id_guru_mapel', $guruMapel->id_guru_mapel);
+                    })
+                    ->orderBy('tanggal')
+                    ->get();
+
                     $rekap = [
-                        'pertemuan' => $absensiMapel->count(),
-                        'hadir' => $absensiMapel->where('status', 'hadir')->count(),
-                        'izin' => $absensiMapel->where('status', 'izin')->count(),
-                        'sakit' => $absensiMapel->where('status', 'sakit')->count(),
-                        'alfa' => $absensiMapel->where('status', 'alfa')->count(),
+                    'pertemuan' => $absensiMapel->count(),
+                    'hadir' => $absensiMapel->where('status', 'hadir')->count(),
+                    'izin' => $absensiMapel->where('status', 'izin')->count(),
+                    'sakit' => $absensiMapel->where('status', 'sakit')->count(),
+                    'alfa' => $absensiMapel->where('status', 'alfa')->count(),
                     ];
                     @endphp
-        
+
                     <div class="row text-center mb-4">
                         <div class="col-md-3">
                             <h6>Pertemuan</h6>
@@ -316,14 +316,14 @@
                             <h4 class="text-danger">{{ $rekap['alfa'] }}</h4>
                         </div>
                     </div>
-        
+
                     <div class="text-center mb-4">
                         <h6>Persentase Kehadiran</h6>
                         <h3 style="color:#256343;">
                             {{ $rekap['pertemuan'] > 0 ? number_format(($rekap['hadir'] / $rekap['pertemuan']) * 100, 1) : 0 }}%
                         </h3>
                     </div>
-        
+
                     <table class="table table-bordered">
                         <thead>
                             <tr>

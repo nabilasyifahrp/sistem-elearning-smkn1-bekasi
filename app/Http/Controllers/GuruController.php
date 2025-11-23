@@ -91,7 +91,6 @@ class GuruController extends Controller
 
         $request->validate([
             'judul_tugas' => 'required|max:150',
-            'deskripsi'   => 'nullable',
             'deadline'    => 'required|date',
             'file_tugas'  => 'nullable|mimes:pdf,doc,docx,jpg,png,zip|max:2048'
         ]);
@@ -256,7 +255,6 @@ class GuruController extends Controller
 
         $request->validate([
             'judul_materi' => 'required|max:150',
-            'deskripsi'    => 'nullable',
             'file_materi'  => 'nullable|mimes:pdf,doc,docx,ppt,pptx,zip,jpg,png|max:20480',
         ]);
 
@@ -296,7 +294,6 @@ class GuruController extends Controller
 
         $request->validate([
             'judul_materi' => 'required|max:150',
-            'deskripsi'    => 'nullable',
             'file_materi'  => 'nullable|mimes:pdf,doc,docx,ppt,pptx,zip,jpg,png|max:4096',
         ]);
 
@@ -384,41 +381,37 @@ class GuruController extends Controller
     }
 
     public function izinSetujui($id)
-{
-    $izin = PengajuanIzin::findOrFail($id);
-    
-    // ✅ SET STATUS JADI DISETUJUI
-    $izin->status = 'disetujui';
-    $izin->save();
+    {
+        $izin = PengajuanIzin::findOrFail($id);
 
-    // ✅ UPDATE SEMUA ABSENSI YANG ADA DI RENTANG TANGGAL IZIN
-    $startDate = $izin->tanggal_mulai;
-    $endDate = $izin->tanggal_selesai;
-    
-    // Ambil semua jadwal mapel untuk kelas siswa ini
-    $siswa = Siswa::where('nis', $izin->nis)->first();
-    
-    if ($siswa) {
-        $jadwalIds = JadwalMapel::whereHas('guruMapel', function($q) use ($siswa) {
-            $q->where('id_kelas', $siswa->id_kelas);
-        })->pluck('id_jadwal');
-        
-        // Update semua absensi yang masih pending (alfa tanpa keterangan)
-        Absensi::where('nis', $izin->nis)
-            ->whereIn('id_jadwal', $jadwalIds)
-            ->whereBetween('tanggal', [$startDate, $endDate])
-            ->where('status', 'alfa')
-            ->whereNull('keterangan')
-            ->update([
-                'id_pengajuan' => $izin->id_pengajuan,
-                'status' => $izin->jenis_izin === 'sakit' ? 'sakit' : 'izin',
-                'keterangan' => 'Izin disetujui wali kelas: ' . $izin->alasan,
-            ]);
+        $izin->status = 'disetujui';
+        $izin->save();
+
+        $startDate = $izin->tanggal_mulai;
+        $endDate = $izin->tanggal_selesai;
+
+        $siswa = Siswa::where('nis', $izin->nis)->first();
+
+        if ($siswa) {
+            $jadwalIds = JadwalMapel::whereHas('guruMapel', function ($q) use ($siswa) {
+                $q->where('id_kelas', $siswa->id_kelas);
+            })->pluck('id_jadwal');
+
+            Absensi::where('nis', $izin->nis)
+                ->whereIn('id_jadwal', $jadwalIds)
+                ->whereBetween('tanggal', [$startDate, $endDate])
+                ->where('status', 'alfa')
+                ->whereNull('keterangan')
+                ->update([
+                    'id_pengajuan' => $izin->id_pengajuan,
+                    'status' => $izin->jenis_izin === 'sakit' ? 'sakit' : 'izin',
+                    'keterangan' => 'Izin disetujui wali kelas: ' . $izin->alasan,
+                ]);
+        }
+
+        return redirect()->route('guru.izin.index')
+            ->with('success', 'Pengajuan izin berhasil disetujui dan absensi telah diperbarui!');
     }
-
-    return redirect()->route('guru.izin.index')
-        ->with('success', 'Pengajuan izin berhasil disetujui dan absensi telah diperbarui!');
-}
 
     public function izinTolak($id)
     {
@@ -430,51 +423,49 @@ class GuruController extends Controller
     }
 
     public function absensiKelas($id_guru_mapel)
-{
-    $user = Auth::user();
-    $guru = $user ? $user->guru : null;
+    {
+        $user = Auth::user();
+        $guru = $user ? $user->guru : null;
 
-    $guruMapel = GuruMapel::with(['mapel', 'kelas.siswa'])
-        ->findOrFail($id_guru_mapel);
+        $guruMapel = GuruMapel::with(['mapel', 'kelas.siswa'])
+            ->findOrFail($id_guru_mapel);
 
-    $today = now()->toDateString();
+        $today = now()->toDateString();
 
-    $absensiHariIni = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
-        $q->where('id_guru_mapel', $id_guru_mapel);
-    })
-        ->where('tanggal', $today)
-        ->get()
-        ->keyBy('nis');
+        $absensiHariIni = Absensi::whereHas('jadwal', function ($q) use ($id_guru_mapel) {
+            $q->where('id_guru_mapel', $id_guru_mapel);
+        })
+            ->where('tanggal', $today)
+            ->get()
+            ->keyBy('nis');
 
-    $belumAbsen = $absensiHariIni
-        ->filter(fn($a) => $a->status === 'alfa' && $a->keterangan === null)
-        ->count();
+        $belumAbsen = $absensiHariIni
+            ->filter(fn($a) => $a->status === 'alfa' && $a->keterangan === null)
+            ->count();
 
-    // ✅ AMBIL IZIN YANG SUDAH DISETUJUI
-    $siswaIzinDisetujui = PengajuanIzin::where('status', 'disetujui')
-        ->where('tanggal_mulai', '<=', $today)
-        ->where('tanggal_selesai', '>=', $today)
-        ->whereIn('nis', $guruMapel->kelas->siswa->pluck('nis'))
-        ->get()
-        ->keyBy('nis');
+        $siswaIzinDisetujui = PengajuanIzin::where('status', 'disetujui')
+            ->where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->whereIn('nis', $guruMapel->kelas->siswa->pluck('nis'))
+            ->get()
+            ->keyBy('nis');
 
-    // ✅ AMBIL IZIN YANG MASIH PENDING (untuk info saja)
-    $siswaIzinPending = PengajuanIzin::where('status', 'pending')
-        ->where('tanggal_mulai', '<=', $today)
-        ->where('tanggal_selesai', '>=', $today)
-        ->whereIn('nis', $guruMapel->kelas->siswa->pluck('nis'))
-        ->get()
-        ->keyBy('nis');
+        $siswaIzinPending = PengajuanIzin::where('status', 'pending')
+            ->where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->whereIn('nis', $guruMapel->kelas->siswa->pluck('nis'))
+            ->get()
+            ->keyBy('nis');
 
-    return view('guru.absensi.kelas', compact(
-        'guru',
-        'guruMapel',
-        'absensiHariIni',
-        'siswaIzinDisetujui',
-        'siswaIzinPending',
-        'belumAbsen'
-    ));
-}
+        return view('guru.absensi.kelas', compact(
+            'guru',
+            'guruMapel',
+            'absensiHariIni',
+            'siswaIzinDisetujui',
+            'siswaIzinPending',
+            'belumAbsen'
+        ));
+    }
 
     public function bukaSesiAbsensi(Request $request, $id_guru_mapel)
     {

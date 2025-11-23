@@ -23,7 +23,6 @@
     </div>
     @endif
 
-
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-body p-4">
 
@@ -41,7 +40,7 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Deskripsi</label>
-                    <textarea name="deskripsi" class="form-control rounded-3" rows="4">{{ old('deskripsi', $tugas->deskripsi) }}</textarea>
+                    <textarea name="deskripsi" class="form-control rounded-3" rows="4" required>{{ old('deskripsi', $tugas->deskripsi) }}</textarea>
                 </div>
 
                 <div class="mb-3">

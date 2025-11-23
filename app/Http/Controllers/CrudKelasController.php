@@ -59,9 +59,9 @@ class CrudKelasController extends Controller
                 'regex:/^\d{4}\/\d{4}$/',
                 Rule::unique('kelas')->where(function ($query) use ($request) {
                     return $query->where('tingkat', $request->tingkat)
-                                 ->where('jurusan', $request->jurusan)
-                                 ->where('kelas', $request->kelas)
-                                 ->where('tahun_ajaran', $request->tahun_ajaran);
+                        ->where('jurusan', $request->jurusan)
+                        ->where('kelas', $request->kelas)
+                        ->where('tahun_ajaran', $request->tahun_ajaran);
                 })
             ],
         ], [
@@ -100,9 +100,9 @@ class CrudKelasController extends Controller
                 'regex:/^\d{4}\/\d{4}$/',
                 Rule::unique('kelas')->where(function ($query) use ($request) {
                     return $query->where('tingkat', $request->tingkat)
-                                 ->where('jurusan', $request->jurusan)
-                                 ->where('kelas', $request->kelas)
-                                 ->where('tahun_ajaran', $request->tahun_ajaran);
+                        ->where('jurusan', $request->jurusan)
+                        ->where('kelas', $request->kelas)
+                        ->where('tahun_ajaran', $request->tahun_ajaran);
                 })->ignore($kelas->id_kelas, 'id_kelas')
             ],
         ], [

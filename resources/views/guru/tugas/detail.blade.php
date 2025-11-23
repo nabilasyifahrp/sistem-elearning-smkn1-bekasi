@@ -3,8 +3,8 @@
 @section('content')
 <div class="container-fluid py-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
+    <div class="row mb-4">
+        <div class="col-md-6">
             <h3 class="fw-bold mb-1" style="color:#256343;">Detail Tugas</h3>
 
             <p class="text-muted mb-0">
@@ -15,18 +15,20 @@
             </p>
         </div>
 
-        <a href="{{ route('guru.kelas.detail', $tugas->id_guru_mapel) }}"
-            class="btn btn-success px-3"
-            style="background:#256343; border:none;">
-            Kembali
-        </a>
+        <div class="col-md-6 text-end">
+            <a href="{{ route('guru.kelas.detail', $tugas->id_guru_mapel) }}"
+                class="btn btn-outline-green">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-sm border-0 rounded-4 mb-4">
-
         <div class="card-header py-3 text-white rounded-top-4"
             style="background:#256343;">
-            <h5 class="mb-0 fw-semibold">Informasi Tugas</h5>
+            <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-info-circle me-2"></i> Informasi Tugas
+            </h5>
         </div>
 
         <div class="card-body pt-4">
@@ -58,13 +60,15 @@
     <div class="card shadow-sm border-0 rounded-4">
 
         <div class="card-header py-3 text-white rounded-top-4" style="background:#256343;">
-            <h5 class="mb-0 fw-semibold">Daftar Pengumpulan</h5>
+            <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-box-arrow-down me-2"></i> Daftar Pengumpulan
+            </h5>
         </div>
 
         <div class="card-body">
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle text-center">
                     <thead style="background:#f5f5f5;">
                         <tr>
                             <th>No</th>
@@ -105,9 +109,8 @@
                                     'id_tugas' => $tugas->id_tugas,
                                     'id_pengumpulan' => $item->id_pengumpulan,
                                 ]) }}"
-                                    class="btn btn-sm btn-outline-success px-3 rounded-3"
-                                    style="border-color:#256343; color:#256343;">
-                                    Buka
+                                    class="btn btn-sm btn-outline-green px-3 rounded-3">
+                                    <i class="bi bi-folder2-open"></i>
                                 </a>
                             </td>
                         </tr>
@@ -127,4 +130,29 @@
     </div>
 
 </div>
+
+<style>
+    .btn-green {
+        background: #256343 !important;
+        border: none !important;
+        color: white !important;
+        border-radius: 10px !important;
+        padding: 8px 18px !important;
+    }
+
+    .btn-green:hover {
+        background: #1d4e37 !important;
+    }
+
+    .btn-outline-green {
+        border: 2px solid #256343 !important;
+        color: #256343 !important;
+        border-radius: 10px !important;
+    }
+
+    .btn-outline-green:hover {
+        background: #256343 !important;
+        color: white !important;
+    }
+</style>
 @endsection

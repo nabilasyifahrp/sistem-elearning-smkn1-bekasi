@@ -132,8 +132,6 @@ class CrudGuruController extends Controller
     }
 
 
-
-
     public function destroy($id)
     {
         $guru = Guru::with('user')->findOrFail($id);
