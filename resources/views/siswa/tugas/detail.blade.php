@@ -173,37 +173,39 @@
             <form action="{{ route('siswa.tugas.kumpul', $tugas->id_tugas) }}"
                 method="POST"
                 enctype="multipart/form-data">
-
+            
                 @csrf
-
+            
                 <div class="mb-3">
                     <label class="form-label fw-bold">Jawaban Tugas</label>
                     <textarea name="jawaban"
                         class="form-control @error('jawaban') is-invalid @enderror"
                         rows="6"
-                        placeholder="Tulis jawaban Anda di sini...">{{ old('jawaban') }}</textarea>
+                        placeholder="Tulis jawaban Anda di sini... (Opsional jika ada file)">{{ old('jawaban') }}</textarea>
                     @error('jawaban')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                    <small class="text-muted">
+                        💡 Anda bisa mengisi jawaban teks, atau upload file, atau keduanya
+                    </small>
                 </div>
-
+            
                 <div class="mb-3">
-                    <label class="form-label fw-bold">File Tugas (Opsional)</label>
+                    <label class="form-label fw-bold">File Tugas</label>
                     <input type="file"
                         name="file_tugas"
                         class="form-control @error('file_tugas') is-invalid @enderror"
                         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip,.rar,.ppt,.pptx,.xls,.xlsx">
-
+            
                     @error('file_tugas')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-
+            
                     <small class="text-muted">
                         Format: PDF, DOC, DOCX, JPG, PNG, ZIP, RAR, PPT, PPTX, XLS, XLSX
-                        <br><span class="text-danger">*Tidak ada batas ukuran file*</span>
                     </small>
                 </div>
-
+            
                 @if(now() > $tugas->deadline)
                 <div class="alert alert-warning">
                     <i class="bi bi-exclamation-triangle"></i>
@@ -211,11 +213,11 @@
                     Tugas akan ditandai sebagai <strong>"Terlambat"</strong>.
                 </div>
                 @endif
-
+            
                 <button type="submit" class="btn text-white" style="background-color:#256343;">
                     <i class="bi bi-send"></i> Kumpulkan Tugas
                 </button>
-
+            
                 <a href="{{ route('siswa.tugas.index') }}" class="btn btn-secondary">
                     Batal
                 </a>

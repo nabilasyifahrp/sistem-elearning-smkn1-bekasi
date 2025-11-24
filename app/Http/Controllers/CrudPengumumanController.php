@@ -30,7 +30,11 @@ class CrudPengumumanController extends Controller
             'isi' => 'required',
             'file_path' => 'nullable|file|max:2048',
             'tanggal_upload' => 'required|date'
+        ], [
+            'file_path.max' => 'Ukuran lampiran terlalu besar. Maksimal 2MB.',
+            'file_path.file' => 'Lampiran harus berupa file yang valid.'
         ]);
+
 
         $filePath = $request->hasFile('file_path')
             ? $request->file('file_path')->store('pengumuman_files', 'public')
@@ -70,7 +74,11 @@ class CrudPengumumanController extends Controller
             'isi' => 'required',
             'file_path' => 'nullable|file|max:2048',
             'tanggal_upload' => 'required|date'
+        ], [
+            'file_path.max' => 'Ukuran lampiran terlalu besar. Maksimal 2MB.',
+            'file_path.file' => 'Lampiran harus berupa file yang valid.'
         ]);
+
 
         $filePath = $pengumuman->file_path;
         if ($request->hasFile('file_path')) {
