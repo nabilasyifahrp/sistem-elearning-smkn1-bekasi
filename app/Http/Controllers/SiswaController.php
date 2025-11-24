@@ -169,74 +169,54 @@ class SiswaController extends Controller
     }
 
     public function tugasKumpul(Request $request, $id_tugas)
-    {
-        $user = Auth::user();
-        $siswa = $user->siswa;
+{
+    $user = Auth::user();
+    $siswa = $user->siswa;
+    
+    $request->validate([
+        'jawaban' => 'nullable|string',
+        'file_tugas' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,zip,rar,ppt,pptx,xls,xlsx',
+    ]);
 
-        $request->validate([
-            'jawaban' => 'nullable|string',
-            'file_tugas' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,zip,rar,ppt,pptx,xls,xlsx',
-        ]);
-
-        if (!$request->jawaban && !$request->hasFile('file_tugas')) {
-            return redirect()->back()->with('error', 'Isi jawaban atau unggah file.');
-        }
-        $request->validate([
-            'jawaban' => 'nullable|string',
-            'file_tugas' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,zip,rar,ppt,pptx,xls,xlsx',
-        ]);
-
-        if (!$request->jawaban && !$request->hasFile('file_tugas')) {
-            return redirect()->back()->with('error', 'Isi jawaban atau unggah file.');
-        }
-
-        $tugas = Tugas::findOrFail($id_tugas);
-
-        if ($tugas->guruMapel->id_kelas !== $siswa->id_kelas) {
-            abort(403);
-            abort(403);
-        }
-
-        $existing = PengumpulanTugas::where('id_tugas', $id_tugas)
-            ->where('nis', $siswa->nis)
-            ->first();
-
-        if ($existing) {
-            return back()->with('error', 'Anda sudah mengumpulkan tugas ini');
-            return back()->with('error', 'Anda sudah mengumpulkan tugas ini');
-        }
-
-        $filePath = null;
-        if ($request->hasFile('file_tugas')) {
-            $file = $request->file('file_tugas');
-            $fileName = time() . $siswa->nis . $file->getClientOriginalName();
-            $filePath = $file->storeAs('pengumpulan_tugas', $fileName, 'public');
-            $file = $request->file('file_tugas');
-            $fileName = time() . $siswa->nis . $file->getClientOriginalName();
-            $filePath = $file->storeAs('pengumpulan_tugas', $fileName, 'public');
-        }
-
-        $status = now() > $tugas->deadline ? 'Terlambat' : 'Sudah Dikumpulkan';
-
-        PengumpulanTugas::create([
-            'id_tugas' => $id_tugas,
-            'nis' => $siswa->nis,
-            'isi_tugas' => $request->jawaban,
-            'jawaban' => $request->jawaban,
-            'isi_tugas' => $request->jawaban,
-            'jawaban' => $request->jawaban,
-            'file_path' => $filePath,
-            'file_pengumpulan' => $filePath,
-            'file_pengumpulan' => $filePath,
-            'status' => $status,
-            'waktu_pengumpulan' => now(),
-            'waktu_pengumpulan' => now(),
-            'tanggal_pengumpulan' => now()
-        ]);
-
-        return redirect()->route('siswa.tugas.detail', $id_tugas)
-            ->with('success', 'Tugas berhasil dikumpulkan!');
+    
+    if (!$request->jawaban && !$request->hasFile('file_tugas')) {
+        return redirect()->back()->with('error', 'Isi jawaban atau unggah file.');
     }
+
+    $tugas = Tugas::findOrFail($id_tugas);
+
+    if ($tugas->guruMapel->id_kelas !== $siswa->id_kelas) {
+        abort(403);
+    }
+
+    if (PengumpulanTugas::where('id_tugas', $id_tugas)->where('nis', $siswa->nis)->exists()) {
+        return back()->with('error', 'Anda sudah mengumpulkan tugas ini');
+    }
+
+    $filePath = null;
+    if ($request->hasFile('file_tugas')) {
+        $file = $request->file('file_tugas');
+        $fileName = time() . '_' . $siswa->nis . '_' . $file->getClientOriginalName();
+        $filePath = $file->storeAs('pengumpulan_tugas', $fileName, 'public');
+    }
+
+    $status = now() > $tugas->deadline ? 'Terlambat' : 'Sudah Dikumpulkan';
+    
+    
+    $isiTugas = $request->jawaban ?? '-';
+    
+    PengumpulanTugas::create([
+        'id_tugas' => $id_tugas,
+        'nis' => $siswa->nis,
+        'isi_tugas' => $isiTugas,  
+        'file_path' => $filePath,
+        'status' => $status,
+        'tanggal_pengumpulan' => now()
+    ]);
+
+    return redirect()->route('siswa.tugas.detail', $id_tugas)
+        ->with('success', 'Tugas berhasil dikumpulkan!');
+}
 
     public function tugasBatalkan($id_tugas)
     {
